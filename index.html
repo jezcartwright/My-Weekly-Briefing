@@ -487,8 +487,8 @@ function tv(){
   document.getElementById('vt').style.display=isLib?'none':'flex';
   document.getElementById('vl').style.display=isLib?'flex':'none';
   document.getElementById('nbtn').classList.toggle('on',isLib);
-  document.getElementById('ni').textContent=isLib?'&#9672;':'&#9643;';
-  document.getElementById('nl').textContent=isLib?'Today':'Library';
+  document.getElementById('ni').innerHTML=isLib?'&#9672;':'&#9643;';
+  document.getElementById('nl').innerHTML=isLib?'Today':'Library';
   if(isLib){rlf();rl();}
 }
 document.getElementById('de').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
