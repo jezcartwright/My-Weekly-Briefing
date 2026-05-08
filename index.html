@@ -230,7 +230,7 @@ function gh(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch(e){ret
 function sh(h){try{localStorage.setItem(SK,JSON.stringify(h))}catch(e){}}
 function getLikes(){try{return JSON.parse(localStorage.getItem(SK+'_likes')||'[]')}catch(e){return[]}}
 function saveLikes(l){try{localStorage.setItem(SK+'_likes',JSON.stringify(l))}catch(e){}}
-function tk(){return new Date().toISOString().slice(0,10)}
+function tk(){return getMondayDate();}
 
 // ── Like logic ──
 function getLikeId(catId, topicTitle){return catId+'|'+topicTitle;}
@@ -273,11 +273,26 @@ function rv(id){
 }
 
 // ── Topic rotation ──
+function getWeekNumber(){
+  var d=new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+4-(d.getDay()||7));
+  var yearStart=new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+function getMondayDate(){
+  var d=new Date();
+  var day=d.getDay();
+  var diff=d.getDate()-(day===0?6:day-1);
+  var monday=new Date(d);
+  monday.setDate(diff);
+  return monday.toISOString().slice(0,10);
+}
 function gt(id){
   var sets=D[id];
   if(!sets)return[];
-  var d=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/86400000);
-  return sets[d%sets.length];
+  var w=getWeekNumber();
+  return sets[w%sets.length];
 }
 
 // ── Build body HTML ──
@@ -327,7 +342,7 @@ function rto(){
   document.getElementById('ts').innerHTML=
     '<div class="ci"><span class="ico" style="color:'+ac.color+'">'+ac.icon+'</span>'+
     '<div><div class="cn" style="color:'+ac.color+'">'+ac.label+'</div>'+
-    '<div class="cd">Four high-signal topics to keep you sharp today</div></div></div>'+
+    '<div class="cd">Four high-signal topics for this week — new set every Monday</div></div></div>'+
     '<div class="tl">'+tops.map(function(t,i){
       var isOpen=oc===i;
       var liked=isLiked(ac.id,t.title);
@@ -401,7 +416,7 @@ function rl(){
     var entries=bd[date];
     var isToday=date===tk();
     var disp=new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-    return '<div class="dg"><div class="dl">'+(isToday?'Today — '+disp:disp)+'</div>'+
+    return '<div class="dg"><div class="dl">'+(isToday?'This Week — '+disp:('Week of '+disp))+'</div>'+
       entries.map(function(entry){
         return entry.topics.map(function(t,ti){
           var uid=date+'_'+entry.catId+'_'+t.title;
