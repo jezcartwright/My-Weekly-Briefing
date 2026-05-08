@@ -197,24 +197,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 </style>
-<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAD10lEQVR42u3dW27bMBQE0JjoWtM1ZbXuRwGjaIJEb925PPNdNCJ9OKQER3k8399EvswwBQKHwCFwCBwCh8AhcAgc0j2/Fv2rj2fP0f9+GPtuHK//qOtMzZMl62EdDkpmMrEVx38/DJGmLPbhUCR9TRyEg5KOJo7GQUkjE6fhoCTfxPk4HF2TWVyFQ5GkmbgcByU5Ju7DQUl5EwVwUFLVRCUclNRjUQ/HtDc4xUzUxjFJkVQ1kYCjq5LyJqJw9FCSYyITR6KSQBOvhH+HtPjUJ8t48wVjgUPgEDgEDoFD4BA4BA6BQ+AQgUPgEDgEDoFD4BA46mfh17TCv80Fh8AhcAgcAofAIXAIHCJwLMrm52DhrwUIx7F59id+7qk5BA6BQ+AQOAQOgSMwG+5jp7z11RwnJ/k52DDvojkEDoFD4KhxqzLrDYvmkH44gm5VYu+qNIfAIXCce6ic7EyqOaQZjrgjXuaZVHMIHALH6cfJmc6kmkM64Qh94Bh42ZpD4DjwrDDNsUNzSBsc0d8bTbv4OZrj8I1gjp3FtiJwSHMcpfbsbTtL1LFjgubwEh84BI78TsrZWXJwbJtTe4rmEDjq1UbrZgrB0extCyHDsa3IhDguK/y+O0sCjpZv8EkYlG1FecyGw+ONKXA0fitc+aF1bI5baqNjVzlzKI9QHBvm7sYV3K48NIck4siqjc0XUHhn0RwyA44iW36jk0dVHFO99L7qYLs0R6n12qU8hpVkyK2bo+BKbVEewxoy8L7NUXaN5peH5xySgmNttRZfnWsvr9jOktwcEb2dvLlUwuGvPRabhNjmCFqRseUxrBjl0as54tZiZnmMvLUS2tKrLrtGeXjOIZVxzFAbmeUx2k6uIcTjWL4+2nzDavlA7i4PZw6piWPC2ogqj0EGH7HbSuPfly8/tJtweFieMF3D2jLASjgWroNJXsCycJh3lMewpPgog2PJCCd8aVPJIQ8yknxcWx6ekOqPCjjURtpt7SDD5lJ+WyGj3lRcguNH6WSsnZBLymOQwUfVbYWMwpNzMo7vdZOx08fJ5THI4KPYtkJGgo/TcHxzxWSELKfH8/1CGVhEze0go0mFnLC5jJuHJIV9HI3jy+sjI3OxDTJa+Ti0PAYZfJx8t/L5grC49xbmiPkfZPSskCP6Y1xxoZJ5RN29rfwrFItqW8y+T2SQ0blC9m0ugww+jt5WXj8Si4gtZtPHNMiYokI29cf65vj7Y7BIrJCVn9ogY6IKWdkfgww+dm8rH08s+mwxyz7Kc74JJi3it+wFDoFD4BA4BA6BQ+AQOAQOgUPkU/4A8+YTborMVtwAAAAASUVORK5CYII=">
-<script>
-(function(){
-  var img = new Image();
-  img.onload = function(){
-    var c = document.createElement('canvas');
-    c.width = 180; c.height = 180;
-    var ctx = c.getContext('2d');
-    ctx.drawImage(img, 0, 0, 180, 180);
-    var link = document.querySelector("link[rel*='apple-touch-icon']") || document.createElement('link');
-    link.type = 'image/png';
-    link.rel = 'apple-touch-icon';
-    link.href = c.toDataURL('image/png');
-    document.head.appendChild(link);
-  };
-  img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAD10lEQVR42u3dW27bMBQE0JjoWtM1ZbXuRwGjaIJEb925PPNdNCJ9OKQER3k8399EvswwBQKHwCFwCBwCh8AhcAgc0j2/Fv2rj2fP0f9+GPtuHK//qOtMzZMl62EdDkpmMrEVx38/DJGmLPbhUCR9TRyEg5KOJo7GQUkjE6fhoCTfxPk4HF2TWVyFQ5GkmbgcByU5Ju7DQUl5EwVwUFLVRCUclNRjUQ/HtDc4xUzUxjFJkVQ1kYCjq5LyJqJw9FCSYyITR6KSQBOvhH+HtPjUJ8t48wVjgUPgEDgEDoFD4BA4BA6BQ+AQgUPgEDgEDoFD4BA46mfh17TCv80Fh8AhcAgcAofAIXAIHCJwLMrm52DhrwUIx7F59id+7qk5BA6BQ+AQOAQOgSMwG+5jp7z11RwnJ/k52DDvojkEDoFD4KhxqzLrDYvmkH44gm5VYu+qNIfAIXCce6ic7EyqOaQZjrgjXuaZVHMIHALH6cfJmc6kmkM64Qh94Bh42ZpD4DjwrDDNsUNzSBsc0d8bTbv4OZrj8I1gjp3FtiJwSHMcpfbsbTtL1LFjgubwEh84BI78TsrZWXJwbJtTe4rmEDjq1UbrZgrB0extCyHDsa3IhDguK/y+O0sCjpZv8EkYlG1FecyGw+ONKXA0fitc+aF1bI5baqNjVzlzKI9QHBvm7sYV3K48NIck4siqjc0XUHhn0RwyA44iW36jk0dVHFO99L7qYLs0R6n12qU8hpVkyK2bo+BKbVEewxoy8L7NUXaN5peH5xySgmNttRZfnWsvr9jOktwcEb2dvLlUwuGvPRabhNjmCFqRseUxrBjl0as54tZiZnmMvLUS2tKrLrtGeXjOIZVxzFAbmeUx2k6uIcTjWL4+2nzDavlA7i4PZw6piWPC2ogqj0EGH7HbSuPfly8/tJtweFieMF3D2jLASjgWroNJXsCycJh3lMewpPgog2PJCCd8aVPJIQ8yknxcWx6ekOqPCjjURtpt7SDD5lJ+WyGj3lRcguNH6WSsnZBLymOQwUfVbYWMwpNzMo7vdZOx08fJ5THI4KPYtkJGgo/TcHxzxWSELKfH8/1CGVhEze0go0mFnLC5jJuHJIV9HI3jy+sjI3OxDTJa+Ti0PAYZfJx8t/L5grC49xbmiPkfZPSskCP6Y1xxoZJ5RN29rfwrFItqW8y+T2SQ0blC9m0ugww+jt5WXj8Si4gtZtPHNMiYokI29cf65vj7Y7BIrJCVn9ogY6IKWdkfgww+dm8rH08s+mwxyz7Kc74JJi3it+wFDoFD4BA4BA6BQ+AQOAQOgUPkU/4A8+YTborMVtwAAAAASUVORK5CYII=';
-})();
-</script>
+
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 </head>
 <body>
 <div id="app">
