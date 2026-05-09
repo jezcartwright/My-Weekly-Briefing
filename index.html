@@ -1115,236 +1115,355 @@ function hexToRgb(hex){
   return [r,g,b];
 }
 
-function buildPDF(entries, filename){
-  var jsPDF = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || null);
-  if(!jsPDF){ alert('PDF library not loaded yet — please try again in a moment.'); return; }
+function generateCurrentPDF(){
+  var btn = document.getElementById('btn-pdf');
+  if(btn){ btn.textContent = 'Opening...'; }
+  setTimeout(function(){
+    try{
+      var binary = atob(CURRENT_PDF_B64);
+      var bytes = new Uint8Array(binary.length);
+      for(var i=0;i<binary.length;i++){ bytes[i]=binary.charCodeAt(i); }
+      var blob = new Blob([bytes],{type:'application/pdf'});
+      var url = URL.createObjectURL(blob);
+      window.open(url,'_blank');
+      setTimeout(function(){URL.revokeObjectURL(url);},60000);
+    }catch(e){alert('Could not open PDF: '+e.message);}
+    if(btn){ btn.textContent = '\u2759 PDF'; btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF'; }
+  },50);
+}
 
-  var doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  var pw=210, ph=297, ml=14, mr=14, mt=12, mb=14, cw=182;
-  var ORANGE=[255,102,0], DARK=[26,26,26], MID=[85,85,85], LIGHT=[170,170,170];
-  var RULE=[232,228,223], OL=[255,244,238], WHITE=[255,255,255];
-  var CAT_C={'Leadership':[255,102,0],'Markets':[42,138,110],'Psychology':[192,57,43],
-    'Technology':[41,128,185],'Geopolitics':[142,68,173],'Philosophy':[39,174,96]};
+function generateLibraryPDF(dateKey){
+  // For library, use the same current PDF (same week's content)
+  // If we have saved history, note that we're showing current week
+  generateCurrentPDF();
+}
 
-  var y=mt, pageNum=1;
+function buildPDF(){
+  // Legacy - redirect to current
+  generateCurrentPDF();
+}
 
-  function sf(style,size,r,g,b){
-    doc.setFont('helvetica',style);
-    doc.setFontSize(size);
-    doc.setTextColor(r,g,b);
+
+// ── State ──
+var ac=CATS[0], oc=null, cv='today', lf='all', kf='all', ol=null, ok=null;
+var libQ='', likedQ='';
+var SK='exec_brief_v3';
+
+// ── Storage ──
+function gh(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch(e){return[]}}
+function sh(h){try{localStorage.setItem(SK,JSON.stringify(h))}catch(e){}}
+function getLikes(){try{return JSON.parse(localStorage.getItem(SK+'_likes')||'[]')}catch(e){return[]}}
+function saveLikes(l){try{localStorage.setItem(SK+'_likes',JSON.stringify(l))}catch(e){}}
+function tk(){return getMondayDate();}
+
+// ── Like logic ──
+function getLikeId(catId, topicTitle){return catId+'|'+topicTitle;}
+function isLiked(catId, topicTitle){
+  var likes=getLikes();
+  var id=getLikeId(catId,topicTitle);
+  return likes.some(function(l){return l.id===id;});
+}
+function toggleLike(catId, topicTitle, e){
+  if(e){e.stopPropagation();}
+  var likes=getLikes();
+  var id=getLikeId(catId,topicTitle);
+  var cat=CATS.find(function(c){return c.id===catId;});
+  var topic=null;
+  var sets=D[catId];
+  if(sets) sets.forEach(function(s){s.forEach(function(t){if(t.title===topicTitle)topic=t;});});
+  if(!topic)return;
+  var idx=likes.findIndex(function(l){return l.id===id;});
+  if(idx>=0){
+    likes.splice(idx,1);
+  } else {
+    likes.push({id:id,catId:catId,catLabel:cat.label,catIcon:cat.icon,catColor:cat.color,likedAt:new Date().toISOString(),topic:topic});
   }
+  saveLikes(likes);
+  // Refresh current view
+  if(cv==='today') rto();
+  else if(cv==='library') rl();
+  else if(cv==='likes') rk();
+}
 
-  function wrap(text,x,cy,maxW,lh,style,size,col,extraCol){
-    sf(style,size,col[0],col[1],col[2]);
-    var lines=doc.splitTextToSize(String(text||''),maxW);
-    lines.forEach(function(line,i){
-      doc.text(line,x,cy+i*lh);
+// ── History save ──
+function rv(id){
+  var cat=CATS.find(function(c){return c.id===id;});
+  var tops=gt(id);
+  if(!tops.length)return;
+  var h=gh(),k=tk();
+  if(h.find(function(e){return e.date===k&&e.catId===id;}))return;
+  h.unshift({date:k,catId:id,catLabel:cat.label,catIcon:cat.icon,catColor:cat.color,topics:tops});
+  sh(h.slice(0,180));
+}
+
+// ── Topic rotation ──
+function getWeekNumber(){
+  var d=new Date();
+  d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+4-(d.getDay()||7));
+  var yearStart=new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+function getMondayDate(){
+  var d=new Date();
+  var day=d.getDay();
+  var diff=d.getDate()-(day===0?6:day-1);
+  var monday=new Date(d);
+  monday.setDate(diff);
+  return monday.toISOString().slice(0,10);
+}
+function gt(id){
+  var sets=D[id];
+  if(!sets)return[];
+  var w=getWeekNumber();
+  return sets[w%sets.length];
+}
+
+// ── Build body HTML ──
+function linkify(text, url){
+  if(url) return '<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>';
+  return text;
+}
+function bh(t, catId, color){
+  var likeId=getLikeId(catId,t.title);
+  var liked=isLiked(catId,t.title);
+  var refHtml='';
+  if(t.ref){
+    refHtml='<div class="ref">📄 '+linkify(t.ref.text, t.ref.url)+'</div>';
+  }
+  var deeperItems=t.deeper.map(function(d){
+    var txt=typeof d==='string'?d:d.text;
+    var url=typeof d==='object'?d.url:null;
+    return '<div class="di"><span class="da" style="color:'+color+'">▸</span><span class="dt">'+linkify(txt,url)+'</span></div>';
+  }).join('');
+  return '<div class="two">'+
+    '<div><div class="lbl">Why It Matters</div><div class="bt">'+t.why+'</div>'+refHtml+'</div>'+
+    '<div><div class="lbl" style="color:'+color+'">Key Insight</div>'+
+    '<div class="it">"'+t.insight+'"<span class="it-attr">— '+t.attribution+'</span></div></div>'+
+    '</div>'+
+    '<div class="db" style="border-left-color:'+color+'">'+
+    '<div class="lbl" style="margin-bottom:9px">Go Deeper →</div>'+
+    deeperItems+'</div>';
+}
+
+// ── Search highlight ──
+function highlight(text, q){
+  if(!q)return text;
+  var re=new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+  return text.replace(re,'<span class="hl-match">$1</span>');
+}
+
+// ── TODAY VIEW ──
+function rt(){
+  document.getElementById('tabs').innerHTML=CATS.map(function(c){
+    return '<button class="tab'+(c.id===ac.id?' on':'')+'" style="border-bottom-color:'+(c.id===ac.id?c.color:'transparent')+'" onclick="sc(\''+c.id+'\')"><span style="color:'+c.color+'">'+c.icon+'</span>'+c.label+'</button>';
+  }).join('');
+}
+function sc(id){ac=CATS.find(function(c){return c.id===id;});oc=null;rt();rto();rv(id);}
+function rto(){
+  var tops=gt(ac.id);
+  var liked=getLikes();
+  document.getElementById('ts').innerHTML=
+    '<div class="ci"><span class="ico" style="color:'+ac.color+'">'+ac.icon+'</span>'+
+    '<div><div class="cn" style="color:'+ac.color+'">'+ac.label+'</div>'+
+    '<div class="cd">Four high-signal topics for this week — new set every Monday</div></div></div>'+
+    '<div class="tl">'+tops.map(function(t,i){
+      var isOpen=oc===i;
+      var liked=isLiked(ac.id,t.title);
+      return '<div class="tc'+(isOpen?' op':'')+'">'+
+        '<div class="th" onclick="tgc('+i+')">'+
+        '<div class="th-left">'+
+        '<span class="tn" style="color:'+ac.color+'">0'+(i+1)+'</span>'+
+        '<div class="tw"><div class="tt">'+t.title+'</div><div class="thl">'+t.headline+'</div></div>'+
+        '</div>'+
+        '<div class="th-right">'+
+        '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ac.id+'\',\''+t.title.replace(/'/g,"\\'")+'\'  ,event)" title="'+(liked?'Unlike':'Like')+'">'+
+        (liked?'♥':'♡')+'</button>'+
+        '<span class="tog" style="color:'+(isOpen?ac.color:'#2a2a2a')+'">+</span>'+
+        '</div></div>'+
+        '<div class="tb">'+bh(t,ac.id,ac.color)+'</div></div>';
+    }).join('')+'</div>'+notesHTML(ac.id,ac.color);
+  document.getElementById('ts').scrollTop=0;
+}
+function tgc(i){oc=oc===i?null:i;rto();}
+
+// ── LIBRARY VIEW ──
+function rlfilt(){
+  var fs=[{id:'all',label:'All'}].concat(CATS.map(function(c){return{id:c.id,label:c.label};}));
+  document.getElementById('lf').innerHTML=fs.map(function(f){
+    return '<button class="lfb'+(lf===f.id?' on':'')+'" onclick="slf(\''+f.id+'\')">'+f.label+'</button>';
+  }).join('');
+}
+function slf(id){lf=id;ol=null;rl();}
+function onLibSearch(){
+  libQ=document.getElementById('lib-search').value.trim();
+  document.getElementById('lib-clear').className='search-clear'+(libQ?' vis':'');
+  ol=null;rl();
+}
+function clearLibSearch(){
+  document.getElementById('lib-search').value='';
+  libQ='';
+  document.getElementById('lib-clear').className='search-clear';
+  ol=null;rl();
+}
+function rl(){
+  rlfilt();
+  var h=gh(),total=h.length;
+  document.getElementById('lce').textContent=total===0?'No entries yet':total+' saved briefing'+(total!==1?'s':'')+' stored on this device';
+  if(lf!=='all')h=h.filter(function(e){return e.catId===lf;});
+  if(libQ){
+    var q=libQ.toLowerCase();
+    h=h.map(function(entry){
+      var matched=entry.topics.filter(function(t){
+        return t.title.toLowerCase().includes(q)||
+          t.headline.toLowerCase().includes(q)||
+          t.why.toLowerCase().includes(q)||
+          t.insight.toLowerCase().includes(q)||
+          (t.ref&&t.ref.text.toLowerCase().includes(q))||
+          t.deeper.some(function(d){return (typeof d==='string'?d:d.text).toLowerCase().includes(q);});
+      });
+      if(!matched.length)return null;
+      return Object.assign({},entry,{topics:matched});
+    }).filter(Boolean);
+  }
+  var sc2=document.getElementById('ls');
+  if(!h.length){
+    sc2.innerHTML='<div class="empty"><span class="empty-icon">◈</span>'+
+      '<div class="empty-title">'+(libQ?'No results for "'+libQ+'"':lf==='all'?'No briefings saved yet':'No entries for this category')+'</div>'+
+      '<div class="empty-sub">'+(libQ?'Try a different search term.':lf==='all'?'Your briefings save automatically each time you open a category.':'Switch to this category in Today view to start saving.')+'</div></div>';
+    return;
+  }
+  var bd={};
+  h.forEach(function(e){if(!bd[e.date])bd[e.date]=[];bd[e.date].push(e);});
+  var dates=Object.keys(bd).sort(function(a,b){return b.localeCompare(a);});
+  sc2.innerHTML=dates.map(function(date){
+    var entries=bd[date];
+    var isToday=date===tk();
+    var disp=new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    return '<div class="dg"><div class="dl" style="display:flex;justify-content:space-between;align-items:center">'+(isToday?'This Week — '+disp:('Week of '+disp))+'<button onclick="generateLibraryPDF(\''+date+'\');event.stopPropagation()" style="background:rgba(255,102,0,0.1);border:1px solid #ff6600;border-radius:3px;padding:2px 8px;font-family:\'Playfair Display\',serif;font-size:10px;font-weight:700;color:#ff6600;cursor:pointer;white-space:nowrap">&#x1F4C4; PDF</button></div>'+
+      entries.map(function(entry){
+        return entry.topics.map(function(t,ti){
+          var uid=date+'_'+entry.catId+'_'+t.title;
+          var isOpen=ol===uid;
+          var liked=isLiked(entry.catId,t.title);
+          var titleDisp=libQ?highlight(t.title,libQ):t.title;
+          var hlDisp=libQ?highlight(t.headline,libQ):t.headline;
+          return '<div class="lc'+(isOpen?' op':'')+'">'+
+            '<div class="lh">'+
+            '<div class="lh-left" onclick="tol(\''+uid+'\')">'+
+            '<div class="lcat"><span class="lci" style="color:'+entry.catColor+'">'+entry.catIcon+'</span>'+
+            '<span class="lcn" style="color:'+entry.catColor+'">'+entry.catLabel+'</span></div>'+
+            '<div class="ltt2">'+titleDisp+'</div>'+
+            '<div class="lhl">'+hlDisp+'</div></div>'+
+            '<div class="lh-right">'+
+            '<button class="lc-like'+(liked?' liked':'')+'" onclick="toggleLike(\''+entry.catId+'\',\''+t.title.replace(/'/g,"\\'")+'\',event)">'+
+            (liked?'♥':'♡')+'</button>'+
+            '<span class="ltog" style="color:'+(isOpen?entry.catColor:'#2a2a2a')+'" onclick="tol(\''+uid+'\')">+</span>'+
+            '</div></div>'+
+            '<div class="lb">'+bh(t,entry.catId,entry.catColor)+'</div></div>';
+        }).join('');
+      }).join('')+'</div>';
+  }).join('');
+  sc2.scrollTop=0;
+}
+function tol(uid){ol=ol===uid?null:uid;rl();}
+
+// ── LIKED VIEW ──
+function rkfilt(){
+  var fs=[{id:'all',label:'All'}].concat(CATS.map(function(c){return{id:c.id,label:c.label};}));
+  document.getElementById('kf').innerHTML=fs.map(function(f){
+    return '<button class="kfb'+(kf===f.id?' on':'')+'" onclick="skf(\''+f.id+'\')">'+f.label+'</button>';
+  }).join('');
+}
+function skf(id){kf=id;ok=null;rk();}
+function onLikedSearch(){
+  likedQ=document.getElementById('liked-search').value.trim();
+  document.getElementById('liked-clear').className='search-clear'+(likedQ?' vis':'');
+  ok=null;rk();
+}
+function clearLikedSearch(){
+  document.getElementById('liked-search').value='';
+  likedQ='';
+  document.getElementById('liked-clear').className='search-clear';
+  ok=null;rk();
+}
+function rk(){
+  rkfilt();
+  var likes=getLikes();
+  document.getElementById('kce').textContent=likes.length===0?'No liked topics yet':likes.length+' liked topic'+(likes.length!==1?'s':'');
+  var filtered=likes.slice();
+  if(kf!=='all') filtered=filtered.filter(function(l){return l.catId===kf;});
+  if(likedQ){
+    var q=likedQ.toLowerCase();
+    filtered=filtered.filter(function(l){
+      var t=l.topic;
+      return t.title.toLowerCase().includes(q)||
+        t.headline.toLowerCase().includes(q)||
+        t.insight.toLowerCase().includes(q)||
+        t.why.toLowerCase().includes(q);
     });
-    return cy+lines.length*lh;
   }
-
-  function newPage(){
-    addFooter();
-    doc.addPage();
-    y=mt;
-    pageNum++;
+  var sc3=document.getElementById('ks');
+  if(!filtered.length){
+    sc3.innerHTML='<div class="empty"><span class="empty-icon">♡</span>'+
+      '<div class="empty-title">'+(likedQ?'No results for "'+likedQ+'"':kf==='all'?'No liked topics yet':'No liked topics in this category')+'</div>'+
+      '<div class="empty-sub">'+(likedQ?'Try a different search term.':kf==='all'?'Tap the ♡ heart on any topic to save it here.':'Like topics in this category to see them here.')+'</div></div>';
+    return;
   }
+  // Sort most recently liked first
+  filtered.sort(function(a,b){return b.likedAt.localeCompare(a.likedAt);});
+  sc3.innerHTML=filtered.map(function(l){
+    var t=l.topic;
+    var uid='liked_'+l.id;
+    var isOpen=ok===uid;
+    var titleDisp=likedQ?highlight(t.title,likedQ):t.title;
+    var hlDisp=likedQ?highlight(t.headline,likedQ):t.headline;
+    return '<div class="lc'+(isOpen?' op':'')+'">'+
+      '<div class="lh">'+
+      '<div class="lh-left" onclick="tok(\''+uid+'\')">'+
+      '<div class="lcat"><span class="lci" style="color:'+l.catColor+'">'+l.catIcon+'</span>'+
+      '<span class="lcn" style="color:'+l.catColor+'">'+l.catLabel+'</span></div>'+
+      '<div class="ltt2">'+titleDisp+'</div>'+
+      '<div class="lhl">'+hlDisp+'</div></div>'+
+      '<div class="lh-right">'+
+      '<button class="lc-like liked" onclick="toggleLike(\''+l.catId+'\',\''+t.title.replace(/'/g,"\\'")+'\',event)">♥</button>'+
+      '<span class="ltog" style="color:'+(isOpen?l.catColor:'#2a2a2a')+'" onclick="tok(\''+uid+'\')">+</span>'+
+      '</div></div>'+
+      '<div class="lb">'+bh(t,l.catId,l.catColor)+'</div></div>';
+  }).join('');
+  sc3.scrollTop=0;
+}
+function tok(uid){ok=ok===uid?null:uid;rk();}
 
-  function addFooter(){
-    sf('normal',7,LIGHT[0],LIGHT[1],LIGHT[2]);
-    doc.text('Performance Intelligence Weekly Briefing  •  jezcartwright.github.io/My-Daily-Briefing',pw/2,ph-5,{align:'center'});
-  }
+// ── View switching ──
+function showView(v){
+  cv=v;
+  document.getElementById('vt').style.display=v==='today'?'flex':'none';
+  document.getElementById('vl').style.display=v==='library'?'flex':'none';
+  document.getElementById('vk').style.display=v==='likes'?'flex':'none';
+  document.getElementById('btn-lib').classList.toggle('on',v==='library');
+  document.getElementById('btn-likes').classList.toggle('on',v==='likes');
+  if(v==='library'){rl();}
+  else if(v==='likes'){rk();}
+  else{rt();}
+}
+// Back to today when clicking active button
+document.getElementById('btn-lib').addEventListener('click',function(){if(cv==='library')showView('today');});
+document.getElementById('btn-likes').addEventListener('click',function(){if(cv==='likes')showView('today');});
 
-  function needSpace(needed){
-    if(y+needed>ph-mb-8){ newPage(); }
-  }
-
-  // ── HEADER ──
-  doc.setFillColor(ORANGE[0],ORANGE[1],ORANGE[2]);
-  doc.rect(ml,mt,cw,20,'F');
-  // PI label
-  sf('bold',8,255,255,255);
-  doc.setCharSpace(2);
-  doc.text('PERFORMANCE INTELLIGENCE',ml+4,mt+7);
-  doc.setCharSpace(0);
-  // Weekly Briefing
-  sf('bold',20,255,255,255);
-  doc.text('Weekly Briefing',ml+4,mt+16);
-  // Date right
-  var today=new Date();
-  var ds=today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  var wn=getWeekNumber();
-  sf('bold',11,255,255,255);
-  doc.text(ds,pw-mr,mt+9,{align:'right'});
-  sf('normal',9,255,255,255);
-  doc.text('Week '+wn,pw-mr,mt+15,{align:'right'});
-
-  y=mt+24;
-  doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
-  doc.setLineWidth(0.3);
-  doc.line(ml,y,pw-mr,y);
-  y+=4;
-
-  // ── CATEGORIES ──
-  var isFirst=true;
-  entries.forEach(function(entry){
-    var cc=CAT_C[entry.catLabel]||ORANGE;
-
-    if(!isFirst){ newPage(); }
-    isFirst=false;
-
-    // Category banner
-    doc.setFillColor(cc[0],cc[1],cc[2]);
-    doc.rect(ml,y,cw,10,'F');
-    sf('bold',10,255,255,255);
-    doc.setCharSpace(1.5);
-    doc.text(entry.catLabel.toUpperCase(),ml+4,y+7);
-    doc.setCharSpace(0);
-    sf('italic',9.5,255,255,255);
-    doc.text('Four high-signal topics for this week',pw-mr-3,y+7,{align:'right'});
-    y+=13;
-
-    // Topics
-    (entry.topics||[]).forEach(function(t,ti){
-      // ── Pre-measure card height ──
-      var titleLines=doc.splitTextToSize(String(t.title||''),cw-14);
-      var hlLines=doc.splitTextToSize(String(t.headline||''),cw-18);
-      var colW=(cw-8)*0.5-2;
-      sf('normal',9.5,MID[0],MID[1],MID[2]);
-      var whyLines=doc.splitTextToSize(String(t.why||''),colW-2);
-      sf('italic',10,DARK[0],DARK[1],DARK[2]);
-      var insQ='"'+(t.insight||'')+'"';
-      var insLines=doc.splitTextToSize(insQ,colW-2);
-      sf('bold',8,cc[0],cc[1],cc[2]);
-      var attrLines=doc.splitTextToSize('— '+(t.attribution||''),colW-2);
-      var deeper=t.deeper||[];
-      var deeperLinesCount=0;
-      deeper.forEach(function(d){
-        var txt=typeof d==='object'?d.text:d;
-        sf('normal',9.5,MID[0],MID[1],MID[2]);
-        deeperLinesCount+=doc.splitTextToSize('▸  '+String(txt||''),cw-16).length;
-      });
-
-      var twoColH=Math.max(whyLines.length,insLines.length+attrLines.length+1)*4.8;
-      var deepH=deeperLinesCount*4.8+9;
-      var cardH=5+titleLines.length*5.5+hlLines.length*4.5+4+3+twoColH+4+deepH+5;
-
-      needSpace(cardH);
-
-      // Card box
-      doc.setFillColor(255,255,255);
-      doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
-      doc.setLineWidth(0.4);
-      doc.rect(ml,y,cw,cardH,'FD');
-
-      var cx=ml+4, cy=y+5;
-
-      // Number badge
-      doc.setFillColor(OL[0],OL[1],OL[2]);
-      doc.circle(cx+2,cy-1.5,3,'F');
-      sf('bold',8,cc[0],cc[1],cc[2]);
-      doc.text('0'+(ti+1),cx+0.5,cy);
-
-      // Title
-      sf('bold',13,DARK[0],DARK[1],DARK[2]);
-      titleLines.forEach(function(line,i){ doc.text(line,cx+8,cy+i*5.5); });
-      cy+=titleLines.length*5.5+1;
-
-      // Headline
-      sf('italic',10,MID[0],MID[1],MID[2]);
-      hlLines=doc.splitTextToSize(String(t.headline||''),cw-14);
-      hlLines.forEach(function(line,i){ doc.text(line,cx+8,cy+i*4.5); });
-      cy+=hlLines.length*4.5+4;
-
-      // Divider
-      doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
-      doc.setLineWidth(0.2);
-      doc.line(cx,cy,ml+cw-4,cy);
-      cy+=3;
-
-      // Two columns
-      var colW2=(cw-12)*0.5;
-      var leftX=cx, rightX=cx+colW2+3;
-
-      // WHY label
-      sf('bold',7,LIGHT[0],LIGHT[1],LIGHT[2]);
-      doc.setCharSpace(1.2); doc.text('WHY IT MATTERS',leftX,cy); doc.setCharSpace(0);
-      // KEY INSIGHT label
-      sf('bold',7,cc[0],cc[1],cc[2]);
-      doc.setCharSpace(1.2); doc.text('KEY INSIGHT',rightX,cy); doc.setCharSpace(0);
-      cy+=3.5;
-
-      // Why text
-      sf('normal',9.5,MID[0],MID[1],MID[2]);
-      var wLines2=doc.splitTextToSize(String(t.why||''),colW2-2);
-      wLines2.forEach(function(line,i){ doc.text(line,leftX,cy+i*4.6); });
-
-      // Ref text below why
-      var refText=t.ref&&typeof t.ref==='object'?t.ref.text:(t.ref||'');
-      sf('italic',7.5,LIGHT[0],LIGHT[1],LIGHT[2]);
-      var rLines=doc.splitTextToSize(String(refText),colW2-2);
-      var refY=cy+wLines2.length*4.6+1;
-      rLines.forEach(function(line,i){ doc.text(line,leftX,refY+i*3.8); });
-
-      // Insight text
-      sf('italic',10,DARK[0],DARK[1],DARK[2]);
-      var iLines2=doc.splitTextToSize('"'+(t.insight||'')+'"',colW2-2);
-      iLines2.forEach(function(line,i){ doc.text(line,rightX,cy+i*4.6); });
-
-      // Attribution
-      var attrY2=cy+iLines2.length*4.6+1.5;
-      sf('bold',8,cc[0],cc[1],cc[2]);
-      var aLines=doc.splitTextToSize('— '+(t.attribution||''),colW2-2);
-      aLines.forEach(function(line,i){ doc.text(line,rightX,attrY2+i*4); });
-
-      var twoColBottom=cy+Math.max(wLines2.length*4.6+rLines.length*3.8+2, iLines2.length*4.6+aLines.length*4+3);
-      cy=twoColBottom+4;
-
-      // GO DEEPER box
-      var deeperItems=t.deeper||[];
-      var deepBulletH=0;
-      deeperItems.forEach(function(d){
-        sf('normal',9.5,MID[0],MID[1],MID[2]);
-        var txt=typeof d==='object'?d.text:d;
-        deepBulletH+=doc.splitTextToSize('▸  '+String(txt),cw-16).length*4.6;
-      });
-      var deepBoxH=deepBulletH+9;
-
-      doc.setFillColor(OL[0],OL[1],OL[2]);
-      doc.rect(cx-1,cy-1,cw-6,deepBoxH,'F');
-      doc.setFillColor(cc[0],cc[1],cc[2]);
-      doc.rect(cx-1,cy-1,2,deepBoxH,'F');
-
-      sf('bold',7,LIGHT[0],LIGHT[1],LIGHT[2]);
-      doc.setCharSpace(1.2); doc.text('GO DEEPER →',cx+3,cy+4); doc.setCharSpace(0);
-      var dy=cy+9;
-      deeperItems.forEach(function(d){
-        var txt=typeof d==='object'?d.text:d;
-        var url=typeof d==='object'?d.url:null;
-        sf('normal',9.5,MID[0],MID[1],MID[2]);
-        var dLines=doc.splitTextToSize('▸  '+String(txt),cw-16);
-        if(url){ doc.setTextColor(41,128,185); }
-        dLines.forEach(function(line,i){ doc.text(line,cx+3,dy+i*4.6); });
-        if(url){
-          try{ doc.link(cx+3,dy-3.5,cw-18,dLines.length*4.6,{url:url}); }catch(e){}
-          doc.setTextColor(MID[0],MID[1],MID[2]);
-        }
-        dy+=dLines.length*4.6;
-      });
-
-      y+=cardH+3;
-    });
-
-    y+=2;
-  });
-
-  addFooter();
-  // Open PDF in new tab instead of downloading
-  var pdfBlob = doc.output('blob');
-  var url = URL.createObjectURL(pdfBlob);
-  window.open(url, '_blank');
-  // Clean up the object URL after a delay
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+// ── Init ──
+(function(){
+  var d=new Date();
+  var isSmall=window.innerWidth<=430;
+  document.getElementById('de').textContent=isSmall
+    ? d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+    : d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+})();
+rt();rto();rv(ac.id);
+// ── PDF Generation ──────────────────────────────────────────────────────
+function hexToRgb(hex){
+  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return [r,g,b];
 }
 
 function generateCurrentPDF(){
