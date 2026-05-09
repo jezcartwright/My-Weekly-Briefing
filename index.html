@@ -196,6 +196,94 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 .hl-match{background:rgba(255,102,0,0.15);border-radius:2px;padding:0 2px}
 
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ── Mobile (iPhone) responsive ── */
+@media(max-width:430px){
+  /* Header - stack logo and text, compact layout */
+  #hdr{padding:calc(var(--st) + 8px) 14px 8px;flex-wrap:nowrap}
+  .hl{gap:8px}
+  .hl-logo{width:44px;height:44px}
+  .hl-text .sub{font-size:11px;letter-spacing:.1em;margin-bottom:4px}
+  .hl-text h1{font-size:20px}
+  .hr{gap:5px;flex-direction:column;align-items:flex-end}
+  .hdate{font-size:12px;line-height:1.3}
+  .hbtn{padding:5px 8px;font-size:10px;gap:3px}
+
+  /* Tabs - smaller text */
+  .tab{padding:9px 10px 8px;font-size:10px;gap:4px}
+
+  /* Scroll area - tighter padding */
+  .sa{padding:14px 12px calc(var(--sb) + 14px)}
+
+  /* Cat intro */
+  .ci{gap:10px;margin-bottom:14px;padding-bottom:12px}
+  .ci .ico{width:34px;height:34px;font-size:16px}
+  .ci .cn{font-size:10px}
+  .ci .cd{font-size:14px}
+
+  /* Topic cards */
+  .tl{gap:10px}
+  .tc{border-radius:6px}
+  .th{padding:13px 13px 11px}
+  .th-left{gap:8px}
+  .tn{width:20px;height:20px;font-size:10px}
+  .tt{font-size:16px}
+  .thl{font-size:13px}
+  .like-btn{font-size:18px}
+  .tog{font-size:20px}
+
+  /* Topic body */
+  .tb{padding:0 13px 14px}
+  .two{grid-template-columns:1fr;gap:12px;margin:12px 0}
+  .lbl{font-size:9px}
+  .bt{font-size:14px}
+  .ref{font-size:11px}
+  .it{font-size:14px;padding-left:10px}
+  .it-attr{font-size:10px}
+  .db{padding:11px 12px}
+  .dt{font-size:13px}
+  .da{font-size:10px}
+
+  /* Notes */
+  .notes-section{margin-top:16px}
+  .notes-title{font-size:15px}
+  .notes-textarea{font-size:14px;min-height:120px;padding:12px 13px}
+  .notes-footer{padding:8px 13px}
+  .notes-clear{font-size:12px}
+  .notes-hint{font-size:11px}
+
+  /* Library / liked */
+  .view-top{padding:12px 14px 9px}
+  .view-title{font-size:18px}
+  .view-sub{font-size:12px}
+  .search-wrap{padding:8px 12px}
+  .search-input{font-size:13px;padding:8px 10px}
+  .lfb,.kfb{padding:8px 11px;font-size:10px}
+  .lc{border-radius:6px;margin-bottom:7px}
+  .lh{padding:12px 12px}
+  .ltt2{font-size:15px}
+  .lhl{font-size:12px}
+  .lcn{font-size:9px}
+  .lb{padding:11px 12px 13px}
+  .lb .bt{font-size:13px}
+  .lb .it{font-size:13px}
+  .lb .dt{font-size:12px}
+  .dl{font-size:10px}
+
+  /* Empty states */
+  .empty{padding:40px 18px}
+  .empty-title{font-size:16px}
+  .empty-sub{font-size:13px}
+}
+
+/* Tiny phones (iPhone SE etc) */
+@media(max-width:375px){
+  .hl-text .sub{font-size:10px}
+  .hl-text h1{font-size:18px}
+  .hl-logo{width:38px;height:38px}
+  .hbtn{display:none}
+  /* Show compact nav instead */
+}
+
 
 /* ── Notes box ── */
 .notes-section{margin-top:20px;background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
@@ -663,7 +751,13 @@ document.getElementById('btn-lib').addEventListener('click',function(){if(cv==='
 document.getElementById('btn-likes').addEventListener('click',function(){if(cv==='likes')showView('today');});
 
 // ── Init ──
-document.getElementById('de').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+(function(){
+  var d=new Date();
+  var isSmall=window.innerWidth<=430;
+  document.getElementById('de').textContent=isSmall
+    ? d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+    : d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+})();
 rt();rto();rv(ac.id);
 </script>
 </body>
