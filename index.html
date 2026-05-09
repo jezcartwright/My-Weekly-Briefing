@@ -991,7 +991,12 @@ function buildPDF(entries, filename){
   });
 
   addFooter();
-  doc.save(filename);
+  // Open PDF in new tab instead of downloading
+  var pdfBlob = doc.output('blob');
+  var url = URL.createObjectURL(pdfBlob);
+  window.open(url, '_blank');
+  // Clean up the object URL after a delay
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
 }
 
 function generateCurrentPDF(){
