@@ -55,7 +55,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
   transition:all .2s;white-space:nowrap
 }
 .hbtn.on,.hbtn:active{background:rgba(255,255,255,0.95);color:var(--orange)}
-a.hbtn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;line-height:1;box-sizing:border-box;height:auto;padding:7px 11px;}
 
 /* ── Views ── */
 #vt,#vl,#vk{display:flex;flex-direction:column;flex:1;overflow:hidden}
@@ -315,7 +314,7 @@ a.hbtn{text-decoration:none;display:inline-flex;align-items:center;justify-conte
     </div>
     <div class="hr">
       <div class="hdate"><div id="de"></div></div>
-      <a class="hbtn" id="btn-pdf" href="performance-intelligence-weekly-briefing.pdf" target="_blank" rel="noopener">PDF</a>
+      <button class="hbtn" id="btn-pdf" onclick="window.open('performance-intelligence-weekly-briefing.pdf','_blank')">PDF</button>
       <button class="hbtn" id="btn-likes" onclick="showView('likes')">♥ Liked</button>
       <button class="hbtn" id="btn-lib" onclick="showView('library')">◫ Library</button>
     </div>
