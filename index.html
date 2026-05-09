@@ -196,6 +196,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 .hl-match{background:rgba(255,102,0,0.15);border-radius:2px;padding:0 2px}
 
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── Notes box ── */
+.notes-section{margin-top:20px;background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.notes-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;border-bottom:1px solid var(--b2)}
+.notes-title{font-size:15px;font-weight:700;color:var(--t);font-family:'Playfair Display',serif;letter-spacing:-.01em}
+.notes-meta{font-size:11px;color:var(--t3);font-style:italic;font-family:'Playfair Display',serif}
+.notes-saved{font-size:11px;color:var(--green);font-family:'Playfair Display',serif;font-style:italic;opacity:0;transition:opacity .5s}
+.notes-saved.show{opacity:1}
+.notes-textarea{width:100%;min-height:140px;padding:14px 16px;font-family:'Playfair Display',serif;font-size:15px;color:var(--t);border:none;outline:none;resize:vertical;background:var(--white);line-height:1.7;border-bottom:1px solid var(--b2)}
+.notes-textarea::placeholder{color:var(--t3);font-style:italic}
+.notes-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.notes-clear{background:none;border:none;font-family:'Playfair Display',serif;font-size:12px;color:var(--t3);cursor:pointer;padding:4px 0}
+.notes-clear:hover{color:var(--orange)}
+.notes-hint{font-size:11px;color:var(--t3);font-style:italic;font-family:'Playfair Display',serif}
 </style>
 
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -300,6 +314,46 @@ D.philosophy=[[
   {title:"Meaning Over Happiness",headline:"Viktor Frankl's insight that meaning sustains people through suffering that happiness cannot is essential for coaches.",why:"Research by Roy Baumeister, published in the Journal of Positive Psychology, distinguished between a happy life and a meaningful life — finding they frequently diverge. Emily Esfahani Smith's synthesis identified four pillars of meaning — belonging, purpose, storytelling, and transcendence — all more durable motivators than happiness.",ref:{text:"Baumeister, R.F. et al. (2013). 'Some key differences between a happy life and a meaningful life.' Journal of Positive Psychology, 8(6), 505-516.",url:"https://doi.org/10.1080/17439760.2013.830764"},insight:"Those who have a 'why' to live can bear with almost any 'how.'",attribution:"Viktor Frankl, 'Man's Search for Meaning' (1946), citing Friedrich Nietzsche",deeper:[{text:"In what areas are you optimising for comfort when you should be optimising for meaning?",url:null},{text:"HBR: 'There's More to Life Than Being Happy' (2013) — Emily Esfahani Smith",url:"https://hbr.org/2013/01/theres-more-to-life-than-being-happy"},{text:"Viktor Frankl's 'Man's Search for Meaning' (1946) — if you have not read it, stop everything",url:"https://www.amazon.com/Mans-Search-Meaning-Viktor-Frankl/dp/0807014273"}]},
   {title:"First Principles Thinking",headline:"Reasoning from fundamentals rather than analogy is the rarest and most valuable cognitive skill in leadership.",why:"Research on expert performance by Anders Ericsson found that the hallmark of expert-level thinking is not the accumulation of rules but the ability to reason from underlying principles when rules break down. Clayton Christensen's disruption theory is itself a first principles analysis — asking what jobs customers are actually trying to do.",ref:{text:"Ericsson, K.A., Krampe, R.T. & Tesch-Romer, C. (1993). 'The Role of Deliberate Practice in the Acquisition of Expert Performance.' Psychological Review, 100(3), 363-406.",url:"https://doi.org/10.1037/0033-295X.100.3.363"},insight:"I don't care how much power, brilliance or energy you have, if you don't harness it and focus it on a specific target, and hold it there, you're never going to accomplish as much as your ability warrants.",attribution:"Zig Ziglar, author and motivational speaker",deeper:[{text:"Pick one obvious constraint in your business. Ask: why is this true? Keep asking until you find something fundamental.",url:null},{text:"HBR: 'Clayton Christensen's Disruptive Innovation After the Sermon' (2015)",url:"https://hbr.org/2015/12/what-is-disruptive-innovation"},{text:"Shane Parrish's 'Clear Thinking' (2023) — the best modern resource on mental models",url:"https://fs.blog/clear/"}]}
 ]];
+
+
+// ── Notes ──
+var NOTE_SK = 'exec_notes_v1';
+function getNotes(catId){ try{ var n=JSON.parse(localStorage.getItem(NOTE_SK)||'{}'); return n[catId]||''; }catch(e){return '';} }
+function saveNote(catId, text){ try{ var n=JSON.parse(localStorage.getItem(NOTE_SK)||'{}'); n[catId]=text; localStorage.setItem(NOTE_SK,JSON.stringify(n)); }catch(e){} }
+function onNoteInput(catId){
+  var ta=document.getElementById('notes-ta-'+catId);
+  if(!ta)return;
+  saveNote(catId, ta.value);
+  var saved=document.getElementById('notes-saved-'+catId);
+  if(saved){ saved.classList.add('show'); clearTimeout(saved._t); saved._t=setTimeout(function(){saved.classList.remove('show');},2000); }
+}
+function clearNote(catId){
+  if(!confirm('Clear your notes for this category?'))return;
+  saveNote(catId,'');
+  var ta=document.getElementById('notes-ta-'+catId);
+  if(ta) ta.value='';
+}
+function notesHTML(catId, color){
+  var saved=getNotes(catId);
+  var safeText=saved.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return '<div class="notes-section">'+
+    '<div class="notes-header">'+
+    '<div>'+
+    '<div class="notes-title" style="color:'+color+'">My Notes</div>'+
+    '<div class="notes-meta">Your personal notes — saved automatically on this device</div>'+
+    '</div>'+
+    '<span class="notes-saved" id="notes-saved-'+catId+'">Saved ✓</span>'+
+    '</div>'+
+    '<textarea class="notes-textarea" id="notes-ta-'+catId+'" '+
+    'placeholder="Add your thoughts, reflections, coaching ideas or action points here..." '+
+    'oninput="onNoteInput(\'' +catId+ '\')">'+safeText+
+    '</textarea>'+
+    '<div class="notes-footer">'+
+    '<button class="notes-clear" onclick="clearNote(\'' +catId+ '\')">Clear notes</button>'+
+    '<span class="notes-hint">Notes are saved privately on this device</span>'+
+    '</div>'+
+    '</div>';
+}
 
 // ── State ──
 var ac=CATS[0], oc=null, cv='today', lf='all', kf='all', ol=null, ok=null;
@@ -439,7 +493,7 @@ function rto(){
         '<span class="tog" style="color:'+(isOpen?ac.color:'#2a2a2a')+'">+</span>'+
         '</div></div>'+
         '<div class="tb">'+bh(t,ac.id,ac.color)+'</div></div>';
-    }).join('')+'</div>';
+    }).join('')+'</div>'+notesHTML(ac.id,ac.color);
   document.getElementById('ts').scrollTop=0;
 }
 function tgc(i){oc=oc===i?null:i;rto();}
