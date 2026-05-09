@@ -769,207 +769,228 @@ function hexToRgb(hex){
 
 function buildPDF(entries, filename){
   var jsPDF = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || null);
-  if(!jsPDF){
-    alert('PDF library not loaded yet — please try again in a moment.');
-    return;
-  }
-  var doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
-  var pw = 210, ph = 297;
-  var ml = 14, mr = 14, mt = 12, mb = 14;
-  var cw = pw - ml - mr;
-  var ORANGE = [255,102,0], DARK = [26,26,26], MID = [85,85,85];
-  var LIGHT = [170,170,170], RULE = [232,228,223], OL = [255,244,238], WHITE = [255,255,255];
+  if(!jsPDF){ alert('PDF library not loaded yet — please try again in a moment.'); return; }
 
-  var CAT_COLORS = {
-    'Leadership':[255,102,0],'Markets':[42,138,110],'Psychology':[192,57,43],
-    'Technology':[41,128,185],'Geopolitics':[142,68,173],'Philosophy':[39,174,96]
-  };
+  var doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var pw=210, ph=297, ml=14, mr=14, mt=12, mb=14, cw=182;
+  var ORANGE=[255,102,0], DARK=[26,26,26], MID=[85,85,85], LIGHT=[170,170,170];
+  var RULE=[232,228,223], OL=[255,244,238], WHITE=[255,255,255];
+  var CAT_C={'Leadership':[255,102,0],'Markets':[42,138,110],'Psychology':[192,57,43],
+    'Technology':[41,128,185],'Geopolitics':[142,68,173],'Philosophy':[39,174,96]};
 
-  function setFont(style, size, r, g, b){
-    doc.setFont('helvetica', style);
+  var y=mt, pageNum=1;
+
+  function sf(style,size,r,g,b){
+    doc.setFont('helvetica',style);
     doc.setFontSize(size);
     doc.setTextColor(r,g,b);
   }
 
-  function wrapText(text, x, y, maxW, lineH, style, size, col){
-    setFont(style, size, col[0], col[1], col[2]);
-    var lines = doc.splitTextToSize(text, maxW);
-    doc.text(lines, x, y);
-    return y + lines.length * lineH;
+  function wrap(text,x,cy,maxW,lh,style,size,col,extraCol){
+    sf(style,size,col[0],col[1],col[2]);
+    var lines=doc.splitTextToSize(String(text||''),maxW);
+    lines.forEach(function(line,i){
+      doc.text(line,x,cy+i*lh);
+    });
+    return cy+lines.length*lh;
   }
 
-  function drawRect(x, y, w, h, r, g, b, filled){
-    if(filled){
-      doc.setFillColor(r,g,b);
-      doc.rect(x,y,w,h,'F');
-    } else {
-      doc.setDrawColor(r,g,b);
-      doc.rect(x,y,w,h,'S');
-    }
+  function newPage(){
+    addFooter();
+    doc.addPage();
+    y=mt;
+    pageNum++;
   }
 
-  function checkNewPage(y, needed, addFooter){
-    if(y + needed > ph - mb - 8){
-      if(addFooter) addPageFooter();
-      doc.addPage();
-      return mt;
-    }
-    return y;
+  function addFooter(){
+    sf('normal',7,LIGHT[0],LIGHT[1],LIGHT[2]);
+    doc.text('Performance Intelligence Weekly Briefing  •  jezcartwright.github.io/My-Daily-Briefing',pw/2,ph-5,{align:'center'});
   }
 
-  function addPageFooter(){
-    setFont('normal', 7, LIGHT[0], LIGHT[1], LIGHT[2]);
-    doc.text('Performance Intelligence Weekly Briefing  |  jezcartwright.github.io/My-Daily-Briefing',
-      pw/2, ph - 6, {align:'center'});
+  function needSpace(needed){
+    if(y+needed>ph-mb-8){ newPage(); }
   }
-
-  var today = new Date();
-  var dateStr = today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  var weekNum = getWeekNumber();
 
   // ── HEADER ──
-  drawRect(ml, mt, cw, 18, ORANGE[0], ORANGE[1], ORANGE[2], true);
-  setFont('bold', 8, 255,255,255);
-  doc.setCharSpace(1.5);
-  doc.text('PERFORMANCE INTELLIGENCE', ml+4, mt+6.5);
+  doc.setFillColor(ORANGE[0],ORANGE[1],ORANGE[2]);
+  doc.rect(ml,mt,cw,20,'F');
+  // PI label
+  sf('bold',8,255,255,255);
+  doc.setCharSpace(2);
+  doc.text('PERFORMANCE INTELLIGENCE',ml+4,mt+7);
   doc.setCharSpace(0);
-  setFont('bold', 18, 255,255,255);
-  doc.text('Weekly Briefing', ml+4, mt+14);
-  setFont('normal', 10, 255,255,255);
-  doc.text(dateStr, pw-mr, mt+8, {align:'right'});
-  setFont('normal', 8, 255,255,255);
-  doc.text('Week '+weekNum, pw-mr, mt+13, {align:'right'});
+  // Weekly Briefing
+  sf('bold',20,255,255,255);
+  doc.text('Weekly Briefing',ml+4,mt+16);
+  // Date right
+  var today=new Date();
+  var ds=today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var wn=getWeekNumber();
+  sf('bold',11,255,255,255);
+  doc.text(ds,pw-mr,mt+9,{align:'right'});
+  sf('normal',9,255,255,255);
+  doc.text('Week '+wn,pw-mr,mt+15,{align:'right'});
 
-  var y = mt + 22;
+  y=mt+24;
   doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
   doc.setLineWidth(0.3);
-  doc.line(ml, y, pw-mr, y);
-  y += 4;
+  doc.line(ml,y,pw-mr,y);
+  y+=4;
 
   // ── CATEGORIES ──
-  var catOrder = ['Leadership','Markets','Psychology','Technology','Geopolitics','Philosophy'];
-  var isFirst = true;
-
+  var isFirst=true;
   entries.forEach(function(entry){
-    var cc = CAT_COLORS[entry.catLabel] || ORANGE;
+    var cc=CAT_C[entry.catLabel]||ORANGE;
 
-    // Page break before each category except first
-    if(!isFirst){
-      addPageFooter();
-      doc.addPage();
-      y = mt;
-    }
-    isFirst = false;
+    if(!isFirst){ newPage(); }
+    isFirst=false;
 
     // Category banner
-    drawRect(ml, y, cw, 9, cc[0],cc[1],cc[2], true);
-    setFont('bold', 10, 255,255,255);
-    doc.setCharSpace(1.2);
-    doc.text(entry.catLabel.toUpperCase(), ml+3, y+6.2);
+    doc.setFillColor(cc[0],cc[1],cc[2]);
+    doc.rect(ml,y,cw,10,'F');
+    sf('bold',10,255,255,255);
+    doc.setCharSpace(1.5);
+    doc.text(entry.catLabel.toUpperCase(),ml+4,y+7);
     doc.setCharSpace(0);
-    setFont('italic', 9, 255,255,255);
-    doc.text('Four high-signal topics for this week', pw-mr-3, y+6.2, {align:'right'});
-    y += 12;
+    sf('italic',9.5,255,255,255);
+    doc.text('Four high-signal topics for this week',pw-mr-3,y+7,{align:'right'});
+    y+=13;
 
     // Topics
-    entry.topics.forEach(function(t, ti){
-      // Estimate card height
-      var whyLines = doc.splitTextToSize(t.why||'', (cw-8)*0.5 - 4);
-      var insLines = doc.splitTextToSize(('"'+(t.insight||'')+'"'), (cw-8)*0.48 - 2);
-      var deepLines = (t.deeper||[]).reduce(function(acc,d){
-        var txt = typeof d==='object' ? d.text : d;
-        return acc + doc.splitTextToSize('▸  '+txt, cw-16).length;
-      }, 0);
-      var cardH = 6 + 5 + 5 + Math.max(whyLines.length,insLines.length)*4.5 + 6 + deepLines*4.5 + 8;
-      
-      y = checkNewPage(y, cardH, false);
-
-      // Card border
-      doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
-      doc.setLineWidth(0.3);
-      doc.setFillColor(255,255,255);
-      doc.rect(ml, y, cw, cardH, 'FD');
-
-      var cx = ml + 3;
-      var cy = y + 5;
-
-      // Number + Title
-      setFont('bold', 9, cc[0],cc[1],cc[2]);
-      doc.text('0'+(ti+1), cx, cy);
-      setFont('bold', 13, DARK[0],DARK[1],DARK[2]);
-      doc.text(t.title||'', cx+7, cy);
-      cy += 4.5;
-
-      // Headline
-      setFont('italic', 10, MID[0],MID[1],MID[2]);
-      var hlLines = doc.splitTextToSize(t.headline||'', cw-14);
-      doc.text(hlLines, cx+7, cy);
-      cy += hlLines.length*4 + 3;
-
-      // Two columns: Why | Insight
-      var colW = (cw-8)*0.5;
-      // Why label
-      setFont('bold', 7, LIGHT[0],LIGHT[1],LIGHT[2]);
-      doc.text('WHY IT MATTERS', cx, cy);
-      // Insight label
-      setFont('bold', 7, cc[0],cc[1],cc[2]);
-      doc.text('KEY INSIGHT', cx+colW+2, cy);
-      cy += 3.5;
-
-      // Why text
-      setFont('normal', 9, MID[0],MID[1],MID[2]);
-      var wLines = doc.splitTextToSize(t.why||'', colW-4);
-      doc.text(wLines, cx, cy);
-
-      // Insight text
-      setFont('italic', 10, DARK[0],DARK[1],DARK[2]);
-      var iLines = doc.splitTextToSize('"'+(t.insight||'')+'"', colW-4);
-      doc.text(iLines, cx+colW+2, cy);
-      var attrY = cy + iLines.length*4.2 + 1;
-      setFont('bold', 8, cc[0],cc[1],cc[2]);
-      var attrLines = doc.splitTextToSize('— '+(t.attribution||''), colW-4);
-      doc.text(attrLines, cx+colW+2, attrY);
-
-      cy += Math.max(wLines.length, iLines.length)*4.5 + 3;
-
-      // Ref
-      if(t.ref){
-        var refText = typeof t.ref==='object' ? t.ref.text : t.ref;
-        setFont('italic', 7.5, LIGHT[0],LIGHT[1],LIGHT[2]);
-        var rLines = doc.splitTextToSize(refText, colW-4);
-        doc.text(rLines, cx, cy - wLines.length*4.5 + wLines.length*4.5 + 1);
-      }
-
-      // Go Deeper box
-      cy = y + cardH - ((t.deeper||[]).length)*4.5 - 8;
-      doc.setFillColor(OL[0],OL[1],OL[2]);
-      var deepH = (t.deeper||[]).length*4.5 + 5;
-      doc.rect(cx-1, cy-3, cw-4, deepH, 'F');
-      doc.setFillColor(cc[0],cc[1],cc[2]);
-      doc.rect(cx-1, cy-3, 1.5, deepH, 'F');
-      setFont('bold', 7, LIGHT[0],LIGHT[1],LIGHT[2]);
-      doc.text('GO DEEPER', cx+2, cy);
-      cy += 3.5;
-      (t.deeper||[]).forEach(function(d){
-        var txt = typeof d==='object' ? d.text : d;
-        var url = typeof d==='object' ? d.url : null;
-        setFont('normal', 9, MID[0],MID[1],MID[2]);
-        var dLines = doc.splitTextToSize('▸  '+txt, cw-14);
-        doc.text(dLines, cx+2, cy);
-        if(url){
-          doc.setTextColor(41,128,185);
-          // underline approximation via link annotation
-          try { doc.link(cx+2, cy-3.5, cw-16, 4, {url:url}); } catch(e){}
-          doc.setTextColor(MID[0],MID[1],MID[2]);
-        }
-        cy += dLines.length*4.5;
+    (entry.topics||[]).forEach(function(t,ti){
+      // ── Pre-measure card height ──
+      var titleLines=doc.splitTextToSize(String(t.title||''),cw-14);
+      var hlLines=doc.splitTextToSize(String(t.headline||''),cw-18);
+      var colW=(cw-8)*0.5-2;
+      sf('normal',9.5,MID[0],MID[1],MID[2]);
+      var whyLines=doc.splitTextToSize(String(t.why||''),colW-2);
+      sf('italic',10,DARK[0],DARK[1],DARK[2]);
+      var insQ='"'+(t.insight||'')+'"';
+      var insLines=doc.splitTextToSize(insQ,colW-2);
+      sf('bold',8,cc[0],cc[1],cc[2]);
+      var attrLines=doc.splitTextToSize('— '+(t.attribution||''),colW-2);
+      var deeper=t.deeper||[];
+      var deeperLinesCount=0;
+      deeper.forEach(function(d){
+        var txt=typeof d==='object'?d.text:d;
+        sf('normal',9.5,MID[0],MID[1],MID[2]);
+        deeperLinesCount+=doc.splitTextToSize('▸  '+String(txt||''),cw-16).length;
       });
 
-      y += cardH + 3;
+      var twoColH=Math.max(whyLines.length,insLines.length+attrLines.length+1)*4.8;
+      var deepH=deeperLinesCount*4.8+9;
+      var cardH=5+titleLines.length*5.5+hlLines.length*4.5+4+3+twoColH+4+deepH+5;
+
+      needSpace(cardH);
+
+      // Card box
+      doc.setFillColor(255,255,255);
+      doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
+      doc.setLineWidth(0.4);
+      doc.rect(ml,y,cw,cardH,'FD');
+
+      var cx=ml+4, cy=y+5;
+
+      // Number badge
+      doc.setFillColor(OL[0],OL[1],OL[2]);
+      doc.circle(cx+2,cy-1.5,3,'F');
+      sf('bold',8,cc[0],cc[1],cc[2]);
+      doc.text('0'+(ti+1),cx+0.5,cy);
+
+      // Title
+      sf('bold',13,DARK[0],DARK[1],DARK[2]);
+      titleLines.forEach(function(line,i){ doc.text(line,cx+8,cy+i*5.5); });
+      cy+=titleLines.length*5.5+1;
+
+      // Headline
+      sf('italic',10,MID[0],MID[1],MID[2]);
+      hlLines=doc.splitTextToSize(String(t.headline||''),cw-14);
+      hlLines.forEach(function(line,i){ doc.text(line,cx+8,cy+i*4.5); });
+      cy+=hlLines.length*4.5+4;
+
+      // Divider
+      doc.setDrawColor(RULE[0],RULE[1],RULE[2]);
+      doc.setLineWidth(0.2);
+      doc.line(cx,cy,ml+cw-4,cy);
+      cy+=3;
+
+      // Two columns
+      var colW2=(cw-12)*0.5;
+      var leftX=cx, rightX=cx+colW2+3;
+
+      // WHY label
+      sf('bold',7,LIGHT[0],LIGHT[1],LIGHT[2]);
+      doc.setCharSpace(1.2); doc.text('WHY IT MATTERS',leftX,cy); doc.setCharSpace(0);
+      // KEY INSIGHT label
+      sf('bold',7,cc[0],cc[1],cc[2]);
+      doc.setCharSpace(1.2); doc.text('KEY INSIGHT',rightX,cy); doc.setCharSpace(0);
+      cy+=3.5;
+
+      // Why text
+      sf('normal',9.5,MID[0],MID[1],MID[2]);
+      var wLines2=doc.splitTextToSize(String(t.why||''),colW2-2);
+      wLines2.forEach(function(line,i){ doc.text(line,leftX,cy+i*4.6); });
+
+      // Ref text below why
+      var refText=t.ref&&typeof t.ref==='object'?t.ref.text:(t.ref||'');
+      sf('italic',7.5,LIGHT[0],LIGHT[1],LIGHT[2]);
+      var rLines=doc.splitTextToSize(String(refText),colW2-2);
+      var refY=cy+wLines2.length*4.6+1;
+      rLines.forEach(function(line,i){ doc.text(line,leftX,refY+i*3.8); });
+
+      // Insight text
+      sf('italic',10,DARK[0],DARK[1],DARK[2]);
+      var iLines2=doc.splitTextToSize('"'+(t.insight||'')+'"',colW2-2);
+      iLines2.forEach(function(line,i){ doc.text(line,rightX,cy+i*4.6); });
+
+      // Attribution
+      var attrY2=cy+iLines2.length*4.6+1.5;
+      sf('bold',8,cc[0],cc[1],cc[2]);
+      var aLines=doc.splitTextToSize('— '+(t.attribution||''),colW2-2);
+      aLines.forEach(function(line,i){ doc.text(line,rightX,attrY2+i*4); });
+
+      var twoColBottom=cy+Math.max(wLines2.length*4.6+rLines.length*3.8+2, iLines2.length*4.6+aLines.length*4+3);
+      cy=twoColBottom+4;
+
+      // GO DEEPER box
+      var deeperItems=t.deeper||[];
+      var deepBulletH=0;
+      deeperItems.forEach(function(d){
+        sf('normal',9.5,MID[0],MID[1],MID[2]);
+        var txt=typeof d==='object'?d.text:d;
+        deepBulletH+=doc.splitTextToSize('▸  '+String(txt),cw-16).length*4.6;
+      });
+      var deepBoxH=deepBulletH+9;
+
+      doc.setFillColor(OL[0],OL[1],OL[2]);
+      doc.rect(cx-1,cy-1,cw-6,deepBoxH,'F');
+      doc.setFillColor(cc[0],cc[1],cc[2]);
+      doc.rect(cx-1,cy-1,2,deepBoxH,'F');
+
+      sf('bold',7,LIGHT[0],LIGHT[1],LIGHT[2]);
+      doc.setCharSpace(1.2); doc.text('GO DEEPER →',cx+3,cy+4); doc.setCharSpace(0);
+      var dy=cy+9;
+      deeperItems.forEach(function(d){
+        var txt=typeof d==='object'?d.text:d;
+        var url=typeof d==='object'?d.url:null;
+        sf('normal',9.5,MID[0],MID[1],MID[2]);
+        var dLines=doc.splitTextToSize('▸  '+String(txt),cw-16);
+        if(url){ doc.setTextColor(41,128,185); }
+        dLines.forEach(function(line,i){ doc.text(line,cx+3,dy+i*4.6); });
+        if(url){
+          try{ doc.link(cx+3,dy-3.5,cw-18,dLines.length*4.6,{url:url}); }catch(e){}
+          doc.setTextColor(MID[0],MID[1],MID[2]);
+        }
+        dy+=dLines.length*4.6;
+      });
+
+      y+=cardH+3;
     });
+
+    y+=2;
   });
 
-  addPageFooter();
+  addFooter();
   doc.save(filename);
 }
 
