@@ -196,6 +196,42 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 .hl-match{background:rgba(255,102,0,0.15);border-radius:2px;padding:0 2px}
 
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ── PDF Overlay (DOM-based, PWA compatible) ── */
+#pdf-view{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#pdf-view.show{display:block}
+.pdf-toolbar{background:#ff6600;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;gap:10px;position:sticky;top:0;z-index:10}
+.pdf-tbtn{border:none;border-radius:4px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Playfair Display',serif}
+.pdf-save{background:#fff;color:#ff6600}
+.pdf-back{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.35)!important}
+.pdf-hdr{background:#ff6600;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.pdf-pi{font-family:'Playfair Display',serif;font-size:8pt;letter-spacing:2px;color:rgba(255,255,255,0.85);margin-bottom:3px;text-transform:uppercase}
+.pdf-wb{font-family:'Playfair Display',serif;font-size:22pt;font-weight:700;color:#fff}
+.pdf-hdr-r{text-align:right}
+.pdf-dt{font-family:'Playfair Display',serif;font-size:11pt;font-weight:700;color:#fff}
+.pdf-wk{font-family:'Playfair Display',serif;font-size:9pt;color:rgba(255,255,255,0.8)}
+.pdf-body{padding:14px;max-width:800px;margin:0 auto}
+.pdf-rule{height:1px;background:#e8e4df;margin:8px 0 4px}
+.pdf-cat-banner{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin:12px 0 8px;border-radius:4px}
+.pdf-cat-name{font-family:'Playfair Display',serif;font-size:10pt;font-weight:700;color:#fff;letter-spacing:1.5px}
+.pdf-cat-sub{font-size:9pt;font-style:italic;color:rgba(255,255,255,0.9);font-family:'Playfair Display',serif}
+.pdf-topic{border:1px solid #e8e4df;border-radius:6px;margin-bottom:10px;padding:12px}
+.pdf-tnum{font-weight:700;font-size:9pt;font-family:'Playfair Display',serif;margin-right:6px}
+.pdf-ttitle{font-family:'Playfair Display',serif;font-size:14pt;font-weight:700;color:#1a1a1a}
+.pdf-thl{font-style:italic;font-size:10pt;color:#555;margin:5px 0 10px 22px;line-height:1.5;font-family:'Playfair Display',serif}
+.pdf-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}
+@media(max-width:500px){.pdf-two{grid-template-columns:1fr}}
+.pdf-lbl{font-family:'Playfair Display',serif;font-size:7pt;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:4px}
+.pdf-why{font-size:10pt;color:#555;line-height:1.65;font-family:'Playfair Display',serif}
+.pdf-ref{font-size:8pt;color:#aaa;font-style:italic;margin-top:5px;font-family:'Playfair Display',serif}
+.pdf-ref a{color:#2980b9;text-decoration:none}
+.pdf-ins{font-size:10pt;font-style:italic;color:#1a1a1a;line-height:1.7;border-left:3px solid;padding-left:10px;font-family:'Playfair Display',serif}
+.pdf-attr{font-family:'Playfair Display',serif;font-size:9pt;font-weight:700;margin-top:5px}
+.pdf-deeper{border-left:3px solid;padding:8px 10px;margin-top:8px;background:#fff4ee;border-radius:0 4px 4px 0}
+.pdf-dlbl{font-family:'Playfair Display',serif;font-size:7pt;letter-spacing:1.5px;color:#aaa;margin-bottom:5px;text-transform:uppercase}
+.pdf-ditem{font-size:10pt;color:#555;line-height:1.7;margin-bottom:2px;font-family:'Playfair Display',serif}
+.pdf-ditem a{color:#2980b9;text-decoration:none}
+.pdf-footer{font-family:'Playfair Display',serif;font-size:8pt;color:#aaa;text-align:center;padding:14px;border-top:1px solid #e8e4df;margin-top:10px}
+@media print{.pdf-toolbar{display:none}}
 /* ── Mobile (iPhone) responsive ── */
 @media(max-width:430px){
   /* Header - stack logo and text, compact layout */
@@ -773,109 +809,73 @@ function generateCurrentPDF(){
   var ds=today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   var wn=getWeekNumber();
 
-  var h='<!DOCTYPE html><html><head><meta charset="UTF-8">';
-  h+='<meta name="viewport" content="width=device-width,initial-scale=1.0">';
-  h+='<title>Performance Intelligence \u2014 Week '+wn+'</title>';
-  h+='<style>';
-  h+='*{box-sizing:border-box;margin:0;padding:0}';
-  h+='body{font-family:Georgia,serif;font-size:11pt;color:#1a1a1a;background:#fff}';
-  h+='.toolbar{background:#ff6600;padding:12px 16px;display:flex;gap:10px;align-items:center;position:sticky;top:0;z-index:99;padding-top:max(12px,env(safe-area-inset-top))}';
-  h+='.tbtn{border:none;border-radius:4px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:Georgia,serif}';
-  h+='.save-btn{background:#fff;color:#ff6600}';
-  h+='.back-btn{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.35)!important}';
-  h+='.hdr{background:#ff6600;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}';
-  h+='.pi{font-family:Arial,sans-serif;font-size:8pt;letter-spacing:2px;color:rgba(255,255,255,0.85);margin-bottom:3px}';
-  h+='.wb{font-size:22pt;font-weight:700;color:#fff}';
-  h+='.hdr-r{text-align:right}';
-  h+='.dt{font-size:11pt;font-weight:700;color:#fff}';
-  h+='.wk{font-size:9pt;color:rgba(255,255,255,0.8)}';
-  h+='.content{padding:14px 14px 30px;max-width:800px;margin:0 auto}';
-  h+='.rule{height:0.5px;background:#e8e4df;margin:10px 0}';
-  h+='.cat-banner{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;border-radius:4px}';
-  h+='.cat-name{font-family:Arial,sans-serif;font-size:10pt;font-weight:700;color:#fff;letter-spacing:1.5px}';
-  h+='.cat-sub{font-size:9pt;font-style:italic;color:rgba(255,255,255,0.9)}';
-  h+='.topic{border:1px solid #e8e4df;border-radius:6px;margin-bottom:10px;padding:12px;break-inside:avoid}';
-  h+='.tnum{font-weight:700;font-size:9pt;font-family:Arial,sans-serif;margin-right:6px}';
-  h+='.ttitle{font-size:13pt;font-weight:700}';
-  h+='.thl{font-style:italic;font-size:10pt;color:#555;margin:5px 0 10px 22px;line-height:1.5}';
-  h+='.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}';
-  h+='@media(max-width:500px){.two{grid-template-columns:1fr}}';
-  h+='.lbl{font-family:Arial,sans-serif;font-size:7pt;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:4px}';
-  h+='.why{font-size:9.5pt;color:#555;line-height:1.65}';
-  h+='.ref{font-size:7.5pt;color:#aaa;font-style:italic;margin-top:5px}';
-  h+='.ref a{color:#2980b9}';
-  h+='.ins{font-size:10pt;font-style:italic;color:#1a1a1a;line-height:1.7;border-left:3px solid;padding-left:10px}';
-  h+='.attr{font-family:Arial,sans-serif;font-size:8pt;font-weight:700;margin-top:5px}';
-  h+='.deeper{border-left:3px solid;padding:8px 10px;margin-top:8px;background:#fff4ee;border-radius:0 4px 4px 0}';
-  h+='.dlbl{font-family:Arial,sans-serif;font-size:7pt;letter-spacing:1.5px;color:#aaa;margin-bottom:5px}';
-  h+='.ditem{font-size:9.5pt;color:#555;line-height:1.7;margin-bottom:2px}';
-  h+='.ditem a{color:#2980b9;text-decoration:none}';
-  h+='.footer{font-family:Arial,sans-serif;font-size:7.5pt;color:#aaa;text-align:center;padding:14px;border-top:1px solid #e8e4df;margin-top:10px}';
-  h+='@media print{.toolbar{display:none}.cat-banner{page-break-before:always}.cat-banner:first-of-type{page-break-before:avoid}.topic{break-inside:avoid}}';
-  h+='</style></head><body>';
+  document.getElementById('pdf-date').textContent=ds;
+  document.getElementById('pdf-week').textContent='Week '+wn;
+  document.getElementById('pdf-footer').textContent='Performance Intelligence Weekly Briefing • Week '+wn+' • '+ds;
 
-  // Toolbar
-  h+='<div class="toolbar">';
-  h+='<button class="tbtn save-btn" onclick="window.print()">\uD83D\uDDA8 Save as PDF</button>';
-  h+='<button class="tbtn back-btn" onclick="history.back()">\u2190 Back to App</button>';
-  h+='</div>';
+  var content=document.getElementById('pdf-content');
+  content.innerHTML='';
 
-  // Header
-  h+='<div class="hdr">';
-  h+='<div><div class="pi">PERFORMANCE INTELLIGENCE</div><div class="wb">Weekly Briefing</div></div>';
-  h+='<div class="hdr-r"><div class="dt">'+ds+'</div><div class="wk">Week '+wn+'</div></div>';
-  h+='</div>';
-  h+='<div class="content">';
-  h+='<div class="rule"></div>';
+  var rule=document.createElement('div');
+  rule.className='pdf-rule';
+  content.appendChild(rule);
 
-  var firstCat=true;
   catOrder.forEach(function(id){
     var cat=CATS.find(function(c){return c.id===id;});
     var topics=gt(id);
     var cc=catColors[id]||'#ff6600';
 
-    h+='<div class="cat-banner" style="background:'+cc+'">';
-    h+='<span class="cat-name">'+cat.label.toUpperCase()+'</span>';
-    h+='<span class="cat-sub">Four high-signal topics for this week</span>';
-    h+='</div>';
-    firstCat=false;
+    var banner=document.createElement('div');
+    banner.className='pdf-cat-banner';
+    banner.style.background=cc;
+    banner.innerHTML='<span class="pdf-cat-name">'+cat.label.toUpperCase()+'</span>'+
+      '<span class="pdf-cat-sub">Four high-signal topics for this week</span>';
+    content.appendChild(banner);
 
     topics.forEach(function(t,ti){
       var refText=t.ref&&typeof t.ref==='object'?t.ref.text:(t.ref||'');
       var refUrl=t.ref&&typeof t.ref==='object'?t.ref.url:null;
-      h+='<div class="topic">';
-      h+='<div><span class="tnum" style="color:'+cc+'">0'+(ti+1)+'</span><span class="ttitle">'+t.title+'</span></div>';
-      h+='<div class="thl">'+t.headline+'</div>';
-      h+='<div class="two">';
-      // Why it matters
-      h+='<div><div class="lbl">Why It Matters</div>';
-      h+='<div class="why">'+t.why+'</div>';
-      if(refText){h+='<div class="ref">'+(refUrl?'<a href="'+refUrl+'">'+refText+'</a>':refText)+'</div>';}
-      h+='</div>';
-      // Key insight
-      h+='<div><div class="lbl" style="color:'+cc+'">Key Insight</div>';
-      h+='<div class="ins" style="border-color:'+cc+'">\u201c'+t.insight+'\u201d</div>';
-      h+='<div class="attr" style="color:'+cc+'">\u2014 '+t.attribution+'</div>';
-      h+='</div></div>';
-      // Go Deeper
-      h+='<div class="deeper" style="border-color:'+cc+'">';
-      h+='<div class="dlbl">Go Deeper \u2192</div>';
-      (t.deeper||[]).forEach(function(d){
+      var refHtml=refText?(refUrl?'<a href="'+refUrl+'">'+refText+'</a>':refText):'';
+
+      var deeperHtml=(t.deeper||[]).map(function(d){
         var dt=typeof d==='object'?d.text:d;
         var du=typeof d==='object'?d.url:null;
-        h+='<div class="ditem">\u25b8\u2002'+(du?'<a href="'+du+'">'+dt+'</a>':dt)+'</div>';
-      });
-      h+='</div></div>';
+        return '<div class="pdf-ditem">▸ '+(du?'<a href="'+du+'">'+dt+'</a>':dt)+'</div>';
+      }).join('');
+
+      var topic=document.createElement('div');
+      topic.className='pdf-topic';
+      topic.innerHTML=
+        '<div><span class="pdf-tnum" style="color:'+cc+'">0'+(ti+1)+'</span>'+
+        '<span class="pdf-ttitle">'+t.title+'</span></div>'+
+        '<div class="pdf-thl">'+t.headline+'</div>'+
+        '<div class="pdf-two">'+
+          '<div>'+
+            '<div class="pdf-lbl">Why It Matters</div>'+
+            '<div class="pdf-why">'+t.why+'</div>'+
+            (refHtml?'<div class="pdf-ref">'+refHtml+'</div>':'')+
+          '</div>'+
+          '<div>'+
+            '<div class="pdf-lbl" style="color:'+cc+'">Key Insight</div>'+
+            '<div class="pdf-ins" style="border-color:'+cc+'">“'+t.insight+'”</div>'+
+            '<div class="pdf-attr" style="color:'+cc+'">— '+t.attribution+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="pdf-deeper" style="border-color:'+cc+'">'+
+          '<div class="pdf-dlbl">Go Deeper →</div>'+
+          deeperHtml+
+        '</div>';
+      content.appendChild(topic);
     });
   });
 
-  h+='</div>';
-  h+='<div class="footer">Performance Intelligence Weekly Briefing \u2022 Week '+wn+' \u2022 '+ds+'</div>';
-  h+='</body></html>';
+  var view=document.getElementById('pdf-view');
+  view.classList.add('show');
+  view.scrollTop=0;
+}
 
-  document.open();
-  document.write(h);
-  document.close();
+function hidePDF(){
+  document.getElementById('pdf-view').classList.remove('show');
 }
 
 
@@ -1209,22 +1209,7 @@ function hexToRgb(hex){
   return [r,g,b];
 }
 
-function generateCurrentPDF(){
-  var btn = document.getElementById('btn-pdf');
-  if(btn){ btn.textContent = 'Opening...'; }
-  setTimeout(function(){
-    try{
-      var binary = atob(CURRENT_PDF_B64);
-      var bytes = new Uint8Array(binary.length);
-      for(var i=0;i<binary.length;i++){ bytes[i]=binary.charCodeAt(i); }
-      var blob = new Blob([bytes],{type:'application/pdf'});
-      var url = URL.createObjectURL(blob);
-      window.open(url,'_blank');
-      setTimeout(function(){URL.revokeObjectURL(url);},60000);
-    }catch(e){alert('Could not open PDF: '+e.message);}
-    if(btn){ btn.textContent = '\u2759 PDF'; btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF'; }
-  },50);
-}
+
 
 function generateLibraryPDF(dateKey){
   // For library, use the same current PDF (same week's content)
@@ -1560,17 +1545,7 @@ function hexToRgb(hex){
   return [r,g,b];
 }
 
-function generateCurrentPDF(){
-  // Build entries for all 6 categories for current week
-  var catOrder = ['leadership','markets','psychology','technology','geopolitics','philosophy'];
-  var entries = catOrder.map(function(id){
-    var cat = CATS.find(function(c){return c.id===id;});
-    return {catLabel: cat.label, catColor: cat.color, catIcon: cat.icon, topics: gt(id)};
-  });
-  var today = new Date();
-  var fname = 'Performance-Intelligence-Week-'+getWeekNumber()+'-'+today.getFullYear()+'.pdf';
-  buildPDF(entries, fname);
-}
+
 
 function generateLibraryPDF(dateKey){
   // Build PDF from a specific saved library entry (all cats for that week)
@@ -1579,9 +1554,7 @@ function generateLibraryPDF(dateKey){
   if(!weekEntries.length){ alert('No saved data for this week.'); return; }
   // Sort by category order
   var catOrder = ['leadership','markets','psychology','technology','geopolitics','philosophy'];
-  weekEntries.sort(function(a,b){
-    return catOrder.indexOf(a.catId) - catOrder.indexOf(b.catId);
-  });
+  weekEntries.sort(functi);
   var d = new Date(dateKey+'T12:00:00');
   var fname = 'Performance-Intelligence-'+dateKey+'.pdf';
   buildPDF(weekEntries.map(function(e){
@@ -1590,5 +1563,19 @@ function generateLibraryPDF(dateKey){
 }
 
 </script>
+
+<!-- PDF overlay - DOM based, PWA compatible -->
+<div id="pdf-view">
+  <div class="pdf-toolbar">
+    <button class="pdf-tbtn pdf-save" onclick="window.print()">&#x1F5A8; Save as PDF</button>
+    <button class="pdf-tbtn pdf-back" onclick="hidePDF()">&#8592; Back to App</button>
+  </div>
+  <div class="pdf-hdr">
+    <div><div class="pdf-pi">Performance Intelligence</div><div class="pdf-wb">Weekly Briefing</div></div>
+    <div class="pdf-hdr-r"><div class="pdf-dt" id="pdf-date"></div><div class="pdf-wk" id="pdf-week"></div></div>
+  </div>
+  <div class="pdf-body" id="pdf-content"></div>
+  <div class="pdf-footer" id="pdf-footer"></div>
+</div>
 </body>
 </html>
