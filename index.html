@@ -774,6 +774,8 @@ function tok(uid){ok=ok===uid?null:uid;rk();}
 
 // ── View switching ──
 function showView(v){
+  // Toggle back to today if already on that view
+  if(cv===v && v!=='today') v='today';
   cv=v;
   document.getElementById('vt').style.display=v==='today'?'flex':'none';
   document.getElementById('vl').style.display=v==='library'?'flex':'none';
@@ -785,8 +787,7 @@ function showView(v){
   else{rt();}
 }
 // Back to today when clicking active button
-document.getElementById('btn-lib').addEventListener('click',function(){if(cv==='library')showView('today');});
-document.getElementById('btn-likes').addEventListener('click',function(){if(cv==='likes')showView('today');});
+
 
 // ── Init ──
 (function(){
