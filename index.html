@@ -802,6 +802,19 @@ function showView(v){
 
 
 // ── Init ──
+// One-time cleanup: remove duplicate May 5 library entry
+(function(){
+  try {
+    var SK_='exec_brief_v3';
+    var h=JSON.parse(localStorage.getItem(SK_)||'[]');
+    var before=h.length;
+    h=h.filter(function(e){ return e.date !== '2026-05-05'; });
+    if(h.length !== before){
+      localStorage.setItem(SK_, JSON.stringify(h));
+      console.log('Removed', before-h.length, 'May 5 duplicate entries');
+    }
+  } catch(e){}
+})();
 (function(){
   var d=new Date();
   var isSmall=window.innerWidth<=430;
@@ -811,9 +824,6 @@ function showView(v){
 })();
 rt();rto();rv(ac.id);
 // ── PDF Generation ──────────────────────────────────────────────────────
-// Current week PDF embedded directly (ReportLab quality)
-var CURRENT_PDF_B64 = "";
-
 function generateCurrentPDF(){
   var catOrder=['leadership','markets','psychology','technology','geopolitics','philosophy'];
   var catColors={leadership:'#ff6600',markets:'#2a8a6e',psychology:'#c0392b',
