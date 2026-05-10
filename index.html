@@ -670,9 +670,16 @@ function rl(){
       '<div class="empty-sub">'+(libQ?'Try a different search term.':lf==='all'?'Your briefings save automatically each time you open a category.':'Switch to this category in Today view to start saving.')+'</div></div>';
     return;
   }
+  var catOrder=['leadership','markets','psychology','technology','geopolitics','philosophy'];
   var bd={};
   h.forEach(function(e){if(!bd[e.date])bd[e.date]=[];bd[e.date].push(e);});
   var dates=Object.keys(bd).sort(function(a,b){return b.localeCompare(a);});
+  // Sort entries within each date group by category order
+  dates.forEach(function(date){
+    bd[date].sort(function(a,b){
+      return catOrder.indexOf(a.catId) - catOrder.indexOf(b.catId);
+    });
+  });
   sc2.innerHTML=dates.map(function(date){
     var entries=bd[date];
     var isToday=date===tk();
@@ -747,8 +754,13 @@ function rk(){
       '<div class="empty-sub">'+(likedQ?'Try a different search term.':kf==='all'?'Tap the ♡ heart on any topic to save it here.':'Like topics in this category to see them here.')+'</div></div>';
     return;
   }
-  // Sort most recently liked first
-  filtered.sort(function(a,b){return b.likedAt.localeCompare(a.likedAt);});
+  // Sort by category order, then most recently liked within each category
+  var catOrderK=['leadership','markets','psychology','technology','geopolitics','philosophy'];
+  filtered.sort(function(a,b){
+    var catDiff = catOrderK.indexOf(a.catId) - catOrderK.indexOf(b.catId);
+    if(catDiff !== 0) return catDiff;
+    return b.likedAt.localeCompare(a.likedAt);
+  });
   sc3.innerHTML=filtered.map(function(l){
     var t=l.topic;
     var uid='liked_'+l.id;
