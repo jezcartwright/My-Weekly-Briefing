@@ -773,51 +773,60 @@ function generateCurrentPDF(){
   var ds=today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   var wn=getWeekNumber();
 
-  var html='<!DOCTYPE html><html><head><meta charset="UTF-8">';
-  html+='<title>Performance Intelligence \u2014 Weekly Briefing Week '+wn+'</title>';
-  html+='<style>';
-  html+='*{margin:0;padding:0;box-sizing:border-box}';
-  html+='body{font-family:Georgia,serif;font-size:11pt;color:#1a1a1a;background:#fff;padding:0}';
-  html+='@page{margin:14mm;size:A4}';
-  html+='.hdr{background:#ff6600;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}';
-  html+='.hdr-left .pi{font-family:Arial,sans-serif;font-size:8pt;letter-spacing:2px;color:rgba(255,255,255,0.85);margin-bottom:2px}';
-  html+='.hdr-left .wb{font-size:20pt;font-weight:700;color:#fff}';
-  html+='.hdr-right{text-align:right}';
-  html+='.hdr-right .dt{font-size:11pt;font-weight:700;color:#fff}';
-  html+='.hdr-right .wk{font-size:9pt;color:rgba(255,255,255,0.8)}';
-  html+='.cat-banner{padding:7px 12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;page-break-before:always}';
-  html+='.cat-banner:first-of-type{page-break-before:avoid}';
-  html+='.cat-banner .cat-name{font-family:Arial,sans-serif;font-size:10pt;font-weight:700;color:#fff;letter-spacing:1.5px}';
-  html+='.cat-banner .cat-sub{font-size:9pt;font-style:italic;color:rgba(255,255,255,0.9)}';
-  html+='.topic{border:0.5pt solid #e8e4df;border-radius:4px;margin-bottom:8px;padding:10px;break-inside:avoid}';
-  html+='.topic-hdr{display:flex;gap:8px;align-items:baseline;margin-bottom:4px}';
-  html+='.topic-num{font-family:Arial,sans-serif;font-size:9pt;font-weight:700}';
-  html+='.topic-title{font-size:13pt;font-weight:700}';
-  html+='.topic-hl{font-style:italic;font-size:10pt;color:#555;margin-bottom:8px;margin-left:20px}';
-  html+='.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px}';
-  html+='.col-lbl{font-family:Arial,sans-serif;font-size:7pt;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:4px}';
-  html+='.why-text{font-size:9.5pt;color:#555;line-height:1.6}';
-  html+='.ref{font-size:7.5pt;color:#aaa;font-style:italic;margin-top:4px}';
-  html+='.insight-text{font-size:10pt;font-style:italic;color:#1a1a1a;line-height:1.65}';
-  html+='.attr{font-family:Arial,sans-serif;font-size:8pt;font-weight:700;margin-top:4px}';
-  html+='.deeper{border-left:2.5pt solid;padding:6px 10px;margin-top:2px}';
-  html+='.deeper-lbl{font-family:Arial,sans-serif;font-size:7pt;letter-spacing:1.5px;color:#aaa;margin-bottom:4px}';
-  html+='.deeper-item{font-size:9.5pt;color:#555;line-height:1.6;margin-bottom:2px}';
-  html+='.footer{font-family:Arial,sans-serif;font-size:7.5pt;color:#aaa;text-align:center;margin-top:12px;padding-top:6px;border-top:0.5pt solid #e8e4df}';
-  html+='@media print{.no-print{display:none}.cat-banner{page-break-before:always}.cat-banner:first-of-type{page-break-before:avoid}}';
-  html+='</style></head><body>';
+  var h='<!DOCTYPE html><html><head><meta charset="UTF-8">';
+  h+='<meta name="viewport" content="width=device-width,initial-scale=1.0">';
+  h+='<title>Performance Intelligence \u2014 Week '+wn+'</title>';
+  h+='<style>';
+  h+='*{box-sizing:border-box;margin:0;padding:0}';
+  h+='body{font-family:Georgia,serif;font-size:11pt;color:#1a1a1a;background:#fff}';
+  h+='.toolbar{background:#ff6600;padding:12px 16px;display:flex;gap:10px;align-items:center;position:sticky;top:0;z-index:99;padding-top:max(12px,env(safe-area-inset-top))}';
+  h+='.tbtn{border:none;border-radius:4px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:Georgia,serif}';
+  h+='.save-btn{background:#fff;color:#ff6600}';
+  h+='.back-btn{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.35)!important}';
+  h+='.hdr{background:#ff6600;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}';
+  h+='.pi{font-family:Arial,sans-serif;font-size:8pt;letter-spacing:2px;color:rgba(255,255,255,0.85);margin-bottom:3px}';
+  h+='.wb{font-size:22pt;font-weight:700;color:#fff}';
+  h+='.hdr-r{text-align:right}';
+  h+='.dt{font-size:11pt;font-weight:700;color:#fff}';
+  h+='.wk{font-size:9pt;color:rgba(255,255,255,0.8)}';
+  h+='.content{padding:14px 14px 30px;max-width:800px;margin:0 auto}';
+  h+='.rule{height:0.5px;background:#e8e4df;margin:10px 0}';
+  h+='.cat-banner{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;margin:14px 0 8px;border-radius:4px}';
+  h+='.cat-name{font-family:Arial,sans-serif;font-size:10pt;font-weight:700;color:#fff;letter-spacing:1.5px}';
+  h+='.cat-sub{font-size:9pt;font-style:italic;color:rgba(255,255,255,0.9)}';
+  h+='.topic{border:1px solid #e8e4df;border-radius:6px;margin-bottom:10px;padding:12px;break-inside:avoid}';
+  h+='.tnum{font-weight:700;font-size:9pt;font-family:Arial,sans-serif;margin-right:6px}';
+  h+='.ttitle{font-size:13pt;font-weight:700}';
+  h+='.thl{font-style:italic;font-size:10pt;color:#555;margin:5px 0 10px 22px;line-height:1.5}';
+  h+='.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:10px}';
+  h+='@media(max-width:500px){.two{grid-template-columns:1fr}}';
+  h+='.lbl{font-family:Arial,sans-serif;font-size:7pt;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:4px}';
+  h+='.why{font-size:9.5pt;color:#555;line-height:1.65}';
+  h+='.ref{font-size:7.5pt;color:#aaa;font-style:italic;margin-top:5px}';
+  h+='.ref a{color:#2980b9}';
+  h+='.ins{font-size:10pt;font-style:italic;color:#1a1a1a;line-height:1.7;border-left:3px solid;padding-left:10px}';
+  h+='.attr{font-family:Arial,sans-serif;font-size:8pt;font-weight:700;margin-top:5px}';
+  h+='.deeper{border-left:3px solid;padding:8px 10px;margin-top:8px;background:#fff4ee;border-radius:0 4px 4px 0}';
+  h+='.dlbl{font-family:Arial,sans-serif;font-size:7pt;letter-spacing:1.5px;color:#aaa;margin-bottom:5px}';
+  h+='.ditem{font-size:9.5pt;color:#555;line-height:1.7;margin-bottom:2px}';
+  h+='.ditem a{color:#2980b9;text-decoration:none}';
+  h+='.footer{font-family:Arial,sans-serif;font-size:7.5pt;color:#aaa;text-align:center;padding:14px;border-top:1px solid #e8e4df;margin-top:10px}';
+  h+='@media print{.toolbar{display:none}.cat-banner{page-break-before:always}.cat-banner:first-of-type{page-break-before:avoid}.topic{break-inside:avoid}}';
+  h+='</style></head><body>';
 
-  // Print button (hidden when printing)
-  html+='<div class="no-print" style="background:#ff6600;padding:10px;text-align:center;margin-bottom:0">';
-  html+='<button onclick="window.print()" style="background:#fff;color:#ff6600;border:none;border-radius:4px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;margin-right:10px">&#128438; Save as PDF / Print</button>';
-  html+='<button onclick="window.close()" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer">&#10005; Close</button>';
-  html+='</div>';
+  // Toolbar
+  h+='<div class="toolbar">';
+  h+='<button class="tbtn save-btn" onclick="window.print()">\uD83D\uDDA8 Save as PDF</button>';
+  h+='<button class="tbtn back-btn" onclick="history.back()">\u2190 Back to App</button>';
+  h+='</div>';
 
   // Header
-  html+='<div class="hdr">';
-  html+='<div class="hdr-left"><div class="pi">PERFORMANCE INTELLIGENCE</div><div class="wb">Weekly Briefing</div></div>';
-  html+='<div class="hdr-right"><div class="dt">'+ds+'</div><div class="wk">Week '+wn+'</div></div>';
-  html+='</div>';
+  h+='<div class="hdr">';
+  h+='<div><div class="pi">PERFORMANCE INTELLIGENCE</div><div class="wb">Weekly Briefing</div></div>';
+  h+='<div class="hdr-r"><div class="dt">'+ds+'</div><div class="wk">Week '+wn+'</div></div>';
+  h+='</div>';
+  h+='<div class="content">';
+  h+='<div class="rule"></div>';
 
   var firstCat=true;
   catOrder.forEach(function(id){
@@ -825,52 +834,48 @@ function generateCurrentPDF(){
     var topics=gt(id);
     var cc=catColors[id]||'#ff6600';
 
-    html+='<div class="cat-banner'+(firstCat?' first':'')+'" style="background:'+cc+'">';
-    html+='<span class="cat-name">'+cat.label.toUpperCase()+'</span>';
-    html+='<span class="cat-sub">Four high-signal topics for this week</span>';
-    html+='</div>';
+    h+='<div class="cat-banner" style="background:'+cc+'">';
+    h+='<span class="cat-name">'+cat.label.toUpperCase()+'</span>';
+    h+='<span class="cat-sub">Four high-signal topics for this week</span>';
+    h+='</div>';
     firstCat=false;
 
     topics.forEach(function(t,ti){
       var refText=t.ref&&typeof t.ref==='object'?t.ref.text:(t.ref||'');
       var refUrl=t.ref&&typeof t.ref==='object'?t.ref.url:null;
-      html+='<div class="topic">';
-      html+='<div class="topic-hdr"><span class="topic-num" style="color:'+cc+'">0'+(ti+1)+'</span>';
-      html+='<span class="topic-title">'+t.title+'</span></div>';
-      html+='<div class="topic-hl">'+t.headline+'</div>';
-      html+='<div class="two-col">';
-      // Why
-      html+='<div><div class="col-lbl">WHY IT MATTERS</div>';
-      html+='<div class="why-text">'+t.why+'</div>';
-      if(refText){
-        html+='<div class="ref">'+(refUrl?'<a href="'+refUrl+'" style="color:#2980b9">'+refText+'</a>':refText)+'</div>';
-      }
-      html+='</div>';
-      // Insight
-      html+='<div><div class="col-lbl" style="color:'+cc+'">KEY INSIGHT</div>';
-      html+='<div class="insight-text">\u201c'+t.insight+'\u201d</div>';
-      html+='<div class="attr" style="color:'+cc+'">\u2014 '+t.attribution+'</div>';
-      html+='</div></div>';
+      h+='<div class="topic">';
+      h+='<div><span class="tnum" style="color:'+cc+'">0'+(ti+1)+'</span><span class="ttitle">'+t.title+'</span></div>';
+      h+='<div class="thl">'+t.headline+'</div>';
+      h+='<div class="two">';
+      // Why it matters
+      h+='<div><div class="lbl">Why It Matters</div>';
+      h+='<div class="why">'+t.why+'</div>';
+      if(refText){h+='<div class="ref">'+(refUrl?'<a href="'+refUrl+'">'+refText+'</a>':refText)+'</div>';}
+      h+='</div>';
+      // Key insight
+      h+='<div><div class="lbl" style="color:'+cc+'">Key Insight</div>';
+      h+='<div class="ins" style="border-color:'+cc+'">\u201c'+t.insight+'\u201d</div>';
+      h+='<div class="attr" style="color:'+cc+'">\u2014 '+t.attribution+'</div>';
+      h+='</div></div>';
       // Go Deeper
-      html+='<div class="deeper" style="background:#fff4ee;border-color:'+cc+'">';
-      html+='<div class="deeper-lbl">GO DEEPER \u2192</div>';
+      h+='<div class="deeper" style="border-color:'+cc+'">';
+      h+='<div class="dlbl">Go Deeper \u2192</div>';
       (t.deeper||[]).forEach(function(d){
         var dt=typeof d==='object'?d.text:d;
         var du=typeof d==='object'?d.url:null;
-        html+='<div class="deeper-item">\u25b8\u2002'+(du?'<a href="'+du+'" style="color:#2980b9">'+dt+'</a>':dt)+'</div>';
+        h+='<div class="ditem">\u25b8\u2002'+(du?'<a href="'+du+'">'+dt+'</a>':dt)+'</div>';
       });
-      html+='</div></div>';
+      h+='</div></div>';
     });
   });
 
-  html+='<div class="footer">Performance Intelligence Weekly Briefing \u2022 Week '+wn+' \u2022 '+ds+'</div>';
-  html+='</body></html>';
+  h+='</div>';
+  h+='<div class="footer">Performance Intelligence Weekly Briefing \u2022 Week '+wn+' \u2022 '+ds+'</div>';
+  h+='</body></html>';
 
-  var win=window.open('','_blank');
-  if(!win){ alert('Please allow popups for this site, then tap PDF again.'); return; }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
+  document.open();
+  document.write(h);
+  document.close();
 }
 
 
