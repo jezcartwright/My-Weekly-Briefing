@@ -196,6 +196,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 .hl-match{background:rgba(255,102,0,0.15);border-radius:2px;padding:0 2px}
 
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ── Collapsible week groups in Library ── */
+.wk-group{margin-bottom:14px}
+.wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--white);border:1px solid var(--b);border-radius:6px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s}
+.wk-header:active{background:var(--bg)}
+.wk-header.open{border-radius:6px 6px 0 0;border-bottom:1px solid var(--b2)}
+.wk-label{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--t);letter-spacing:-.01em}
+.wk-label.current{color:var(--orange)}
+.wk-meta{font-size:11px;color:var(--t3);font-style:italic;font-family:'Playfair Display',serif;margin-top:2px}
+.wk-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.wk-chevron{font-size:16px;color:var(--t3);transition:transform .25s;display:inline-block;line-height:1}
+.wk-header.open .wk-chevron{transform:rotate(180deg)}
+.wk-pdf{background:rgba(255,102,0,0.1);border:1px solid #ff6600;border-radius:3px;padding:3px 9px;font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:#ff6600;cursor:pointer;white-space:nowrap}
+.wk-body{display:none;border:1px solid var(--b);border-top:none;border-radius:0 0 6px 6px;overflow:hidden}
+.wk-header.open + .wk-body{display:block;animation:fu .2s ease both}
 /* ── PDF Overlay (DOM-based, PWA compatible) ── */
 #pdf-view{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #pdf-view.show{display:block}
@@ -484,6 +498,7 @@ function notesHTML(catId, color){
 // ── State ──
 var ac=CATS[0], oc=null, cv='today', lf='all', kf='all', ol=null, ok=null;
 var libQ='', likedQ='';
+var openWeeks={};
 var SK='exec_brief_v3';
 
 // ── Storage ──
@@ -643,6 +658,10 @@ function clearLibSearch(){
   document.getElementById('lib-clear').className='search-clear';
   ol=null;rl();
 }
+function toggleWeek(date){
+  openWeeks[date]=!openWeeks[date];
+  rl();
+}
 function rl(){
   rlfilt();
   var h=gh(),total=h.length;
@@ -680,11 +699,34 @@ function rl(){
       return catOrder.indexOf(a.catId) - catOrder.indexOf(b.catId);
     });
   });
+  // Current week auto-opens if not explicitly toggled
+  var currentWeek=tk();
+  dates.forEach(function(date){
+    if(openWeeks[date]===undefined) openWeeks[date]=(date===currentWeek);
+  });
+
   sc2.innerHTML=dates.map(function(date){
     var entries=bd[date];
-    var isToday=date===tk();
-    var disp=new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-    return '<div class="dg"><div class="dl" style="display:flex;justify-content:space-between;align-items:center">'+(isToday?'This Week — '+disp:('Week of '+disp))+'<button onclick="generateLibraryPDF(\''+date+'\');event.stopPropagation()" style="background:rgba(255,102,0,0.1);border:1px solid #ff6600;border-radius:3px;padding:2px 8px;font-family:\'Playfair Display\',serif;font-size:10px;font-weight:700;color:#ff6600;cursor:pointer;white-space:nowrap">&#x1F4C4; PDF</button></div>'+
+    var isCurrentWeek=date===currentWeek;
+    var isOpen=!!openWeeks[date]||!!libQ;
+    var d=new Date(date+'T12:00:00');
+    var disp=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+    var label=isCurrentWeek?'This Week':'Week of';
+    var topicCount=entries.reduce(function(a,e){return a+e.topics.length;},0);
+    var catNames=entries.map(function(e){return e.catLabel;}).join(', ');
+
+    var headerHtml='<div class="wk-header'+(isOpen?' open':'')+'" onclick="toggleWeek(\''+date+'\')">'+
+      '<div>'+
+      '<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+label+' — '+disp+'</div>'+
+      '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div>'+
+      '</div>'+
+      '<div class="wk-right">'+
+      '<button class="wk-pdf" onclick="generateLibraryPDF(\''+date+'\');event.stopPropagation()">&#x1F4C4; PDF</button>'+
+      '<span class="wk-chevron">⌄</span>'+
+      '</div>'+
+      '</div>';
+
+    var bodyHtml='<div class="wk-body">'+
       entries.map(function(entry){
         return entry.topics.map(function(t,ti){
           var uid=date+'_'+entry.catId+'_'+t.title;
@@ -706,7 +748,10 @@ function rl(){
             '</div></div>'+
             '<div class="lb">'+bh(t,entry.catId,entry.catColor)+'</div></div>';
         }).join('');
-      }).join('')+'</div>';
+      }).join('')+
+      '</div>';
+
+    return '<div class="wk-group">'+headerHtml+bodyHtml+'</div>';
   }).join('');
   sc2.scrollTop=0;
 }
