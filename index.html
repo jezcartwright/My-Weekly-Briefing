@@ -42,19 +42,21 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 .hl-logo img{width:100%;height:100%;object-fit:contain;margin-top:2px}
 .hl-text .sub{font-family:'Playfair Display',serif;font-size:17px;letter-spacing:.18em;color:#fff;font-weight:700;margin-bottom:10px;font-style:normal;line-height:1;text-transform:uppercase}
 .hl-text h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1;margin-top:0}
-.hr{display:flex;align-items:center;gap:8px}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .hdate{font-size:16px;color:rgba(255,255,255,0.9);text-align:right;line-height:1.5;font-family:'Playfair Display',serif;font-weight:600}
 .hbadge{font-size:11px;color:#fff;letter-spacing:.12em;font-weight:700;background:rgba(255,255,255,0.2);padding:2px 7px;border-radius:3px;font-family:'Playfair Display',serif;text-transform:uppercase}
 .hbtn{
   background:rgba(255,255,255,0.15);
   border:1px solid rgba(255,255,255,0.3);
-  border-radius:4px;padding:7px 11px;
+  border-radius:4px;
   font-family:'Playfair Display',serif;font-size:13px;font-weight:700;
   color:rgba(255,255,255,0.9);letter-spacing:.02em;
-  cursor:pointer;display:flex;align-items:center;gap:5px;
-  transition:all .2s;white-space:nowrap
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .2s;white-space:nowrap;
+  width:80px;height:34px;flex-shrink:0;
 }
 .hbtn.on,.hbtn:active{background:rgba(255,255,255,0.95);color:var(--orange)}
+.hr-btns{display:flex;gap:6px;align-items:center}
 
 /* ── Views ── */
 #vt,#vl,#vk{display:flex;flex-direction:column;flex:1;overflow:hidden}
@@ -258,9 +260,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
   .hl-logo{width:44px;height:44px}
   .hl-text .sub{font-size:11px;letter-spacing:.1em;margin-bottom:4px}
   .hl-text h1{font-size:20px}
-  .hr{gap:5px;flex-direction:column;align-items:flex-end}
-  .hdate{font-size:12px;line-height:1.3}
-  .hbtn{padding:5px 8px;font-size:10px;gap:3px}
+  .hr{gap:4px;flex-direction:column;align-items:flex-end}
+  .hdate{font-size:11px;line-height:1.3}
+  .hr-btns{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .hbtn{width:100%;height:28px;font-size:10px;gap:3px}
 
   /* Tabs - smaller text */
   .tab{padding:9px 10px 8px;font-size:10px;gap:4px}
@@ -371,6 +374,36 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
   /* Show compact nav instead */
 }
 
+/* ── iPad and up (768px+): two-tier header ── */
+@media(min-width:768px){
+  #hdr{
+    flex-direction:column;
+    align-items:stretch;
+    padding-left:20px;padding-right:20px;
+    padding-top:calc(var(--st) + 10px);
+    padding-bottom:0;
+  }
+  .hr{flex-direction:row;align-items:center;gap:0;justify-content:space-between;width:100%;padding-bottom:8px}
+  .hdate{font-size:14px;font-weight:600;order:-1}
+  .hr-btns{gap:8px}
+  .hbtn{width:84px;height:36px;font-size:12px}
+  .hl{align-items:center;gap:14px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.2);width:100%}
+  .hl-logo{width:52px;height:52px}
+  .hl-text .sub{font-size:13px;margin-bottom:4px}
+  .hl-text h1{font-size:24px}
+}
+
+/* ── Desktop (1024px+) ── */
+@media(min-width:1024px){
+  #hdr{padding-left:28px;padding-right:28px}
+  .hbtn{width:92px;height:38px;font-size:13px}
+  .hr-btns{gap:10px}
+  .hl-logo{width:60px;height:60px}
+  .hl-text .sub{font-size:14px}
+  .hl-text h1{font-size:28px}
+  .hdate{font-size:15px}
+}
+
 
 /* ── Notes box ── */
 .notes-section{margin-top:20px;background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
@@ -401,10 +434,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
     </div>
     <div class="hr">
       <div class="hdate"><div id="de"></div></div>
-      <button class="hbtn" id="btn-pdf" onclick="generateCurrentPDF()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
-      <button class="hbtn" id="btn-notes" onclick="showView('notes')">✏ Notes</button>
-      <button class="hbtn" id="btn-likes" onclick="showView('likes')">♥ Liked</button>
-      <button class="hbtn" id="btn-lib" onclick="showView('library')">◫ Library</button>
+      <div class="hr-btns">
+        <button class="hbtn" id="btn-pdf" onclick="generateCurrentPDF()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
+        <button class="hbtn" id="btn-notes" onclick="showView('notes')">✏ Notes</button>
+        <button class="hbtn" id="btn-likes" onclick="showView('likes')">♥ Liked</button>
+        <button class="hbtn" id="btn-lib" onclick="showView('library')">◫ Library</button>
+      </div>
     </div>
   </div>
 
