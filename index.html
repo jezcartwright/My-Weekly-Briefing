@@ -198,16 +198,20 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 /* ── Collapsible week groups in Library ── */
 .wk-group{margin-bottom:14px}
-.wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--white);border:1px solid var(--b);border-radius:6px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s}
+.wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--white);border:1px solid var(--b);border-radius:6px;-webkit-user-select:none;user-select:none;transition:background .2s}
+.wk-label-wrap{flex:1;cursor:pointer;min-width:0}
 .wk-header:active{background:var(--bg)}
 .wk-header.open{border-radius:6px 6px 0 0;border-bottom:1px solid var(--b2)}
 .wk-label{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--t);letter-spacing:-.01em}
 .wk-label.current{color:var(--orange)}
 .wk-meta{font-size:11px;color:var(--t3);font-style:italic;font-family:'Playfair Display',serif;margin-top:2px}
-.wk-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.wk-chevron{font-size:16px;color:var(--t3);transition:transform .25s;display:inline-block;line-height:1}
+.wk-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.wk-chevron{transition:transform .25s;display:inline-block;line-height:1}
 .wk-header.open .wk-chevron{transform:rotate(180deg)}
-.wk-pdf{background:rgba(255,102,0,0.1);border:1px solid #ff6600;border-radius:3px;padding:3px 9px;font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:#ff6600;cursor:pointer;white-space:nowrap}
+.wk-pdf,.wk-toggle{font-family:'Playfair Display',serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:4px;padding:6px 12px;line-height:1;display:inline-flex;align-items:center;gap:4px}
+.wk-pdf{background:rgba(255,102,0,0.1);border:1px solid #ff6600;color:#ff6600}
+.wk-toggle{background:rgba(0,0,0,0.05);border:1px solid #ccc;color:var(--t3)}
+.wk-header.open .wk-toggle{background:rgba(255,102,0,0.08);border-color:#ff6600;color:#ff6600}
 .wk-body{display:none;border:1px solid var(--b);border-top:none;border-radius:0 0 6px 6px;overflow:hidden}
 .wk-header.open + .wk-body{display:block;animation:fu .2s ease both}
 /* ── PDF Overlay (DOM-based, PWA compatible) ── */
@@ -715,14 +719,14 @@ function rl(){
     var topicCount=entries.reduce(function(a,e){return a+e.topics.length;},0);
     var catNames=entries.map(function(e){return e.catLabel;}).join(', ');
 
-    var headerHtml='<div class="wk-header'+(isOpen?' open':'')+'" onclick="toggleWeek(\''+date+'\')">'+
-      '<div>'+
+    var headerHtml='<div class="wk-header'+(isOpen?' open':'')+'">'+
+      '<div class="wk-label-wrap" onclick="toggleWeek(\''+date+'\')">'+
       '<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+label+' — '+disp+'</div>'+
       '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div>'+
       '</div>'+
       '<div class="wk-right">'+
       '<button class="wk-pdf" onclick="generateLibraryPDF(\''+date+'\');event.stopPropagation()">&#x1F4C4; PDF</button>'+
-      '<span class="wk-chevron">⌄</span>'+
+      '<button class="wk-toggle" onclick="toggleWeek(\''+date+'\');event.stopPropagation()"><span class="wk-chevron">⌄</span></button>'+
       '</div>'+
       '</div>';
 
