@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="PI Briefing">
 <title>Performance Intelligence Weekly Briefing</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");</script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -250,8 +252,12 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
   <div class="login-wb">Weekly Briefing</div>
   <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
   <div class="login-box" id="login-box">
-    <h2>Sign in</h2>
-    <p>Enter your email and we'll send you a secure link — no password needed.</p>
+    <h2>Sign in or create account</h2>
+    <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <input class="login-input" id="login-fname" type="text" placeholder="First name" autocomplete="given-name" style="margin-bottom:0">
+      <input class="login-input" id="login-lname" type="text" placeholder="Last name" autocomplete="family-name" style="margin-bottom:0">
+    </div>
     <input class="login-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="email">
     <button class="login-btn" onclick="sendMagicLink()">Send sign-in link</button>
     <div class="login-divider">or</div>
@@ -368,7 +374,7 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https:
 // FIREBASE CONFIG — replace with your own
 // ════════════════════════════════════════════
 const firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -386,8 +392,11 @@ const ACTION_URL = window.location.href.split('?')[0];
 
 // ── Auth functions (exposed globally) ──
 window.sendMagicLink = async function() {
+  const fname = (document.getElementById('login-fname').value||'').trim();
+  const lname = (document.getElementById('login-lname').value||'').trim();
   const email = document.getElementById('login-email').value.trim();
   const msg = document.getElementById('login-msg');
+  if(!fname){ msg.textContent = 'Please enter your first name.'; return; }
   if(!email || !email.includes('@')){ msg.textContent = 'Please enter a valid email.'; return; }
   msg.textContent = 'Sending...';
   try {
@@ -396,6 +405,7 @@ window.sendMagicLink = async function() {
       handleCodeInApp: true
     });
     localStorage.setItem('emailForSignIn', email);
+    localStorage.setItem('nameForSignIn', JSON.stringify({first: fname, last: lname}));
     document.getElementById('sent-email').textContent = email;
     document.getElementById('login-box').style.display = 'none';
     document.getElementById('login-sent').style.display = 'block';
@@ -438,20 +448,27 @@ let unsubscribeUser = null;
 
 async function loadUserData(uid) {
   const userRef = doc(db, 'users', uid);
-  // Listen for real-time updates
   if(unsubscribeUser) unsubscribeUser();
   unsubscribeUser = onSnapshot(userRef, (snap) => {
     if(snap.exists()) {
       const data = snap.data();
       window._fb_likes = data.likes || [];
       window._fb_notes = data.notes || {};
+      window._fb_profile = data.profile || {};
     } else {
       window._fb_likes = [];
       window._fb_notes = {};
+      window._fb_profile = {};
     }
-    // Re-render if app is showing
     if(document.getElementById('app').style.display !== 'none') {
       window.rto && window.rto();
+      // Update name in header if profile loaded
+      const p = window._fb_profile || {};
+      if(p.firstName) {
+        document.getElementById('user-initial').textContent = p.firstName;
+        document.getElementById('menu-email').textContent =
+          p.firstName + ' ' + (p.lastName||'') + ' — ' + (p.email||'');
+      }
     }
   });
 }
@@ -473,39 +490,96 @@ onAuthStateChanged(auth, async (user) => {
     userUid = user.uid;
     window._fb_likes = [];
     window._fb_notes = {};
-    
-    // Update header with user info
-    const initial = (user.displayName || user.email || '?')[0].toUpperCase();
-    document.getElementById('user-initial').textContent = initial;
-    document.getElementById('menu-email').textContent = user.email || user.displayName;
+
+    // Load their data first
+    await loadUserData(user.uid);
+
+    // Check if we have a name to save (from magic link sign-up)
+    const savedName = localStorage.getItem('nameForSignIn');
+    if(savedName) {
+      try {
+        const nameObj = JSON.parse(savedName);
+        // Only save if profile doesn't already have a name
+        const userRef = doc(db, 'users', user.uid);
+        const snap = await getDoc(userRef);
+        const existingProfile = snap.exists() ? snap.data().profile : null;
+        if(!existingProfile || !existingProfile.firstName) {
+          await setDoc(userRef, {
+            profile: {
+              firstName: nameObj.first,
+              lastName: nameObj.last,
+              email: user.email,
+              joinedAt: new Date().toISOString(),
+              isNewUser: true
+            }
+          }, { merge: true });
+          window._fb_profile = { firstName: nameObj.first, lastName: nameObj.last, email: user.email };
+          // Send welcome email via EmailJS
+          sendWelcomeEmail(nameObj.first, user.email);
+        } else {
+          window._fb_profile = existingProfile;
+        }
+        localStorage.removeItem('nameForSignIn');
+      } catch(e) { console.error('Profile save error:', e); }
+    } else {
+      // Returning user — get profile from loaded data
+      window._fb_profile = window._fb_profile || {};
+    }
+
+    // Update header
+    const profile = window._fb_profile || {};
+    const displayName = profile.firstName || user.displayName || user.email || '?';
+    const initial = displayName[0].toUpperCase();
+    document.getElementById('user-initial').textContent = profile.firstName || initial;
+    document.getElementById('menu-email').textContent =
+      (profile.firstName ? profile.firstName + ' ' + (profile.lastName||'') + ' — ' : '') +
+      (user.email || '');
     const avatarEl = document.getElementById('user-avatar');
     if(user.photoURL) {
       avatarEl.innerHTML = '<img src="' + user.photoURL + '">';
     } else {
       avatarEl.textContent = initial;
     }
-    
-    // Load their data
-    await loadUserData(user.uid);
-    
+
     // Show app
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').style.display = 'flex';
-    
-    // Init app
     window.initApp && window.initApp();
-    
+
   } else {
     userUid = null;
     if(unsubscribeUser) { unsubscribeUser(); unsubscribeUser = null; }
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('app').style.display = 'none';
   }
-});
+}));
 
 // ── Expose Firebase data functions globally ──
 window._fbSave = saveUserData;
 window._fbUid = () => userUid;
+
+// Welcome email via EmailJS (free tier: 200 emails/month)
+async function sendWelcomeEmail(firstName, email) {
+  try {
+    // EmailJS - you need to set up a free account at emailjs.com
+    // and replace these IDs with your own
+    if(typeof emailjs === 'undefined') return;
+    await emailjs.send(
+      'YOUR_EMAILJS_SERVICE_ID',   // e.g. 'service_abc123'
+      'YOUR_EMAILJS_TEMPLATE_ID',  // e.g. 'template_xyz789'
+      {
+        to_name: firstName,
+        to_email: email,
+        from_name: 'Jez Cartwright',
+        reply_to: 'jc@jezcartwright.com',
+        app_url: 'https://jezcartwright.github.io/My-Daily-Briefing'
+      }
+    );
+    console.log('Welcome email sent to', email);
+  } catch(e) {
+    console.log('Welcome email error (non-critical):', e);
+  }
+}
 
 </script>
 
