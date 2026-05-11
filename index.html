@@ -62,7 +62,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .hl-logo{width:72px;height:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#ff6600}
 .hl-logo img{width:60px;height:60px;object-fit:contain}
 .hl-text .sub{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:.18em;color:rgba(255,255,255,0.85);font-weight:700;margin-bottom:8px;line-height:1;text-transform:uppercase}
-.hl-text h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:.01em;line-height:1}
+.hl-text h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:.06em;line-height:1;font-feature-settings:'liga' 0,'dlig' 0,'kern' 1}
 .hr{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .hdate{font-size:16px;color:rgba(255,255,255,0.9);text-align:right;font-family:'Playfair Display',serif;font-weight:600}
 .hr-btns{display:flex;gap:7px;align-items:center}
@@ -229,7 +229,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
   .hl-logo{width:44px;height:44px}
   .hl-logo img{width:36px;height:36px}
   .hl-text .sub{font-size:9px;margin-bottom:5px}
-  .hl-text h1{font-size:20px}
+  .hl-text h1{font-size:18px;letter-spacing:.06em;font-feature-settings:'liga' 0,'dlig' 0}
   .hr{gap:5px}
   .hdate{font-size:13px}
   .hr-btns{display:grid;grid-template-columns:1fr 1fr;gap:4px}
@@ -372,7 +372,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
