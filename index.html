@@ -8,8 +8,6 @@
 <meta name="apple-mobile-web-app-title" content="PI Briefing">
 <title>Performance Intelligence Weekly Briefing</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init("YOUR_EMAILJS_PUBLIC_KEY");</script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -365,115 +363,109 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
   </div></div>
 </div>
 
-<!-- F<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut as fbSignOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
+<!-- F<!-- Firebase v8 compat SDK — loads synchronously, no ES module issues -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script>
 // ════════════════════════════════════════════
-// FIREBASE CONFIG — replace with your own
+// FIREBASE CONFIG
 // ════════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+var firebaseConfig = {
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
   messagingSenderId: "1009693063617",
   appId: "1:1009693063617:web:35620f45a71ba9ef201740"
 };
-// ════════════════════════════════════════════
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+var ACTION_URL = window.location.href.split('?')[0];
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Action URL for email sign-in link
-const ACTION_URL = window.location.href.split('?')[0];
-
-// Handle Google redirect result on page load
-getRedirectResult(auth).then((result) => {
+// ── Handle Google redirect result on page load ──
+auth.getRedirectResult().then(function(result) {
   if(result && result.user) {
-    console.log('Google redirect sign-in successful:', result.user.email);
-    // Auth state change will handle showing the app
+    console.log('Google redirect sign-in:', result.user.email);
   }
-}).catch((e) => {
+}).catch(function(e) {
   console.error('Redirect result error:', e.code, e.message);
-  // Show error on login screen if visible
-  const msg = document.getElementById('login-msg');
+  var msg = document.getElementById('login-msg');
   if(msg && e.code && e.code !== 'auth/no-current-user') {
     msg.textContent = 'Sign-in error: ' + e.message;
-    msg.style.color = 'red';
   }
 });
 
-// ── Auth functions (exposed globally) ──
-window.sendMagicLink = async function() {
-  const fname = (document.getElementById('login-fname').value||'').trim();
-  const lname = (document.getElementById('login-lname').value||'').trim();
-  const email = document.getElementById('login-email').value.trim();
-  const msg = document.getElementById('login-msg');
+// ── Handle email link sign-in on page load ──
+if(firebase.auth().isSignInWithEmailLink(window.location.href)) {
+  var email = localStorage.getItem('emailForSignIn');
+  if(!email) email = window.prompt('Please enter your email to confirm sign-in:');
+  if(email) {
+    auth.signInWithEmailLink(email, window.location.href)
+      .then(function() {
+        localStorage.removeItem('emailForSignIn');
+        window.history.replaceState(null, '', ACTION_URL);
+      })
+      .catch(function(e) {
+        var msg = document.getElementById('login-msg');
+        if(msg) msg.textContent = 'Sign-in error: ' + e.message;
+      });
+  }
+}
+
+// ── Send magic link ──
+window.sendMagicLink = function() {
+  var fname = (document.getElementById('login-fname').value||'').trim();
+  var lname = (document.getElementById('login-lname').value||'').trim();
+  var email = document.getElementById('login-email').value.trim();
+  var msg = document.getElementById('login-msg');
   if(!fname){ msg.textContent = 'Please enter your first name.'; return; }
   if(!email || !email.includes('@')){ msg.textContent = 'Please enter a valid email.'; return; }
   msg.textContent = 'Sending...';
-  try {
-    await sendSignInLinkToEmail(auth, email, {
-      url: ACTION_URL,
-      handleCodeInApp: true
-    });
+  auth.sendSignInLinkToEmail(email, {
+    url: ACTION_URL,
+    handleCodeInApp: true
+  }).then(function() {
     localStorage.setItem('emailForSignIn', email);
     localStorage.setItem('nameForSignIn', JSON.stringify({first: fname, last: lname}));
     document.getElementById('sent-email').textContent = email;
     document.getElementById('login-box').style.display = 'none';
     document.getElementById('login-sent').style.display = 'block';
-  } catch(e) {
+  }).catch(function(e) {
     msg.textContent = 'Error: ' + e.message;
-  }
+  });
 };
 
-window.signInGoogle = async function() {
-  const msg = document.getElementById('login-msg');
-  try {
-    msg.textContent = 'Redirecting to Google...';
-    msg.style.color = '#ff6600';
-    const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
-    // Page will redirect to Google and back
-  } catch(e) {
+// ── Google sign-in ──
+window.signInGoogle = function() {
+  var msg = document.getElementById('login-msg');
+  msg.textContent = 'Redirecting to Google...';
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider).catch(function(e) {
     msg.textContent = 'Error: ' + e.message;
-    msg.style.color = 'red';
     console.error('Google sign-in error:', e);
-  }
+  });
 };
 
-window.signOut = async function() {
-  window.hideUserMenu();
-  await fbSignOut(auth);
+// ── Sign out ──
+window.signOut = function() {
+  window.hideUserMenu && window.hideUserMenu();
+  auth.signOut();
 };
 
 window.showUserMenu = function() { document.getElementById('user-menu').style.display = 'block'; };
 window.hideUserMenu = function() { document.getElementById('user-menu').style.display = 'none'; };
 
-// ── Handle email link sign-in ──
-if(isSignInWithEmailLink(auth, window.location.href)) {
-  let email = localStorage.getItem('emailForSignIn');
-  if(!email) email = window.prompt('Please enter your email to confirm sign-in:');
-  if(email) {
-    signInWithEmailLink(auth, email, window.location.href)
-      .then(() => { localStorage.removeItem('emailForSignIn'); window.history.replaceState(null, '', ACTION_URL); })
-      .catch(e => { document.getElementById('login-msg').textContent = 'Sign-in error: ' + e.message; });
-  }
-}
+// ── User data ──
+var userUid = null;
+var unsubscribeUser = null;
 
-// ── User data sync ──
-let userUid = null;
-let unsubscribeUser = null;
-
-async function loadUserData(uid) {
-  const userRef = doc(db, 'users', uid);
+function loadUserData(uid) {
   if(unsubscribeUser) unsubscribeUser();
-  unsubscribeUser = onSnapshot(userRef, (snap) => {
-    if(snap.exists()) {
-      const data = snap.data();
+  unsubscribeUser = db.collection('users').doc(uid).onSnapshot(function(snap) {
+    if(snap.exists) {
+      var data = snap.data();
       window._fb_likes = data.likes || [];
       window._fb_notes = data.notes || {};
       window._fb_profile = data.profile || {};
@@ -484,86 +476,71 @@ async function loadUserData(uid) {
     }
     if(document.getElementById('app').style.display !== 'none') {
       window.rto && window.rto();
-      // Update name in header if profile loaded
-      const p = window._fb_profile || {};
+      var p = window._fb_profile || {};
       if(p.firstName) {
-        document.getElementById('user-initial').textContent = p.firstName;
-        document.getElementById('menu-email').textContent =
-          p.firstName + ' ' + (p.lastName||'') + ' — ' + (p.email||'');
+        var ui = document.getElementById('user-initial');
+        var me = document.getElementById('menu-email');
+        if(ui) ui.textContent = p.firstName;
+        if(me) me.textContent = p.firstName + ' ' + (p.lastName||'') + ' — ' + (p.email||'');
       }
     }
   });
 }
 
-async function saveUserData() {
+var _saveTimer = null;
+function debounceSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(function() {
+    if(window._fbSave) window._fbSave();
+  }, 1500);
+}
+
+function saveUserData() {
   if(!userUid) return;
-  try {
-    await setDoc(doc(db, 'users', userUid), {
-      likes: window._fb_likes || [],
-      notes: window._fb_notes || {},
-      lastSeen: new Date().toISOString()
-    }, { merge: true });
-  } catch(e) { console.error('Save error:', e); }
+  return db.collection('users').doc(userUid).set({
+    likes: window._fb_likes || [],
+    notes: window._fb_notes || {},
+    lastSeen: new Date().toISOString()
+  }, { merge: true }).catch(function(e) { console.error('Save error:', e); });
 }
 
 // ── Auth state change ──
-onAuthStateChanged(auth, async (user) => {
+auth.onAuthStateChanged(function(user) {
   if(user) {
     userUid = user.uid;
     window._fb_likes = [];
     window._fb_notes = {};
+    window._fb_profile = {};
 
-    // Load their data first
-    await loadUserData(user.uid);
-
-    // Check if we have a name to save (from magic link sign-up)
-    const savedName = localStorage.getItem('nameForSignIn');
+    // Check for saved name (from magic link sign-up)
+    var savedName = localStorage.getItem('nameForSignIn');
     if(savedName) {
       try {
-        const nameObj = JSON.parse(savedName);
-        // Only save if profile doesn't already have a name
-        const userRef = doc(db, 'users', user.uid);
-        const snap = await getDoc(userRef);
-        const existingProfile = snap.exists() ? snap.data().profile : null;
-        if(!existingProfile || !existingProfile.firstName) {
-          await setDoc(userRef, {
-            profile: {
-              firstName: nameObj.first,
-              lastName: nameObj.last,
-              email: user.email,
-              joinedAt: new Date().toISOString(),
-              isNewUser: true
-            }
-          }, { merge: true });
-          window._fb_profile = { firstName: nameObj.first, lastName: nameObj.last, email: user.email };
-          // Send welcome email via EmailJS
-          sendWelcomeEmail(nameObj.first, user.email);
-        } else {
-          window._fb_profile = existingProfile;
-        }
+        var nameObj = JSON.parse(savedName);
+        db.collection('users').doc(user.uid).get().then(function(snap) {
+          var existing = snap.exists ? (snap.data().profile || {}) : {};
+          if(!existing.firstName) {
+            db.collection('users').doc(user.uid).set({
+              profile: {
+                firstName: nameObj.first,
+                lastName: nameObj.last,
+                email: user.email,
+                joinedAt: new Date().toISOString()
+              }
+            }, { merge: true });
+            window._fb_profile = { firstName: nameObj.first, lastName: nameObj.last, email: user.email };
+          } else {
+            window._fb_profile = existing;
+          }
+          updateHeader(user);
+        });
         localStorage.removeItem('nameForSignIn');
       } catch(e) { console.error('Profile save error:', e); }
-    } else {
-      // Returning user — get profile from loaded data
-      window._fb_profile = window._fb_profile || {};
     }
 
-    // Update header
-    const profile = window._fb_profile || {};
-    const displayName = profile.firstName || user.displayName || user.email || '?';
-    const initial = displayName[0].toUpperCase();
-    document.getElementById('user-initial').textContent = profile.firstName || initial;
-    document.getElementById('menu-email').textContent =
-      (profile.firstName ? profile.firstName + ' ' + (profile.lastName||'') + ' — ' : '') +
-      (user.email || '');
-    const avatarEl = document.getElementById('user-avatar');
-    if(user.photoURL) {
-      avatarEl.innerHTML = '<img src="' + user.photoURL + '">';
-    } else {
-      avatarEl.textContent = initial;
-    }
+    loadUserData(user.uid);
+    updateHeader(user);
 
-    // Show app
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').style.display = 'flex';
     window.initApp && window.initApp();
@@ -574,40 +551,27 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('login-screen').classList.remove('hidden');
     document.getElementById('app').style.display = 'none';
   }
-}));
+});
 
-// ── Expose Firebase data functions globally ──
+function updateHeader(user) {
+  var p = window._fb_profile || {};
+  var displayName = p.firstName || user.displayName || user.email || '?';
+  var initial = displayName[0].toUpperCase();
+  var ui = document.getElementById('user-initial');
+  var me = document.getElementById('menu-email');
+  var av = document.getElementById('user-avatar');
+  if(ui) ui.textContent = p.firstName || initial;
+  if(me) me.textContent = (p.firstName ? p.firstName+' '+(p.lastName||'')+' — ' : '') + (user.email||'');
+  if(av) {
+    if(user.photoURL) { av.innerHTML = '<img src="'+user.photoURL+'">'; }
+    else { av.textContent = initial; }
+  }
+}
+
 window._fbSave = saveUserData;
-window._fbUid = () => userUid;
-
-// Welcome email via EmailJS (free tier: 200 emails/month)
-async function sendWelcomeEmail(firstName, email) {
-  try {
-    // EmailJS - you need to set up a free account at emailjs.com
-    // and replace these IDs with your own
-    if(typeof emailjs === 'undefined') return;
-    await emailjs.send(
-      'YOUR_EMAILJS_SERVICE_ID',   // e.g. 'service_abc123'
-      'YOUR_EMAILJS_TEMPLATE_ID',  // e.g. 'template_xyz789'
-      {
-        to_name: firstName,
-        to_email: email,
-        from_name: 'Jez Cartwright',
-        reply_to: 'jc@jezcartwright.com',
-        app_url: 'https://jezcartwright.github.io/My-Daily-Briefing'
-      }
-    );
-    console.log('Welcome email sent to', email);
-  } catch(e) {
-    console.log('Welcome email error (non-critical):', e);
-  }
-}
-
-):', e);
-  }
-}
-
+window._fbUid = function() { return userUid; };
 </script>
+
 
 <script>
 // ════════════════════════════════════════════
