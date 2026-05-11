@@ -1,0 +1,30 @@
+name: Deploy Briefing with Firebase Config
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Inject Firebase API key
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        run: |
+          sed -i "s/%%FIREBASE_API_KEY%%/${FIREBASE_API_KEY}/g" index.html
+
+      - name: Commit deployed version
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add index.html
+          git diff --staged --quiet || git commit -m "Deploy: inject Firebase config [skip ci]"
+          git push
