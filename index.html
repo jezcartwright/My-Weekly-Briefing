@@ -372,7 +372,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -1089,9 +1089,39 @@ window.initApp = function(){
   document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   // Clean old library entries
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
+  // Seed last week (4 May 2026) if not already in library
+  seedLastWeek();
   // Render
   rt(); rto(); rv(ac.id);
 };
+
+function seedLastWeek(){
+  try{
+    var LAST_WEEK='2026-05-04';
+    var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
+    // Check if last week already seeded
+    if(h.find(function(e){return e.date===LAST_WEEK;})) return;
+    // Add all 6 categories for week 19 (set index 1 in each category)
+    var toAdd=[];
+    CATS.forEach(function(cat){
+      var sets=D[cat.id];
+      if(!sets||sets.length<2) return; // need at least 2 sets
+      var topics=sets[1]; // set index 1 = last week's content
+      toAdd.push({
+        date:LAST_WEEK,
+        catId:cat.id,
+        catLabel:cat.label,
+        catIcon:cat.icon,
+        catColor:cat.color,
+        topics:topics
+      });
+    });
+    // Prepend to history
+    h=toAdd.concat(h);
+    localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
+    console.log('Seeded last week library entries:', toAdd.length);
+  }catch(e){console.error('Seed error:',e);}
+}
 </script>
 </body>
 </html>
