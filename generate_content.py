@@ -209,52 +209,43 @@ def update_html(html: str, all_content: dict) -> str:
 
 def get_current_file(token: str) -> tuple[str, str]:
     """Get current index.html content and SHA from GitHub API."""
-    import urllib.request
+    import requests
     
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
-    req = urllib.request.Request(
-        url,
-        headers={
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "PI-Weekly-Briefing-Bot",
-        }
-    )
-    with urllib.request.urlopen(req) as resp:
-        data = json.loads(resp.read())
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "PI-Weekly-Briefing-Bot",
+    }
+    resp = requests.get(url, headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
     
-    content = base64.b64decode(data['content']).decode('utf-8')
+    file_content = base64.b64decode(data['content']).decode('utf-8')
     sha = data['sha']
-    return content, sha
+    return file_content, sha
 
 
 def commit_file(token: str, content: str, sha: str, message: str) -> None:
     """Commit updated index.html to GitHub."""
-    import urllib.request
+    import requests
     
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
-    
-    payload = json.dumps({
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+        "User-Agent": "PI-Weekly-Briefing-Bot",
+    }
+    payload = {
         "message": message,
         "content": base64.b64encode(content.encode('utf-8')).decode('ascii'),
         "sha": sha,
         "branch": "main",
-    }).encode('utf-8')
-    
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        method="PUT",
-        headers={
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json",
-            "Content-Type": "application/json",
-            "User-Agent": "PI-Weekly-Briefing-Bot",
-        }
-    )
-    with urllib.request.urlopen(req) as resp:
-        result = json.loads(resp.read())
-    
+    }
+    resp = requests.put(url, headers=headers, json=payload)
+    resp.raise_for_status()
+    result = resp.json()
     print(f"  ✓ Committed: {result['commit']['html_url']}")
 
 
