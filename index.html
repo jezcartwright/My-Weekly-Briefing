@@ -32,16 +32,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 
 /* ── Header ── */
 #hdr{
-  padding:calc(var(--st) + 8px) 18px 8px;
+  padding:calc(var(--st) + 14px) 18px 10px;
   display:flex;justify-content:space-between;align-items:center;
   flex-shrink:0;background:var(--orange);
 }
 .hl{display:flex;align-items:center;gap:12px}
-.hl-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.1);border-radius:3px}
+.hl-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#ff6600;border-radius:3px;border:1.5px solid rgba(255,255,255,0.25)}
 .hl-logo img{width:100%;height:100%;object-fit:contain;margin-top:2px}
 .hl-text .sub{font-family:'Playfair Display',serif;font-size:9px;letter-spacing:.18em;color:#fff;font-weight:700;margin-bottom:5px;font-style:normal;line-height:1;text-transform:uppercase}
 .hl-text h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1;margin-top:0}
-.hr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
 .hdate{font-size:14px;color:rgba(255,255,255,0.9);text-align:right;line-height:1.3;font-family:'Playfair Display',serif;font-weight:600}
 .hbadge{font-size:11px;color:#fff;letter-spacing:.12em;font-weight:700;background:rgba(255,255,255,0.2);padding:2px 7px;border-radius:3px;font-family:'Playfair Display',serif;text-transform:uppercase}
 .hbtn{
@@ -302,9 +302,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
   /* Notes */
   .notes-section{margin-top:16px}
 /* ── Per-topic inline notes ── */
-.topic-notes{background:#fffdf9;border:1px solid #f0e8d0;border-radius:6px;padding:10px 12px;margin-top:10px}
+.topic-notes{background:#fffdf9;border:1px solid #f0e8d0;border-radius:6px;padding:12px 14px;margin-top:12px;width:100%}
 .topic-notes-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C9A84C;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.topic-notes-ta{width:100%;border:none;background:transparent;font-family:'Playfair Display',serif;font-size:13px;color:var(--t);resize:none;outline:none;line-height:1.7;min-height:100px;cursor:text}
+.topic-notes-ta{width:100%;border:none;background:transparent;font-family:'Playfair Display',serif;font-size:13px;color:var(--t);resize:none;outline:none;line-height:1.7;min-height:160px;cursor:text;display:block}
 .topic-notes-ta::placeholder{color:#c8bfad;font-style:italic}
 .topic-notes-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #f0e8d0}
 .topic-notes-hint{font-size:10px;color:#c8bfad;font-style:italic;font-family:'Playfair Display',serif}
@@ -693,7 +693,7 @@ function rto(){
     '<div><div class="cn" style="color:'+ac.color+'">'+ac.label+'</div>'+
     '<div class="cd">Four high-signal topics for this week — new set every Monday</div></div></div>'+
     '<div class="tl">'+tops.map(function(t,i){
-      var isOpen=oc===i;
+      var isOpen=false; // tgc() controls open state via DOM
       var liked=isLiked(ac.id,t.title);
       return '<div class="tc'+(isOpen?' op':'')+'">'+
         '<div class="th" onclick="tgc('+i+')">'+
@@ -707,13 +707,27 @@ function rto(){
         '<div class="th-right">'+
         '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ac.id+'\',\''+t.title.replace(/'/g,"\\'")+'\'  ,event)" title="'+(liked?'Unlike':'Like')+'">'+
         (liked?'♥':'♡')+'</button>'+
-        '<span class="tog" style="color:'+(isOpen?ac.color:'#2a2a2a')+'">+</span>'+
+        '<span class="tog" style="color:#2a2a2a">+</span>'+
         '</div></div>'+
         '<div class="tb">'+bh(t,ac.id,ac.color)+'</div></div>';
     }).join('')+'</div>';
   document.getElementById('ts').scrollTop=0;
 }
-function tgc(i){oc=oc===i?null:i;rto();}
+function tgc(i){
+  // Close all topics in current category
+  var tcs=document.querySelectorAll('#ts .tc');
+  tcs.forEach(function(tc,idx){
+    if(idx===i){
+      // Toggle the clicked one
+      var wasOpen=tc.classList.contains('op');
+      tc.classList.toggle('op',!wasOpen);
+      oc=wasOpen?null:i;
+    } else {
+      // Close all others
+      tc.classList.remove('op');
+    }
+  });
+}
 
 // ── LIBRARY VIEW ──
 function rlfilt(){
