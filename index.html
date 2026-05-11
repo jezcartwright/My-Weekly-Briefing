@@ -372,7 +372,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -804,7 +804,18 @@ function toggleLike(catId,title,e){
     var tops=gt(catId); var t=tops.find(function(x){return x.title===title;});
     if(t)l.unshift({id:id,catId:catId,title:title,headline:t.headline,why:t.why,insight:t.insight,attribution:t.attribution,deeper:t.deeper,date:tk()});
   }
-  saveLikes(l); rto();
+  saveLikes(l);
+  // Remember which topic is open before re-render
+  var openIdx=oc;
+  rto();
+  // Re-open the same topic after re-render
+  if(openIdx!==null){
+    var tl=document.querySelector('#ts .tl');
+    if(tl){
+      var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
+      if(tcs[openIdx]) tcs[openIdx].classList.add('op');
+    }
+  }
 }
 function rv(id){
   var cat=CATS.find(function(c){return c.id===id;});
