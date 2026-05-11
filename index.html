@@ -372,7 +372,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -868,44 +868,106 @@ function rv(id){
 
 // ── Library ──
 function rl(){
-  var h=gh(); var q=(document.getElementById('lib-search')||{}).value||'';
-  var filtered=q?h.filter(function(e){return(e.catLabel||''). toLowerCase().includes(q.toLowerCase())||(e.topics||[]).some(function(t){return(t.title||''). toLowerCase().includes(q.toLowerCase())||(t.headline||''). toLowerCase().includes(q.toLowerCase())});}):h;
-  document.getElementById('lce').textContent=filtered.length+' week'+(filtered.length!==1?'s':'')+' saved';
-  if(!filtered.length){document.getElementById('ls').innerHTML='<div class="empty"><span class="empty-icon">◫</span><div class="empty-title">No entries yet</div></div>';return;}
-  var html='',currentWeek=tk();
+  var h=gh();
+  var q=(document.getElementById('lib-search')||{}).value||'';
+  var filtered=q?h.filter(function(e){
+    return(e.catLabel||'').toLowerCase().includes(q.toLowerCase())||
+    (e.topics||[]).some(function(t){
+      return(t.title||'').toLowerCase().includes(q.toLowerCase())||
+        (t.headline||'').toLowerCase().includes(q.toLowerCase());
+    });
+  }):h;
+
+  var currentWeek=tk();
   var groups={};
   filtered.forEach(function(e){if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
+  var weekCount=Object.keys(groups).length;
+  document.getElementById('lce').textContent=weekCount+' week'+(weekCount!==1?'s':'')+' saved';
+
+  var ls=document.getElementById('ls');
+  ls.innerHTML='';
+
+  if(!weekCount){
+    ls.innerHTML='<div class="empty"><span class="empty-icon">◫</span><div class="empty-title">No entries yet</div></div>';
+    return;
+  }
+
   Object.keys(groups).sort().reverse().forEach(function(date){
-    var entries=groups[date]; var isCurrentWeek=date===currentWeek;
-    var d=new Date(date+'T12:00:00');
+    var entries=groups[date];
+    var isCurrentWeek=date===currentWeek;
+    var d2=new Date(date+'T12:00:00');
     var label=isCurrentWeek?'This Week':'Week of';
-    var disp=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    var disp=d2.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
     var catNames=[...new Set(entries.map(function(e){return e.catLabel;}))].join(', ');
     var topicCount=entries.reduce(function(a,e){return a+(e.topics||[]).length;},0);
-    html+='<div class="wk"><div class="wk-header'+(isCurrentWeek?' open':'')+'" id="wkh-'+date+'">'+
-      '<div class="wk-label-wrap" onclick="toggleWeek(\''+ date +'\')">'+
-      '<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+ label +' — '+disp+'</div>'+
-      '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div></div>'+
-      '<div class="wk-right">'+
-      '<button class="wk-pdf" onclick="generateCurrentPDF();event.stopPropagation()">📄 PDF</button>'+
-      '<button class="wk-toggle" onclick="toggleWeek(\''+ date +'\');event.stopPropagation()"><span class="wk-chevron">⌄</span></button>'+
-      '</div></div>'+
-      '<div class="wk-body">'+
-      entries.map(function(entry){
-        return(entry.topics||[]).map(function(t,ti){
-          return'<div class="lh" onclick="toggleLib(\''+ entry.catId+'_'+ti+'\',\''+ date +'\')">'+
-            '<span class="lh-icon" style="color:'+entry.catColor+'">'+entry.catIcon+'</span>'+
-            '<div class="lh-body"><div class="lh-cat" style="color:'+entry.catColor+'">'+entry.catLabel+'</div>'+
-            '<div class="lh-title">'+t.title+'</div><div class="lh-hl">'+t.headline+'</div></div>'+
-            '<span class="ltog">+</span></div>'+
-            '<div class="lb" id="lb-'+entry.catId+'_'+ti+'-'+date+'">'+bh(t,entry.catId,entry.catColor)+'</div>';
-        }).join('');
-      }).join('')+'</div></div>';
+
+    // Build week container
+    var wkDiv=document.createElement('div');
+    wkDiv.className='wk';
+
+    // Header
+    var hdr=document.createElement('div');
+    hdr.className='wk-header'+(isCurrentWeek?' open':'');
+    hdr.id='wkh-'+date;
+
+    var labelWrap=document.createElement('div');
+    labelWrap.className='wk-label-wrap';
+    labelWrap.onclick=function(){toggleWeek(date);};
+    labelWrap.innerHTML='<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+label+' — '+disp+'</div>'+
+      '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div>';
+
+    var right=document.createElement('div');
+    right.className='wk-right';
+    right.innerHTML='<button class="wk-pdf" onclick="generateCurrentPDF();event.stopPropagation()">📄 PDF</button>';
+
+    var togBtn=document.createElement('button');
+    togBtn.className='wk-toggle';
+    togBtn.innerHTML='<span class="wk-chevron">⌄</span>';
+    togBtn.onclick=function(ev){ev.stopPropagation();toggleWeek(date);};
+    right.appendChild(togBtn);
+
+    hdr.appendChild(labelWrap);
+    hdr.appendChild(right);
+
+    // Body
+    var body=document.createElement('div');
+    body.className='wk-body';
+    body.id='wkb-'+date;
+    body.style.display=isCurrentWeek?'block':'none';
+
+    entries.forEach(function(entry){
+      (entry.topics||[]).forEach(function(t,ti){
+        var lh=document.createElement('div');
+        lh.className='lh';
+        lh.innerHTML='<span class="lh-icon" style="color:'+entry.catColor+'">'+entry.catIcon+'</span>'+
+          '<div class="lh-body"><div class="lh-cat" style="color:'+entry.catColor+'">'+entry.catLabel+'</div>'+
+          '<div class="lh-title">'+t.title+'</div><div class="lh-hl">'+t.headline+'</div></div>'+
+          '<span class="ltog">+</span>';
+
+        var lb=document.createElement('div');
+        lb.className='lb';
+        lb.id='lb-'+entry.catId+'_'+ti+'-'+date;
+        lb.innerHTML=bh(t,entry.catId,entry.catColor);
+
+        lh.onclick=(function(key,d){return function(){toggleLib(key,d);};})(entry.catId+'_'+ti,date);
+        body.appendChild(lh);
+        body.appendChild(lb);
+      });
+    });
+
+    wkDiv.appendChild(hdr);
+    wkDiv.appendChild(body);
+    ls.appendChild(wkDiv);
   });
-  document.getElementById('ls').innerHTML=html;
 }
 function toggleLib(key,date){ ol=ol===key?null:key; var lb=document.getElementById('lb-'+key+'-'+date); var lh=lb?lb.previousElementSibling:null; if(lb)lb.classList.toggle('show',ol===key); if(lh)lh.classList.toggle('op',ol===key); }
-function toggleWeek(date){ var hdr=document.getElementById('wkh-'+date); if(hdr)hdr.classList.toggle('open'); }
+function toggleWeek(date){
+  var hdr=document.getElementById('wkh-'+date);
+  var body=document.getElementById('wkb-'+date);
+  if(!hdr||!body)return;
+  var isOpen=hdr.classList.toggle('open');
+  body.style.display=isOpen?'block':'none';
+}
 function clearLibSearch(){ document.getElementById('lib-search').value=''; rl(); }
 
 // ── Liked ──
