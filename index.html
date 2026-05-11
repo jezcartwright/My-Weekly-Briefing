@@ -32,16 +32,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 
 /* ── Header ── */
 #hdr{
-  padding:calc(var(--st) + 14px) 18px 10px;
-  display:flex;justify-content:space-between;align-items:center;
+  padding:calc(var(--st) + 10px) 18px 10px;
+  display:flex;justify-content:space-between;align-items:flex-start;
   flex-shrink:0;background:var(--orange);
 }
-.hl{display:flex;align-items:center;gap:12px}
-.hl-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#ff6600;border-radius:3px;border:1.5px solid rgba(255,255,255,0.25)}
+.hl{display:flex;align-items:flex-start;gap:12px}
+.hl-logo{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#ff6600;border-radius:0}
 .hl-logo img{width:100%;height:100%;object-fit:contain;margin-top:2px}
-.hl-text .sub{font-family:'Playfair Display',serif;font-size:9px;letter-spacing:.18em;color:#fff;font-weight:700;margin-bottom:5px;font-style:normal;line-height:1;text-transform:uppercase}
+.hl-text .sub{font-family:'Playfair Display',serif;font-size:9px;letter-spacing:.18em;color:#fff;font-weight:700;margin-bottom:5px;font-style:normal;line-height:1;text-transform:uppercase;padding-top:1px}
 .hl-text h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1;margin-top:0}
-.hr{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.hr{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px}
 .hdate{font-size:14px;color:rgba(255,255,255,0.9);text-align:right;line-height:1.3;font-family:'Playfair Display',serif;font-weight:600}
 .hbadge{font-size:11px;color:#fff;letter-spacing:.12em;font-weight:700;background:rgba(255,255,255,0.2);padding:2px 7px;border-radius:3px;font-family:'Playfair Display',serif;text-transform:uppercase}
 .hbtn{
@@ -259,7 +259,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
   .hl-logo{width:44px;height:44px}
   .hl-text .sub{font-size:11px;letter-spacing:.1em;margin-bottom:4px}
   .hl-text h1{font-size:20px}
-  .hr{gap:4px;flex-direction:column;align-items:flex-end}
+  .hr{gap:6px;flex-direction:column;align-items:flex-end;justify-content:space-between}
   .hdate{font-size:11px;line-height:1.3}
   .hr-btns{display:grid;grid-template-columns:1fr 1fr;gap:4px}
   .hbtn{width:100%;height:28px;font-size:10px;gap:3px}
@@ -376,17 +376,17 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
 /* ── iPad and up (768px+): two-tier header ── */
 @media(min-width:768px){
   #hdr{
-    flex-direction:column;
-    align-items:stretch;
+    flex-direction:row;
+    align-items:flex-start;
     padding-left:20px;padding-right:20px;
     padding-top:calc(var(--st) + 10px);
-    padding-bottom:0;
+    padding-bottom:10px;
   }
-  .hr{flex-direction:column;align-items:flex-end;gap:6px;padding-bottom:8px}
+  .hr{flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px;padding-bottom:0}
   .hdate{font-size:18px;font-weight:600;order:0}
   .hr-btns{gap:8px}
   .hbtn{width:72px;height:30px;font-size:11px}
-  .hl{align-items:center;gap:12px;padding-bottom:8px;width:100%}
+  .hl{align-items:flex-start;gap:12px;padding-bottom:8px;width:100%}
   .hl-logo{width:40px;height:40px}
   .hl-text .sub{font-size:9px;margin-bottom:4px}
   .hl-text h1{font-size:20px}
@@ -463,11 +463,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-f
       <input class="search-input" id="liked-search" placeholder="Search liked topics..." oninput="onLikedSearch()" type="search">
       <button class="search-clear" id="liked-clear" onclick="clearLikedSearch()">✕</button>
     </div>
-    <div id="kf"></div>
-    <div class="sa" id="ks"></div>
-  </div>
-</div>
-
+    <div i
 <script>
 var CATS=[
   {id:"leadership",label:"Leadership",icon:"◈",color:"#C9A84C"},
@@ -714,16 +710,15 @@ function rto(){
   document.getElementById('ts').scrollTop=0;
 }
 function tgc(i){
-  // Close all topics in current category
-  var tcs=document.querySelectorAll('#ts .tc');
+  var tl=document.querySelector('#ts .tl');
+  if(!tl){ oc=oc===i?null:i; rto(); return; }
+  var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
   tcs.forEach(function(tc,idx){
     if(idx===i){
-      // Toggle the clicked one
       var wasOpen=tc.classList.contains('op');
       tc.classList.toggle('op',!wasOpen);
       oc=wasOpen?null:i;
     } else {
-      // Close all others
       tc.classList.remove('op');
     }
   });
@@ -1194,6 +1189,7 @@ function buildPDF(){
   // Legacy - redirect to current
   generateCurrentPDF();
 }
+
 
 
 </script>
