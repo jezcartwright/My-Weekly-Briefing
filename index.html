@@ -20,11 +20,36 @@
   --st:env(safe-area-inset-top,44px);
   --sb:env(safe-area-inset-bottom,20px);
 }
-*{box-sizing:border-box}
 body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);margin:0;overflow:hidden;height:100vh;height:100dvh}
-
-/* ── App shell ── */
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* ── Login screen ── */
+#login-screen{
+  position:fixed;inset:0;background:var(--orange);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:2000;padding:32px 24px;
+}
+#login-screen.hidden{display:none}
+.login-logo{width:80px;height:80px;margin-bottom:20px;object-fit:contain}
+.login-title{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,0.8);font-weight:700;margin-bottom:8px}
+.login-wb{font-size:32px;font-weight:700;color:#fff;margin-bottom:6px}
+.login-sub{font-size:14px;color:rgba(255,255,255,0.75);font-style:italic;margin-bottom:40px;text-align:center;line-height:1.6}
+.login-box{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+.login-box h2{font-size:16px;font-weight:700;color:var(--t);margin-bottom:6px}
+.login-box p{font-size:12px;color:var(--t3);margin-bottom:20px;line-height:1.5}
+.login-input{width:100%;border:1px solid var(--b);border-radius:8px;padding:12px 14px;font-family:'Playfair Display',serif;font-size:14px;color:var(--t);outline:none;margin-bottom:12px}
+.login-input:focus{border-color:var(--orange)}
+.login-btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:14px;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.login-btn:active{opacity:.9}
+.login-divider{display:flex;align-items:center;gap:10px;margin:4px 0 12px;color:var(--t3);font-size:11px}
+.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--b)}
+.google-btn{width:100%;background:#fff;color:var(--t);border:1px solid var(--b);border-radius:8px;padding:12px;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.google-btn:active{background:var(--bg)}
+.login-msg{font-size:12px;text-align:center;margin-top:12px;min-height:20px;color:var(--orange)}
+.login-sent{text-align:center;padding:20px 0}
+.login-sent .check{font-size:40px;margin-bottom:12px}
+.login-sent h3{font-size:16px;font-weight:700;color:var(--t);margin-bottom:8px}
+.login-sent p{font-size:13px;color:var(--t2);line-height:1.6}
 
 /* ── Header ── */
 #hdr{
@@ -39,7 +64,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .hl-text h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
 .hr{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .hdate{font-size:16px;color:rgba(255,255,255,0.9);text-align:right;font-family:'Playfair Display',serif;font-weight:600}
-.hr-btns{display:flex;gap:7px}
+.hr-btns{display:flex;gap:7px;align-items:center}
 .hbtn{
   background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);
   border-radius:4px;font-family:'Playfair Display',serif;font-size:12px;font-weight:700;
@@ -49,27 +74,30 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 }
 .hbtn.on{background:rgba(255,255,255,0.95);color:var(--orange)}
 .hbtn:active{background:rgba(255,255,255,0.95);color:var(--orange)}
+.user-btn{
+  background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);
+  border-radius:20px;padding:4px 10px 4px 6px;
+  display:flex;align-items:center;gap:6px;cursor:pointer;
+  font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:#fff;
+}
+.user-avatar{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+#sync-indicator{font-size:9px;color:rgba(255,255,255,0.6);text-align:right;height:12px}
 
 /* ── Views ── */
 #vt,#vl,#vk,#vn{display:flex;flex-direction:column;flex:1;overflow:hidden}
 #vl,#vk,#vn{display:none}
 
-/* ── Category tabs ── */
+/* ── Tabs ── */
 #tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white);scrollbar-width:none}
 #tabs::-webkit-scrollbar{display:none}
 .tab{padding:12px 14px 10px;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;flex-shrink:0;background:none;border-top:none;border-left:none;border-right:none}
 .tab.on{color:var(--orange);border-bottom-color:var(--orange)}
-
-/* ── Scroll area ── */
 .sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
-
-/* ── Category intro ── */
 .ci{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:0 2px}
 .ico{font-size:18px}
 .ci-text .cl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
 .ci-text .cd{font-size:12px;font-style:italic;color:var(--t2)}
-
-/* ── Topic cards ── */
 .tl{display:flex;flex-direction:column;gap:10px}
 .tc{background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;transition:box-shadow .2s}
 .op{box-shadow:0 4px 16px rgba(255,102,0,0.12)}
@@ -85,8 +113,6 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .like-btn.liked{color:var(--orange)}
 .tog{font-size:18px;color:var(--t3);cursor:pointer;font-style:normal;transition:transform .25s;display:inline-block;line-height:1}
 .op .tog{transform:rotate(45deg);color:var(--orange)}
-
-/* ── Topic body ── */
 .tb{display:none;padding:0 14px 16px;border-top:1px solid var(--b2)}
 .op .tb{display:block}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
@@ -100,8 +126,6 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .dt{font-size:12px;color:var(--t);line-height:1.8;display:flex;gap:8px;margin-bottom:4px}
 .dt::before{content:"▸";color:var(--orange);flex-shrink:0}
 .dt a{color:var(--orange);text-decoration:none;font-weight:700}
-
-/* ── Per-topic notes ── */
 .topic-notes{background:#fffdf9;border:1px solid #f0e8d0;border-radius:6px;padding:12px 14px;margin-top:12px;width:100%}
 .topic-notes-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C9A84C;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .topic-notes-ta{width:100%;border:none;background:transparent;font-family:'Playfair Display',serif;font-size:13px;color:var(--t);resize:none;outline:none;line-height:1.7;min-height:120px;cursor:text;display:block}
@@ -109,13 +133,11 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .topic-notes-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #f0e8d0}
 .topic-notes-hint{font-size:10px;color:#c8bfad;font-style:italic;font-family:'Playfair Display',serif}
 .topic-notes-clear{font-size:10px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:'Playfair Display',serif}
-
-/* ── Library view ── */
 .view-top{padding:14px 16px 10px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white)}
 .view-title{font-size:20px;font-weight:700;color:var(--t)}
 .view-sub{font-size:11px;font-style:italic;color:var(--t2);margin-top:3px}
 .wk{background:var(--white);border:1px solid var(--b);border-radius:8px;margin:0 12px 10px;overflow:hidden}
-.wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;-webkit-user-select:none;user-select:none;transition:background .2s}
+.wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;-webkit-user-select:none;user-select:none}
 .wk-label-wrap{flex:1;cursor:pointer;min-width:0}
 .wk-label{font-size:13px;font-weight:700;color:var(--t)}
 .wk-label.current{color:var(--orange)}
@@ -142,16 +164,12 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .lb{display:none;padding:12px 14px 16px;border-top:1px solid var(--b2);background:var(--bg)}
 .op .lb{display:block}
 .lb .bt{font-size:13px}.lb .it{font-size:13px}.lb .dt{font-size:12px}
-
-/* ── Liked view ── */
 .search-bar{padding:10px 12px;border-bottom:1px solid var(--b);flex-shrink:0;display:flex;gap:8px;background:var(--white)}
 .search-input{flex:1;border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-family:'Playfair Display',serif;font-size:13px;color:var(--t);outline:none;background:var(--bg)}
 .search-clear{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;padding:0 4px}
 .filter-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 12px;gap:6px;flex-shrink:0}
 .ftab{padding:5px 12px;border-radius:20px;border:1px solid var(--b);font-size:10px;font-weight:700;color:var(--t3);cursor:pointer;white-space:nowrap;background:var(--white);transition:all .2s;font-family:'Playfair Display',serif}
 .ftab.on{color:#fff}
-
-/* ── Notes library view ── */
 .ng{margin-bottom:14px}
 .ng-header{display:flex;align-items:center;gap:6px;padding:6px 2px;margin-bottom:6px}
 .ng-icon{font-size:12px}
@@ -171,14 +189,10 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .ne-edit{background:#fffdf9;border:1px solid #f0e8d0;border-radius:6px;padding:10px;margin-top:10px}
 .ne-edit-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px;font-family:'Playfair Display',serif}
 .ne-edit-ta{width:100%;border:none;background:transparent;font-family:'Playfair Display',serif;font-size:12px;color:var(--t);resize:none;outline:none;line-height:1.7;min-height:80px}
-
-/* ── Empty states ── */
 .empty{text-align:center;padding:40px 20px;color:var(--t3)}
 .empty-icon{font-size:32px;display:block;margin-bottom:12px}
 .empty-title{font-size:16px;font-weight:700;color:var(--t2);margin-bottom:6px}
 .empty-sub{font-size:12px;font-style:italic;line-height:1.6}
-
-/* ── PDF overlay ── */
 #pdf-view{display:none;position:fixed;inset:0;background:var(--white);z-index:1000;flex-direction:column;overflow:hidden}
 #pdf-view.show{display:flex}
 .pdf-toolbar{background:var(--orange);padding:calc(var(--st) + 10px) 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-shrink:0}
@@ -208,8 +222,6 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .pdf-di::before{content:"▸";color:var(--orange);flex-shrink:0}
 .pdf-di a{color:var(--orange)}
 .pdf-footer{text-align:center;padding:20px;font-size:10px;color:var(--t3);border-top:1px solid var(--b)}
-
-/* ── Mobile ── */
 @media(max-width:500px){.two{grid-template-columns:1fr}}
 @media(max-width:430px){
   #hdr{padding:calc(var(--st) + 8px) 14px 10px}
@@ -230,7 +242,36 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 </style>
 </head>
 <body>
-<div id="app">
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+  <img class="login-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAIrUlEQVR42u1c3Y9dVRX/rXvvdPphPyBhxGiBjj5UhTodSmkRlFKjEiMEgi+EBx7klRdN/BOIoA8kiuHjQV8p0CBppC880BgrGEqBppAgaZma0qJYUvvBzL3n58OspWs2++x77p1zzv3I7GRybs7ZZ6+1fvu3PvY+5wyw0pbVhGQTwCYAGYALIjJPUgA0rM8A9OqICP0J1ak5AF1Mj0xESHIVgHWKz7kWgBaAbwH4CYDbSH4JQAfABQALCmCjZqXvA3BEJxci0gEwA+C5mvXIFMAJAOtUn9MADgHYB+DPLRH5DMArAF4h+XUAPwJwL4DdA/SM1Tnnpgeo018AvADggIgct5MtdY+GiGR64TiAX5H8GoAfA7gHwC6dBZuVtrKyUYG7iI4ftrZjhFTAtEzxMJsWABwGsB/ASyLyfhBSFjELT+oAS2IQyW8CuEvBvCliWFlgGjg3icjfvAuT3AHg9RIB9KD59rqC9kcRORaJwZmIZEsY+L+Msnghi4B5DMAxAI+Q3A7gbv2bcWNQY2cZYLLguX5BawZ6vgngRQAvisiRBGjt/qwhGyRbkfM7ST5C8h0ubR2SC3rspWV6nHVyG/p7NuhTtOXp8o7qvjNiV8vklp/TI2CSbJK8leSvSb6XY0DWA4DbIwBu7wHALAe091THWy081AJaj2CuInkHyd+Q/ID9tZkIgDN9jvWB6nKH1nCDBS0HSFEWhmCuJflDkk+RnFNmFGHQtgiA2woyL1NZT6nstRHQmhrfhq8lwFzv3LtbbLwhAuANBWKduen6ukBrlb42XCx/Oi6LNRZPy3mS5wpm1H6ysF0/p7Jaei4TkXZVhGlVyUYDU5kkWpxWXcYsqKwl9VpVrbYAqmAWZUK2DADb4UbEWABouywFWMccsLKgTz8yRh5AKQjyfOT8fEFwZJwBLLKfNw/gUoSNl3KA7UfGyAFoIEwU6HtR9yLDdkGvdWsTJa6dh46Bkwk3M4M/zQHqol7LA0cCGePDQN0KFwBrCrD0ExFpkxQRod2rtdwnBdi11u4dCwBd9W/PErq1MxHdGsG1VFurslDHcq1OF17jAEy58D8ifSS4lnLhL3Rh+sgBaIatV+O6tbnEtQ8L3L8OwIa6Spo6GXhFlyRi7UTi2skCEzWpssaOgV9MLNO8LicjbsrgWqPLEnBqnBhoRny5yzq3oYXyqQSAp7RPI7Hc87LGyoWvLVDCnAXwUQLAj7RPt1Lm2nFcyk0XAPCEiFzWZ64M6siGiFx2MTIF4FfHCcBOYFSqhHk3oVcj6JMqZabr2pmpFEBbEZBcDeC6AnHp7QLDvl0g3l5Hco1bAY0sA035zQCuTgBoehxNsItBn0ZC3tUAvlJHIqkLwK1Y3GbqRAyyDPwfLL6Xk5ep7dxx7RvLxKIymipzbACcSTDLgHlXRM7mbQS4TYWzLg6mtv63jwOAZsyOAgnkr3pMbYg2g76pRHJjgWw9vAAqWzokJx0DJWHwqz0M/2qB8WZITqoOw/kQvQuA/oF4J+eNBDt3ieRmf1+XMTfrPUyMm/kH9KPowjb2bv3dScS/oyIyp6zNfZYrIpn2mXPZOMupPQX/f8t2JAG02HN7gT4HC8S/MA4eLBDj9tQRByuJf3pcTfLDxPsw5n47tX+zwNhNPe5MuLDJmtMiHiMVB52RuxPg+ZeBWr0YqC8wtbq8rGTnbik6OcPkwgbGnQUK4/36wKgXA5t6z/4C499Z19ZWqS6sf28oC9qJTDnTK0Mcw2cS7xwaA98wfUatfPmGAhczzs4f7rfMcHIO61h5k9TWrwwqKWcaFYaFe936N8/Nn1mGHnbPMwn3tHXxPTVu35Xivg2SR3MCvLncWZIb+82QLtNv1LFirmyy33LvKI5E9r05kR0X9Pio9m0tQ559afVoMHYMxJurzMZlAWgGPZFjkLHkIslrjK3Libc6xjU6ZoyFpsPvljthdRXPG0l+nFPkmjFPlsUGx/onE5NG1WnT0BbVjn0/zSldMnWnSyS3LJd9ERZu0bFjGxemy0NDy0JnSF7tZ8x4vOxY5Fj4eA4L264mbAzFxzU5BuxNZN4OyX+RnCqLfZHJm1IZnURG3jt0ycQB+Kcu7Hu4KuWdDg93YeHLVe8R9qy4zv6NOsudHMWPVPnFkP9CSmXFJtKYucP6DxP7XojMfOaWbbuqdh2ny65AdugJ+4fCjR37ZnPYV1rRXGJxbXrODpyFbsYPRFym7ZZRk3V9IelceVJl5+l1YKAsdOB9N5J5zX0u+09XB7AjtE11CF3ZQLx9YCA6930tMsvzgy5cnSs/FOjkdX1tIG7s2PdgBDyLOU8Puup3ID4diYem84O1stBtV20ieTpIHqbgoWH4MjwobQ4FOprep0leUdt2l5vV3wYzace/k7xqWIpVFw+vIvl+js5P1OItznVvCbbRjYH/JLl12JZKTu+tbqeoEzxe+Halejt3WOX+T4x33/N1FMslbfaej+h/rNJyy7nuL93MmfCLJPcM9YblUhv2qM4GYrvSgj+o+cx1TegFt8MxtOBFQNyrujOwp9za0PbPNOueCGqqf5P8zqiAFwHxNrXB23RSbS1n39AJe04FXNbjKfc/rkYGvIhds2qLt+35UuxyQn7mYh31keWWUQUvYt8W9xjWbPz5suwLYkWH5Gc68EvueW4TI95cfN+otlFt7ZD8Xl8gukGnSZ5xy5/HwgJ1HJq3heRjzt4zJKd7Iot7vrCB5Js60KckH/DXMWbNP6ch+YDaTMVgQ6HnOK5YFpIv6wCHSV5vVB5H8AL7LXRdr7aT5EElTn6R7bd1SO4zl9W37Ec6WSwj/k86l97nt/E+B577/ay+rPODcYx3fcbF7ysmz34OM/dKxiTJ35N83r0CMdYu26NLb9Ja+A/OK8U6XUnyFyTvDzPxSluKBcn7FasrDcAJ/RhmKtfHV1qYI6YUs4kw/q2wrjc2ikd3hXW9sVEA4L9j1b/+fJ6lQQAAAABJRU5ErkJggg==" alt="PI">
+  <div class="login-title">Performance Intelligence</div>
+  <div class="login-wb">Weekly Briefing</div>
+  <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
+  <div class="login-box" id="login-box">
+    <h2>Sign in</h2>
+    <p>Enter your email and we'll send you a secure link — no password needed.</p>
+    <input class="login-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="email">
+    <button class="login-btn" onclick="sendMagicLink()">Send sign-in link</button>
+    <div class="login-divider">or</div>
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Sign in with Google
+    </button>
+    <div class="login-msg" id="login-msg"></div>
+  </div>
+  <div id="login-sent" class="login-box" style="display:none;text-align:center">
+    <div class="login-sent">
+      <div class="check">✉️</div>
+      <h3>Check your email</h3>
+      <p>We sent a sign-in link to <strong id="sent-email"></strong>.<br><br>Tap the link in your email to access your briefing.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app" style="display:none">
   <div id="hdr">
     <div class="hl">
       <div class="hl-logo"><img src="data:image/png;base64,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" alt="PI"></div>
@@ -240,7 +281,13 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
       </div>
     </div>
     <div class="hr">
-      <div class="hdate"><div id="de"></div></div>
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+        <div class="hdate"><div id="de"></div></div>
+        <div class="user-btn" onclick="showUserMenu()">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <span id="user-initial">...</span>
+        </div>
+      </div>
       <div class="hr-btns">
         <button class="hbtn" id="btn-pdf" onclick="generateCurrentPDF()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
         <button class="hbtn" id="btn-notes" onclick="showView('notes')">✏ Notes</button>
@@ -254,26 +301,23 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
     <div id="tabs"></div>
     <div class="sa" id="ts"></div>
   </div>
-
   <div id="vl">
     <div class="view-top"><div class="view-title">Briefing Library</div><div class="view-sub" id="lce"></div></div>
     <div class="search-bar">
       <input class="search-input" id="lib-search" placeholder="Search library..." oninput="rl()">
-      <button class="search-clear" id="lib-clear" onclick="clearLibSearch()">✕</button>
+      <button class="search-clear" onclick="clearLibSearch()">✕</button>
     </div>
     <div class="sa" id="ls"></div>
   </div>
-
   <div id="vk">
     <div class="view-top"><div class="view-title">♥ Liked Briefings</div><div class="view-sub" id="kce"></div></div>
     <div class="search-bar">
       <input class="search-input" id="liked-search" placeholder="Search liked topics..." oninput="rk()">
-      <button class="search-clear" id="liked-clear" onclick="clearLikedSearch()">✕</button>
+      <button class="search-clear" onclick="clearLikedSearch()">✕</button>
     </div>
     <div class="filter-tabs" id="kf"></div>
     <div class="sa" id="ks"></div>
   </div>
-
   <div id="vn">
     <div class="view-top">
       <div class="view-title">✏ My Notes</div>
@@ -281,6 +325,16 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
     </div>
     <div class="filter-tabs" id="nf"></div>
     <div class="sa" id="ns"></div>
+  </div>
+</div>
+
+<!-- User menu -->
+<div id="user-menu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500" onclick="hideUserMenu()">
+  <div style="position:absolute;top:calc(var(--st) + 80px);right:16px;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:16px;min-width:220px" onclick="event.stopPropagation()">
+    <div style="font-size:12px;color:var(--t3);margin-bottom:4px;font-style:italic">Signed in as</div>
+    <div style="font-size:14px;font-weight:700;color:var(--t);margin-bottom:16px;word-break:break-all" id="menu-email"></div>
+    <div style="height:1px;background:var(--b);margin-bottom:12px"></div>
+    <button onclick="signOut()" style="width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;cursor:pointer">Sign out</button>
   </div>
 </div>
 
@@ -293,23 +347,172 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
       <button class="pdf-tbtn" onclick="hidePDF()">✕ Close</button>
     </div>
   </div>
-  <div class="pdf-scroll">
-    <div class="pdf-page">
-      <div class="pdf-header">
-        <img class="pdf-logo" src="data:image/png;base64,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" alt="PI">
-        <div class="pdf-title-block">
-          <div class="pdf-pi">Performance Intelligence</div>
-          <div class="pdf-wb">Weekly Briefing</div>
-        </div>
-        <div class="pdf-meta"><div class="pdf-dt" id="pdf-date"></div><div class="pdf-wk" id="pdf-week"></div></div>
-      </div>
-      <div class="pdf-body" id="pdf-content"></div>
-      <div class="pdf-footer" id="pdf-footer"></div>
+  <div class="pdf-scroll"><div class="pdf-page">
+    <div class="pdf-header">
+      <img class="pdf-logo" src="data:image/png;base64,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" alt="PI">
+      <div class="pdf-title-block"><div class="pdf-pi">Performance Intelligence</div><div class="pdf-wb">Weekly Briefing</div></div>
+      <div class="pdf-meta"><div id="pdf-date"></div><div id="pdf-week"></div></div>
     </div>
-  </div>
+    <div class="pdf-body" id="pdf-content"></div>
+    <div class="pdf-footer" id="pdf-footer"></div>
+  </div></div>
 </div>
 
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ════════════════════════════════════════════
+// FIREBASE CONFIG — replace with your own
+// ════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  authDomain: "pi-briefing-38ddc.firebaseapp.com",
+  projectId: "pi-briefing-38ddc",
+  storageBucket: "pi-briefing-38ddc.firebasestorage.app",
+  messagingSenderId: "1009693063617",
+  appId: "1:1009693063617:web:35620f45a71ba9ef201740"
+};
+// ════════════════════════════════════════════
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Action URL for email sign-in link
+const ACTION_URL = window.location.href.split('?')[0];
+
+// ── Auth functions (exposed globally) ──
+window.sendMagicLink = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const msg = document.getElementById('login-msg');
+  if(!email || !email.includes('@')){ msg.textContent = 'Please enter a valid email.'; return; }
+  msg.textContent = 'Sending...';
+  try {
+    await sendSignInLinkToEmail(auth, email, {
+      url: ACTION_URL,
+      handleCodeInApp: true
+    });
+    localStorage.setItem('emailForSignIn', email);
+    document.getElementById('sent-email').textContent = email;
+    document.getElementById('login-box').style.display = 'none';
+    document.getElementById('login-sent').style.display = 'block';
+  } catch(e) {
+    msg.textContent = 'Error: ' + e.message;
+  }
+};
+
+window.signInGoogle = async function() {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch(e) {
+    document.getElementById('login-msg').textContent = 'Error: ' + e.message;
+  }
+};
+
+window.signOut = async function() {
+  window.hideUserMenu();
+  await fbSignOut(auth);
+};
+
+window.showUserMenu = function() { document.getElementById('user-menu').style.display = 'block'; };
+window.hideUserMenu = function() { document.getElementById('user-menu').style.display = 'none'; };
+
+// ── Handle email link sign-in ──
+if(isSignInWithEmailLink(auth, window.location.href)) {
+  let email = localStorage.getItem('emailForSignIn');
+  if(!email) email = window.prompt('Please enter your email to confirm sign-in:');
+  if(email) {
+    signInWithEmailLink(auth, email, window.location.href)
+      .then(() => { localStorage.removeItem('emailForSignIn'); window.history.replaceState(null, '', ACTION_URL); })
+      .catch(e => { document.getElementById('login-msg').textContent = 'Sign-in error: ' + e.message; });
+  }
+}
+
+// ── User data sync ──
+let userUid = null;
+let unsubscribeUser = null;
+
+async function loadUserData(uid) {
+  const userRef = doc(db, 'users', uid);
+  // Listen for real-time updates
+  if(unsubscribeUser) unsubscribeUser();
+  unsubscribeUser = onSnapshot(userRef, (snap) => {
+    if(snap.exists()) {
+      const data = snap.data();
+      window._fb_likes = data.likes || [];
+      window._fb_notes = data.notes || {};
+    } else {
+      window._fb_likes = [];
+      window._fb_notes = {};
+    }
+    // Re-render if app is showing
+    if(document.getElementById('app').style.display !== 'none') {
+      window.rto && window.rto();
+    }
+  });
+}
+
+async function saveUserData() {
+  if(!userUid) return;
+  try {
+    await setDoc(doc(db, 'users', userUid), {
+      likes: window._fb_likes || [],
+      notes: window._fb_notes || {},
+      lastSeen: new Date().toISOString()
+    }, { merge: true });
+  } catch(e) { console.error('Save error:', e); }
+}
+
+// ── Auth state change ──
+onAuthStateChanged(auth, async (user) => {
+  if(user) {
+    userUid = user.uid;
+    window._fb_likes = [];
+    window._fb_notes = {};
+    
+    // Update header with user info
+    const initial = (user.displayName || user.email || '?')[0].toUpperCase();
+    document.getElementById('user-initial').textContent = initial;
+    document.getElementById('menu-email').textContent = user.email || user.displayName;
+    const avatarEl = document.getElementById('user-avatar');
+    if(user.photoURL) {
+      avatarEl.innerHTML = '<img src="' + user.photoURL + '">';
+    } else {
+      avatarEl.textContent = initial;
+    }
+    
+    // Load their data
+    await loadUserData(user.uid);
+    
+    // Show app
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').style.display = 'flex';
+    
+    // Init app
+    window.initApp && window.initApp();
+    
+  } else {
+    userUid = null;
+    if(unsubscribeUser) { unsubscribeUser(); unsubscribeUser = null; }
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+// ── Expose Firebase data functions globally ──
+window._fbSave = saveUserData;
+window._fbUid = () => userUid;
+
+</script>
+
 <script>
+// ════════════════════════════════════════════
+// APP CODE
+// ════════════════════════════════════════════
 var CATS=[
   {id:"leadership",label:"Leadership",icon:"◈",color:"#C9A84C"},
   {id:"markets",label:"Markets",icon:"◎",color:"#7EB8A4"},
@@ -369,25 +572,50 @@ D.philosophy=[[
   {title:"First Principles Thinking",headline:"Reasoning from fundamentals rather than analogy is the rarest and most valuable cognitive skill in leadership.",why:"Research on expert performance by Anders Ericsson found that the hallmark of expert-level thinking is not the accumulation of rules but the ability to reason from underlying principles when rules break down. Clayton Christensen's disruption theory is itself a first principles analysis — asking what jobs customers are actually trying to do.",ref:{text:"Ericsson, K.A., Krampe, R.T. & Tesch-Romer, C. (1993). 'The Role of Deliberate Practice in the Acquisition of Expert Performance.' Psychological Review, 100(3), 363-406.",url:"https://doi.org/10.1037/0033-295X.100.3.363"},insight:"I don't care how much power, brilliance or energy you have, if you don't harness it and focus it on a specific target, and hold it there, you're never going to accomplish as much as your ability warrants.",attribution:"Zig Ziglar, author and motivational speaker",deeper:[{text:"Pick one obvious constraint in your business. Ask: why is this true? Keep asking until you find something fundamental.",url:null},{text:"HBR: 'Clayton Christensen's Disruptive Innovation After the Sermon' (2015)",url:"https://hbr.org/2015/12/what-is-disruptive-innovation"},{text:"Shane Parrish's 'Clear Thinking' (2023) — the best modern resource on mental models",url:"https://fs.blog/clear/"}]}
 ]];
 
-// ── Storage ──
-var SK='exec_brief_v3';
-var NOTE_SK='exec_notes_v1';
-function gh(){try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch(e){return[]}}
-function sh(h){try{localStorage.setItem(SK,JSON.stringify(h))}catch(e){}}
-function getLikes(){try{return JSON.parse(localStorage.getItem(SK+'_likes')||'[]')}catch(e){return[]}}
-function saveLikes(l){try{localStorage.setItem(SK+'_likes',JSON.stringify(l))}catch(e){}}
-function getNoteStore(){try{return JSON.parse(localStorage.getItem(NOTE_SK)||'{}')}catch(e){return{}}}
-function saveNoteStore(n){try{localStorage.setItem(NOTE_SK,JSON.stringify(n))}catch(e){}}
-function noteKey(catId,title){return catId+'::'+title}
-function getTopicNote(catId,title){var n=getNoteStore();return n[noteKey(catId,title)]||''}
-function saveTopicNote(catId,title,text){var n=getNoteStore();var k=noteKey(catId,title);if(text){n[k]=text}else{delete n[k]}saveNoteStore(n)}
-function getAllNotes(){return getNoteStore()}
-function hasTopicNote(catId,title){return!!getTopicNote(catId,title)}
-function getLikeId(catId,title){return catId+'::'+title}
-function isLiked(catId,title){var l=getLikes();var id=getLikeId(catId,title);return l.some(function(x){return x.id===id})}
+// ── Storage: Firebase-backed with localStorage fallback ──
+var SK = 'exec_brief_v3';
+var NOTE_SK = 'exec_notes_v1';
+var _saveTimer = null;
+
+function debounceSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(function() {
+    if(window._fbSave) window._fbSave();
+  }, 1500);
+}
+
+function getLikes() {
+  if(window._fb_likes) return window._fb_likes;
+  try { return JSON.parse(localStorage.getItem(SK+'_likes')||'[]'); } catch(e){ return []; }
+}
+function saveLikes(l) {
+  window._fb_likes = l;
+  try { localStorage.setItem(SK+'_likes', JSON.stringify(l)); } catch(e){}
+  debounceSave();
+}
+function getNoteStore() {
+  if(window._fb_notes) return window._fb_notes;
+  try { return JSON.parse(localStorage.getItem(NOTE_SK)||'{}'); } catch(e){ return {}; }
+}
+function saveNoteStore(n) {
+  window._fb_notes = n;
+  try { localStorage.setItem(NOTE_SK, JSON.stringify(n)); } catch(e){}
+  debounceSave();
+}
+function noteKey(catId,title){ return catId+'::'+title; }
+function getTopicNote(catId,title){ return (getNoteStore()[noteKey(catId,title)]||''); }
+function saveTopicNote(catId,title,text){ var n=getNoteStore(); var k=noteKey(catId,title); if(text){n[k]=text;}else{delete n[k];} saveNoteStore(n); }
+function hasTopicNote(catId,title){ return !!getTopicNote(catId,title); }
+function getAllNotes(){ return getNoteStore(); }
+function getLikeId(catId,title){ return catId+'::'+title; }
+function isLiked(catId,title){ var l=getLikes(); var id=getLikeId(catId,title); return l.some(function(x){return x.id===id;}); }
+
+// ── Library storage ──
+function gh(){ try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch(e){return[]} }
+function sh(h){ try{localStorage.setItem(SK,JSON.stringify(h))}catch(e){} }
 
 // ── State ──
-var ac=CATS[0], oc=null, cv='today', lf='all', kf_val='all', ol=null;
+var ac=CATS[0], oc=null, cv='today', kf_val='all', ol=null, ok=null;
 
 // ── Week utils ──
 function getWeekNumber(){
@@ -401,49 +629,52 @@ function tk(){
   var mon=new Date(d.setDate(diff));
   return mon.getFullYear()+'-'+String(mon.getMonth()+1).padStart(2,'0')+'-'+String(mon.getDate()).padStart(2,'0');
 }
-function gt(id){var sets=D[id];if(!sets||!sets.length)return[];var w=getWeekNumber();return sets[w%sets.length]}
+function gt(id){ var sets=D[id]; if(!sets||!sets.length)return[]; var w=getWeekNumber(); return sets[w%sets.length]; }
+function linkify(text,url){ if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
 
-// ── Helpers ──
-function linkify(text,url){
-  if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>';
-  return text;
+// ── Clear note ──
+function clearTopicNote(catId,title){
+  saveTopicNote(catId,title,'');
+  var k=(catId+'::'+title).replace(/[^a-z0-9]/gi,'_');
+  var ta=document.getElementById('tn-ta-'+k);
+  if(ta)ta.value='';
 }
 
-// ── Topic body renderer ──
+// ── Topic body ──
 function bh(t,catId,color){
   var refHtml=t.ref&&t.ref.text?'<div class="ref">'+linkify(t.ref.text,t.ref.url)+'</div>':'';
-  var deeperItems=(t.deeper||[]).map(function(d){
-    return'<div class="dt">'+linkify(d.text,d.url)+'</div>';
-  }).join('');
-  // Per-topic notes
+  var deeperItems=(t.deeper||[]).map(function(d){return'<div class="dt">'+linkify(d.text,d.url)+'</div>';}).join('');
   var saved=getTopicNote(catId,t.title);
   var safeText=saved.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  var k=noteKey(catId,t.title).replace(/[^a-z0-9]/gi,'_');
-  var safeTitle=t.title.replace(/'/g,"\'");
+  var k=(catId+'::'+t.title).replace(/[^a-z0-9]/gi,'_');
+  var taId='tn-ta-'+k;
+  var ta=document.createElement('textarea');
+  ta.className='topic-notes-ta';
+  ta.id=taId;
+  ta.placeholder='Add your thoughts, reflections or coaching ideas here...';
+  ta.value=saved;
+  ta.setAttribute('oninput','noteInput(this,\''+catId.replace(/'/g,"\\'")+"','"+t.title.replace(/'/g,"\\'")+"')");
   var notesHtml='<div class="topic-notes" onclick="event.stopPropagation()">'+
     '<div class="topic-notes-label">✏ My Notes on this topic</div>'+
-    '<textarea class="topic-notes-ta" id="tn-ta-'+k+'" '+
-    'placeholder="Add your thoughts, reflections or coaching ideas here..." '+
-    'oninput="saveTopicNote(\''+catId+'\',\''+safeTitle+'\',this.value)">'+safeText+'</textarea>'+
+    ta.outerHTML+
     '<div class="topic-notes-footer">'+
-    '<span class="topic-notes-hint">Saved privately on this device</span>'+
-    '<button class="topic-notes-clear" onclick="event.stopPropagation();clearTopicNote(\''+catId+'\',\''+safeTitle+'\')">Clear</button>'+
+    '<span class="topic-notes-hint">Saved to your account</span>'+
+    '<button class="topic-notes-clear" onclick="event.stopPropagation();clearTopicNote(\''+catId.replace(/'/g,"\\'")+'\',\''+t.title.replace(/'/g,"\\'")+'\'  )">Clear</button>'+
     '</div></div>';
   return'<div class="two">'+
     '<div><div class="lbl">Why It Matters</div><div class="bt">'+t.why+'</div>'+refHtml+'</div>'+
     '<div><div class="lbl" style="color:'+color+'">Key Insight</div>'+
     '<div class="it">"'+t.insight+'"<span class="it-attr">— '+t.attribution+'</span></div></div>'+
     '</div>'+
-    '<div class="db">'+
-    '<div class="lbl" style="margin-bottom:9px">Go Deeper →</div>'+
-    deeperItems+'</div>'+
+    '<div class="db"><div class="lbl" style="margin-bottom:9px">Go Deeper →</div>'+deeperItems+'</div>'+
     notesHtml;
 }
+function noteInput(el,catId,title){saveTopicNote(catId,title,el.value);}
 
-// ── Render today ──
+// ── Render ──
 function rt(){
   document.getElementById('tabs').innerHTML=CATS.map(function(c){
-    return'<button class="tab'+(c.id===ac.id?' on':'')+'" style="border-bottom-color:'+(c.id===ac.id?c.color:'transparent')+'" onclick="sc(\''+c.id+'\')" ><span style="color:'+c.color+'">'+c.icon+'</span>'+c.label+'</button>';
+    return'<button class="tab'+(c.id===ac.id?' on':'')+'" style="border-bottom-color:'+(c.id===ac.id?c.color:'transparent')+'" onclick="sc(\''+ c.id +'\')">'+'<span style="color:'+c.color+'">'+c.icon+'</span>'+c.label+'</button>';
   }).join('');
 }
 function rto(){
@@ -459,201 +690,155 @@ function rto(){
         '<div class="th" onclick="tgc('+i+')">'+
         '<div class="th-left">'+
         '<span class="tn" style="color:'+ac.color+'">0'+(i+1)+'</span>'+
-        '<div class="tw">'+
-        '<div class="tt">'+t.title+'</div>'+
-        '<div class="thl">'+t.headline+'</div>'+
+        '<div class="tw"><div class="tt">'+t.title+'</div><div class="thl">'+t.headline+'</div>'+
         (hasNote?'<div class="has-note-pill">✏ My note</div>':'')+
         '</div></div>'+
         '<div class="th-right">'+
-        '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ac.id+'\',\''+t.title.replace(/'/g,"\'")+'\'  ,event)" title="'+(liked?'Unlike':'Like')+'">'+(liked?'♥':'♡')+'</button>'+
+        '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ ac.id +'\',\''+ t.title.replace(/'/g,"\\'")+'\',event)">'+
+        (liked?'♥':'♡')+'</button>'+
         '<span class="tog">+</span>'+
         '</div></div>'+
         '<div class="tb">'+bh(t,ac.id,ac.color)+'</div>'+
         '</div>';
     }).join('')+'</div>';
 }
-function sc(id){ac=CATS.find(function(c){return c.id===id;});oc=null;rt();rto();rv(id)}
+function sc(id){ ac=CATS.find(function(c){return c.id===id;}); oc=null; rt(); rto(); rv(id); }
 function tgc(i){
   var tl=document.querySelector('#ts .tl');
-  if(!tl){return}
-  var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc')});
+  if(!tl)return;
+  var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
   tcs.forEach(function(tc,idx){
-    if(idx===i){var wasOpen=tc.classList.contains('op');tc.classList.toggle('op',!wasOpen);oc=wasOpen?null:i}
-    else{tc.classList.remove('op')}
-  })
+    if(idx===i){ var wasOpen=tc.classList.contains('op'); tc.classList.toggle('op',!wasOpen); oc=wasOpen?null:i; }
+    else{ tc.classList.remove('op'); }
+  });
 }
 function toggleLike(catId,title,e){
   if(e)e.stopPropagation();
-  var l=getLikes();var id=getLikeId(catId,title);
-  var idx=l.findIndex(function(x){return x.id===id});
-  if(idx>=0){l.splice(idx,1)}else{
-    var tops=gt(catId);var t=tops.find(function(x){return x.title===title});
+  var l=getLikes(); var id=getLikeId(catId,title);
+  var idx=l.findIndex(function(x){return x.id===id;});
+  if(idx>=0){ l.splice(idx,1); }
+  else{
+    var tops=gt(catId); var t=tops.find(function(x){return x.title===title;});
     if(t)l.unshift({id:id,catId:catId,title:title,headline:t.headline,why:t.why,insight:t.insight,attribution:t.attribution,deeper:t.deeper,date:tk()});
   }
-  saveLikes(l);rto();
+  saveLikes(l); rto();
 }
 function rv(id){
-  var cat=CATS.find(function(c){return c.id===id});
-  var tops=gt(id);if(!tops.length)return;
+  var cat=CATS.find(function(c){return c.id===id;});
+  var tops=gt(id); if(!tops.length)return;
   var h=gh(),k=tk();
-  if(h.find(function(e){return e.date===k&&e.catId===id}))return;
+  if(h.find(function(e){return e.date===k&&e.catId===id;}))return;
   h.unshift({date:k,catId:id,catLabel:cat.label,catIcon:cat.icon,catColor:cat.color,topics:tops});
   sh(h.slice(0,180));
 }
 
-// ── Library view ──
+// ── Library ──
 function rl(){
-  var h=gh();var q=(document.getElementById('lib-search')||{}).value||'';
-  var filtered=q?h.filter(function(e){
-    return(e.catLabel||'').toLowerCase().includes(q.toLowerCase())||
-      (e.topics||[]).some(function(t){return(t.title||'').toLowerCase().includes(q.toLowerCase())||(t.headline||'').toLowerCase().includes(q.toLowerCase())})
-  }):h;
+  var h=gh(); var q=(document.getElementById('lib-search')||{}).value||'';
+  var filtered=q?h.filter(function(e){return(e.catLabel||''). toLowerCase().includes(q.toLowerCase())||(e.topics||[]).some(function(t){return(t.title||''). toLowerCase().includes(q.toLowerCase())||(t.headline||''). toLowerCase().includes(q.toLowerCase())});}):h;
   document.getElementById('lce').textContent=filtered.length+' week'+(filtered.length!==1?'s':'')+' saved';
-  if(!filtered.length){document.getElementById('ls').innerHTML='<div class="empty"><span class="empty-icon">◫</span><div class="empty-title">No entries yet</div><div class="empty-sub">Topics you read are saved here automatically.</div></div>';return}
+  if(!filtered.length){document.getElementById('ls').innerHTML='<div class="empty"><span class="empty-icon">◫</span><div class="empty-title">No entries yet</div></div>';return;}
   var html='',currentWeek=tk();
   var groups={};
-  filtered.forEach(function(e){if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e)});
+  filtered.forEach(function(e){if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
   Object.keys(groups).sort().reverse().forEach(function(date){
-    var entries=groups[date];var isCurrentWeek=date===currentWeek;
+    var entries=groups[date]; var isCurrentWeek=date===currentWeek;
     var d=new Date(date+'T12:00:00');
     var label=isCurrentWeek?'This Week':'Week of';
     var disp=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-    var catNames=[...new Set(entries.map(function(e){return e.catLabel}))].join(', ');
-    var topicCount=entries.reduce(function(a,e){return a+(e.topics||[]).length},0);
-    var isOpen=isCurrentWeek;
-    html+='<div class="wk">'+
-      '<div class="wk-header'+(isOpen?' open':'')+'" id="wkh-'+date+'">'+
-      '<div class="wk-label-wrap" onclick="toggleWeek(\''+date+'\')">'+
-      '<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+label+' — '+disp+'</div>'+
-      '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div>'+
-      '</div>'+
+    var catNames=[...new Set(entries.map(function(e){return e.catLabel;}))].join(', ');
+    var topicCount=entries.reduce(function(a,e){return a+(e.topics||[]).length;},0);
+    html+='<div class="wk"><div class="wk-header'+(isCurrentWeek?' open':'')+'" id="wkh-'+date+'">'+
+      '<div class="wk-label-wrap" onclick="toggleWeek(\''+ date +'\')">'+
+      '<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+ label +' — '+disp+'</div>'+
+      '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div></div>'+
       '<div class="wk-right">'+
       '<button class="wk-pdf" onclick="generateCurrentPDF();event.stopPropagation()">📄 PDF</button>'+
-      '<button class="wk-toggle" onclick="toggleWeek(\''+date+'\');event.stopPropagation()"><span class="wk-chevron">⌄</span></button>'+
+      '<button class="wk-toggle" onclick="toggleWeek(\''+ date +'\');event.stopPropagation()"><span class="wk-chevron">⌄</span></button>'+
       '</div></div>'+
       '<div class="wk-body">'+
       entries.map(function(entry){
-        return entry.topics.map(function(t,ti){
-          var liked=isLiked(entry.catId,t.title);
-          return'<div class="lh '+(ol===entry.catId+'_'+ti?'op':'')+'" onclick="toggleLib(\''+entry.catId+'_'+ti+'\',\''+date+'\')">'+
+        return(entry.topics||[]).map(function(t,ti){
+          return'<div class="lh" onclick="toggleLib(\''+ entry.catId+'_'+ti+'\',\''+ date +'\')">'+
             '<span class="lh-icon" style="color:'+entry.catColor+'">'+entry.catIcon+'</span>'+
-            '<div class="lh-body">'+
-            '<div class="lh-cat" style="color:'+entry.catColor+'">'+entry.catLabel+'</div>'+
-            '<div class="lh-title">'+t.title+'</div>'+
-            '<div class="lh-hl">'+t.headline+'</div>'+
-            '</div>'+
-            '<span class="ltog">+</span>'+
-            '</div>'+
-            '<div class="lb '+(ol===entry.catId+'_'+ti?'':'')+'" id="lb-'+entry.catId+'_'+ti+'-'+date+'">'+
-            bh(t,entry.catId,entry.catColor)+'</div>';
+            '<div class="lh-body"><div class="lh-cat" style="color:'+entry.catColor+'">'+entry.catLabel+'</div>'+
+            '<div class="lh-title">'+t.title+'</div><div class="lh-hl">'+t.headline+'</div></div>'+
+            '<span class="ltog">+</span></div>'+
+            '<div class="lb" id="lb-'+entry.catId+'_'+ti+'-'+date+'">'+bh(t,entry.catId,entry.catColor)+'</div>';
         }).join('');
-      }).join('')+
-      '</div></div>';
+      }).join('')+'</div></div>';
   });
   document.getElementById('ls').innerHTML=html;
 }
-function toggleLib(key,date){
-  ol=ol===key?null:key;
-  var lb=document.getElementById('lb-'+key+'-'+date);
-  var lh=lb?lb.previousElementSibling:null;
-  if(lb){lb.classList.toggle('show',ol===key)}
-  if(lh){lh.classList.toggle('op',ol===key)}
-}
-function toggleWeek(date){
-  var hdr=document.getElementById('wkh-'+date);
-  if(hdr)hdr.classList.toggle('open');
-}
-function clearLibSearch(){document.getElementById('lib-search').value='';rl()}
+function toggleLib(key,date){ ol=ol===key?null:key; var lb=document.getElementById('lb-'+key+'-'+date); var lh=lb?lb.previousElementSibling:null; if(lb)lb.classList.toggle('show',ol===key); if(lh)lh.classList.toggle('op',ol===key); }
+function toggleWeek(date){ var hdr=document.getElementById('wkh-'+date); if(hdr)hdr.classList.toggle('open'); }
+function clearLibSearch(){ document.getElementById('lib-search').value=''; rl(); }
 
-// ── Liked view ──
+// ── Liked ──
 function rk(){
-  var l=getLikes();var q=(document.getElementById('liked-search')||{}).value||'';
-  var filtered=kf_val==='all'?l:l.filter(function(x){return x.catId===kf_val});
-  if(q)filtered=filtered.filter(function(x){return(x.title||'').toLowerCase().includes(q.toLowerCase())||(x.headline||'').toLowerCase().includes(q.toLowerCase())});
+  var l=getLikes(); var q=(document.getElementById('liked-search')||{}).value||'';
+  var filtered=kf_val==='all'?l:l.filter(function(x){return x.catId===kf_val;});
+  if(q)filtered=filtered.filter(function(x){return(x.title||''). toLowerCase().includes(q.toLowerCase())||(x.headline||''). toLowerCase().includes(q.toLowerCase());});
   document.getElementById('kce').textContent=filtered.length+' liked topic'+(filtered.length!==1?'s':'');
-  // Filter tabs
-  var cats=[{id:'all',label:'All',color:'#ff6600'}].concat(CATS.map(function(c){return{id:c.id,label:c.label,color:c.color}}));
-  document.getElementById('kf').innerHTML=cats.map(function(c){
-    var on=kf_val===c.id;
-    return'<div class="ftab'+(on?' on':'')+'" style="'+(on?'background:'+c.color+';border-color:'+c.color:'border-color:'+c.color+';color:'+c.color)+'" onclick="skf(\''+c.id+'\')">'+c.label+'</div>';
-  }).join('');
-  if(!filtered.length){document.getElementById('ks').innerHTML='<div class="empty"><span class="empty-icon">♡</span><div class="empty-title">No liked topics yet</div><div class="empty-sub">Tap ♡ on any topic to save it here.</div></div>';return}
+  var cats=[{id:'all',label:'All',color:'#ff6600'}].concat(CATS.map(function(c){return{id:c.id,label:c.label,color:c.color};}));
+  document.getElementById('kf').innerHTML=cats.map(function(c){var on=kf_val===c.id;return'<div class="ftab'+(on?' on':'')+'" style="'+(on?'background:'+c.color+';border-color:'+c.color:'border-color:'+c.color+';color:'+c.color)+'" onclick="skf(\''+ c.id +'\')">'+c.label+'</div>';}).join('');
+  if(!filtered.length){document.getElementById('ks').innerHTML='<div class="empty"><span class="empty-icon">♡</span><div class="empty-title">No liked topics yet</div><div class="empty-sub">Tap ♡ on any topic to save it here.</div></div>';return;}
   document.getElementById('ks').innerHTML=filtered.map(function(x,i){
-    return'<div class="tc '+(ok===i?'op':'')+'">'+
+    return'<div class="tc'+(ok===i?' op':'')+'">'+
       '<div class="th" onclick="tklike('+i+')">'+
-      '<div class="th-left"><span class="tn" style="color:'+(CATS.find(function(c){return c.id===x.catId})||{color:'#ff6600'}).color+'">'+(i+1<10?'0':'')+(i+1)+'</span>'+
+      '<div class="th-left"><span class="tn" style="color:'+(CATS.find(function(c){return c.id===x.catId;})||{color:'#ff6600'}).color+'">'+(i+1<10?'0':'')+( i+1)+'</span>'+
       '<div class="tw"><div class="tt">'+x.title+'</div><div class="thl">'+x.headline+'</div></div></div>'+
       '<span class="tog">+</span></div>'+
-      '<div class="tb">'+bh(x,x.catId,(CATS.find(function(c){return c.id===x.catId})||{color:'#ff6600'}).color)+'</div></div>';
+      '<div class="tb">'+bh(x,x.catId,(CATS.find(function(c){return c.id===x.catId;})||{color:'#ff6600'}).color)+'</div></div>';
   }).join('');
 }
-var ok=null;
-function tklike(i){ok=ok===i?null:i;rk()}
-function skf(id){kf_val=id;rk()}
-function clearLikedSearch(){document.getElementById('liked-search').value='';rk()}
+function tklike(i){ ok=ok===i?null:i; rk(); }
+function skf(id){ kf_val=id; rk(); }
+function clearLikedSearch(){ document.getElementById('liked-search').value=''; rk(); }
 
 // ── Notes library ──
 var nf='all';
 function rnfilt(){
-  var tabs=document.getElementById('nf');if(!tabs)return;
-  var cats=[{id:'all',label:'All',color:'#ff6600'}].concat(CATS.map(function(c){return{id:c.id,label:c.label,color:c.color}}));
-  tabs.innerHTML=cats.map(function(c){
-    var on=nf===c.id;
-    return'<div class="ftab'+(on?' on':'')+'" style="'+(on?'background:'+c.color+';border-color:'+c.color:'border-color:'+c.color+';color:'+c.color)+'" onclick="snf(\''+c.id+'\')">'+c.label+'</div>';
-  }).join('');
+  var tabs=document.getElementById('nf'); if(!tabs)return;
+  var cats=[{id:'all',label:'All',color:'#ff6600'}].concat(CATS.map(function(c){return{id:c.id,label:c.label,color:c.color};}));
+  tabs.innerHTML=cats.map(function(c){var on=nf===c.id;return'<div class="ftab'+(on?' on':'')+'" style="'+(on?'background:'+c.color+';border-color:'+c.color:'border-color:'+c.color+';color:'+c.color)+'" onclick="snf(\''+ c.id +'\')">'+c.label+'</div>';}).join('');
 }
-function snf(id){nf=id;rn()}
-function tne(id){var el=document.getElementById('ne-'+id);if(el)el.classList.toggle('show')}
+function snf(id){ nf=id; rn(); }
+function tne(id){ var el=document.getElementById('ne-'+id); if(el)el.classList.toggle('show'); }
 function rn(){
   rnfilt();
   var allNotes=getAllNotes();
-  var catMeta={
-    leadership:{label:'Leadership',icon:'◈',color:'#ff6600'},markets:{label:'Markets',icon:'◎',color:'#2a8a6e'},
-    psychology:{label:'Psychology',icon:'◉',color:'#c0392b'},technology:{label:'Technology',icon:'◇',color:'#2980b9'},
-    geopolitics:{label:'Geopolitics',icon:'◆',color:'#8e44ad'},philosophy:{label:'Philosophy',icon:'○',color:'#27ae60'}
-  };
+  var catMeta={leadership:{label:'Leadership',icon:'◈',color:'#ff6600'},markets:{label:'Markets',icon:'◎',color:'#2a8a6e'},psychology:{label:'Psychology',icon:'◉',color:'#c0392b'},technology:{label:'Technology',icon:'◇',color:'#2980b9'},geopolitics:{label:'Geopolitics',icon:'◆',color:'#8e44ad'},philosophy:{label:'Philosophy',icon:'○',color:'#27ae60'}};
   var groups={};
-  Object.keys(allNotes).forEach(function(k){
-    if(!allNotes[k])return;var parts=k.split('::');if(parts.length<2)return;
-    var cid=parts[0];var title=parts.slice(1).join('::');
-    if(!groups[cid])groups[cid]=[];groups[cid].push({catId:cid,title:title,note:allNotes[k]});
-  });
-  var total=Object.values(groups).reduce(function(a,g){return a+g.length},0);
+  Object.keys(allNotes).forEach(function(k){if(!allNotes[k])return;var parts=k.split('::');if(parts.length<2)return;var cid=parts[0];var title=parts.slice(1).join('::');if(!groups[cid])groups[cid]=[];groups[cid].push({catId:cid,title:title,note:allNotes[k]});});
+  var total=Object.values(groups).reduce(function(a,g){return a+g.length;},0);
   var filtered=nf==='all'?total:(groups[nf]?groups[nf].length:0);
-  document.getElementById('nce').textContent=total===0?'No notes yet':filtered+' note'+(filtered!==1?'s':'')+(nf!=='all'?' in '+(catMeta[nf]?catMeta[nf].label:''):'');
-  var sc=document.getElementById('ns');if(!sc)return;
-  if(total===0){sc.innerHTML='<div class="empty"><span class="empty-icon">✏</span><div class="empty-title">No notes yet</div><div class="empty-sub">Expand any topic and add your thoughts.</div></div>';return}
+  document.getElementById('nce').textContent=total===0?'No notes yet':filtered+' note'+(filtered!==1?'s':'')+( nf!=='all'?' in '+(catMeta[nf]?catMeta[nf].label:''):'');
+  var sc=document.getElementById('ns'); if(!sc)return;
+  if(total===0){sc.innerHTML='<div class="empty"><span class="empty-icon">✏</span><div class="empty-title">No notes yet</div><div class="empty-sub">Expand any topic and add your thoughts.</div></div>';return;}
   var html='';
   ['leadership','markets','psychology','technology','geopolitics','philosophy'].forEach(function(cid){
-    if(nf!=='all'&&nf!==cid)return;
-    var entries=groups[cid];if(!entries||!entries.length)return;
+    if(nf!=='all'&&nf!==cid)return;var entries=groups[cid];if(!entries||!entries.length)return;
     var meta=catMeta[cid];
     html+='<div class="ng"><div class="ng-header"><span class="ng-icon" style="color:'+meta.color+'">'+meta.icon+'</span><span class="ng-name" style="color:'+meta.color+'">'+meta.label+'</span><span class="ng-count">'+entries.length+' note'+(entries.length!==1?'s':'')+'</span></div>';
     entries.forEach(function(e,ei){
       var topicData=null;var catTopics=gt(cid);
-      if(catTopics)topicData=catTopics.find(function(t){return t.title===e.title});
-      if(!topicData){var hist=gh();for(var h=0;h<hist.length;h++){if(hist[h].catId===cid){var found=(hist[h].topics||[]).find(function(t){return t.title===e.title});if(found){topicData=found;break}}}}
+      if(catTopics)topicData=catTopics.find(function(t){return t.title===e.title;});
       var uid=cid+'_ne_'+ei;
       var safeNote=e.note.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       var previewNote=e.note.length>100?e.note.slice(0,100)+'…':e.note;
-      html+='<div class="ne"><div class="ne-head" onclick="tne(\''+uid+'\')"><div class="ne-title">'+e.title.replace(/&/g,'&amp;')+'</div>';
+      html+='<div class="ne"><div class="ne-head" onclick="tne(\''+ uid +'\')">'+
+        '<div class="ne-title">'+e.title.replace(/&/g,'&amp;')+'</div>';
       if(topicData)html+='<div class="ne-hl">'+topicData.headline+'</div>';
-      html+='</div><div class="ne-preview">'+previewNote.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
-      html+='<div class="ne-body" id="ne-'+uid+'">';
-      if(topicData){html+='<div class="lbl" style="margin-bottom:6px">Why It Matters</div><div class="ne-why">'+topicData.why+'</div><div class="ne-quote" style="border-color:'+meta.color+'">&ldquo;'+topicData.insight+'&rdquo;<div class="ne-attr" style="color:'+meta.color+'">&mdash; '+topicData.attribution+'</div></div>'}
-      html+='<div class="ne-edit"><div class="ne-edit-label">✏ My Note</div><textarea class="ne-edit-ta" oninput="saveTopicNote(\''+cid+'\',\''+e.title.replace(/'/g,"\'")+'\'  ,this.value)">'+safeNote+'</textarea></div></div></div>';
+      html+='</div><div class="ne-preview">'+previewNote.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
+        '<div class="ne-body" id="ne-'+uid+'">';
+      if(topicData){html+='<div class="lbl" style="margin-bottom:6px">Why It Matters</div><div class="ne-why">'+topicData.why+'</div>'+'<div class="ne-quote" style="border-color:'+meta.color+'">&ldquo;'+topicData.insight+'&rdquo;<div class="ne-attr" style="color:'+meta.color+'">&mdash; '+topicData.attribution+'</div></div>';}
+      html+='<div class="ne-edit"><div class="ne-edit-label">✏ My Note</div>'+
+        '<textarea class="ne-edit-ta" oninput="saveTopicNote(\''+ cid +'\',\''+ e.title.replace(/'/g,"\\'")+'\',this.value)">'+safeNote+'</textarea></div></div></div>';
     });
     html+='</div>';
   });
   sc.innerHTML=html||'<div class="empty"><span class="empty-icon">✏</span><div class="empty-title">No notes in this category</div></div>';
-}
-
-// ── Clear topic note ──
-function clearTopicNote(catId,title){
-  saveTopicNote(catId,title,'');
-  var k=(catId+'::'+title).replace(/[^a-z0-9]/gi,'_');
-  var ta=document.getElementById('tn-ta-'+k);
-  if(ta)ta.value='';
 }
 
 // ── Show view ──
@@ -678,22 +863,19 @@ function generateCurrentPDF(){
   var d=new Date();
   document.getElementById('pdf-date').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('pdf-week').textContent='Week '+getWeekNumber();
-  var content=document.getElementById('pdf-content');
-  content.innerHTML='';
+  var content=document.getElementById('pdf-content');content.innerHTML='';
   CATS.forEach(function(cat){
     var tops=gt(cat.id);if(!tops.length)return;
     var sec=document.createElement('div');sec.className='pdf-cat-section';
     sec.innerHTML='<div class="pdf-cat-title" style="color:'+cat.color+'">'+cat.icon+' '+cat.label+'</div>';
     tops.forEach(function(t){
-      var deeperHtml=(t.deeper||[]).map(function(d){return'<div class="pdf-di">'+linkify(d.text,d.url)+'</div>'}).join('');
+      var deeperHtml=(t.deeper||[]).map(function(d){return'<div class="pdf-di">'+linkify(d.text,d.url)+'</div>';}).join('');
       var topic=document.createElement('div');topic.className='pdf-topic';
       topic.innerHTML='<div class="pdf-topic-title">'+t.title+'</div>'+
         '<div class="pdf-topic-hl">'+t.headline+'</div>'+
-        '<div class="pdf-two">'+
-        '<div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">'+t.why+'</div></div>'+
+        '<div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">'+t.why+'</div></div>'+
         '<div><div class="pdf-lbl" style="color:'+cat.color+'">Key Insight</div>'+
-        '<div class="pdf-it">"'+t.insight+'"<span class="pdf-attr" style="color:'+cat.color+'">— '+t.attribution+'</span></div></div>'+
-        '</div>'+
+        '<div class="pdf-it">"'+ t.insight+'"<span class="pdf-attr" style="color:'+cat.color+'">— '+t.attribution+'</span></div></div></div>'+
         '<div class="pdf-deeper"><div class="pdf-dlbl">Go Deeper →</div>'+deeperHtml+'</div>';
       sec.appendChild(topic);
     });
@@ -702,23 +884,18 @@ function generateCurrentPDF(){
   document.getElementById('pdf-footer').textContent='Performance Intelligence Weekly Briefing — '+d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
   var view=document.getElementById('pdf-view');view.classList.add('show');view.scrollTop=0;
 }
-function hidePDF(){document.getElementById('pdf-view').classList.remove('show')}
-function generateLibraryPDF(){generateCurrentPDF()}
+function hidePDF(){ document.getElementById('pdf-view').classList.remove('show'); }
+function generateLibraryPDF(){ generateCurrentPDF(); }
 
-// ── Init ──
-// Clean up old duplicate library entries
-(function(){
-  try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05'});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h))}catch(e){}
-})();
-
-// Set date
-(function(){
-  var d=new Date();
-  document.getElementById('de').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-})();
-
-// Render
-rt();rto();rv(ac.id);
+// ── Init (called after Firebase auth) ──
+window.initApp = function(){
+  // Date
+  document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  // Clean old library entries
+  try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
+  // Render
+  rt(); rto(); rv(ac.id);
+};
 </script>
 </body>
 </html>
