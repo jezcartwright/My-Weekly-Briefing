@@ -372,7 +372,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -387,12 +387,16 @@ var ACTION_URL = window.location.href.split('?')[0];
 // ── Handle Google redirect result on page load ──
 auth.getRedirectResult().then(function(result) {
   if(result && result.user) {
-    console.log('Google redirect sign-in:', result.user.email);
+    console.log('Google redirect sign-in success:', result.user.email);
+    // Auth state change will handle showing the app
+    // but explicitly hide login screen immediately
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').style.display = 'flex';
   }
 }).catch(function(e) {
   console.error('Redirect result error:', e.code, e.message);
   var msg = document.getElementById('login-msg');
-  if(msg && e.code && e.code !== 'auth/no-current-user') {
+  if(msg && e.code && e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
     msg.textContent = 'Sign-in error: ' + e.message;
   }
 });
@@ -440,11 +444,26 @@ window.sendMagicLink = function() {
 // ── Google sign-in ──
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
-  msg.textContent = 'Redirecting to Google...';
   var provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithRedirect(provider).catch(function(e) {
-    msg.textContent = 'Error: ' + e.message;
-    console.error('Google sign-in error:', e);
+  // Use popup — works reliably on GitHub Pages desktop and mobile
+  msg.textContent = 'Opening Google sign-in...';
+  auth.signInWithPopup(provider).then(function(result) {
+    console.log('Google popup sign-in success:', result.user.email);
+    msg.textContent = '';
+    // Auth state change handles showing the app
+  }).catch(function(e) {
+    console.error('Popup error:', e.code, e.message);
+    if(e.code === 'auth/popup-blocked') {
+      // Fall back to redirect if popup blocked
+      msg.textContent = 'Popup blocked — redirecting...';
+      auth.signInWithRedirect(provider).catch(function(e2) {
+        msg.textContent = 'Error: ' + e2.message;
+      });
+    } else if(e.code === 'auth/popup-closed-by-user') {
+      msg.textContent = 'Sign-in cancelled.';
+    } else {
+      msg.textContent = 'Error: ' + e.message;
+    }
   });
 };
 
