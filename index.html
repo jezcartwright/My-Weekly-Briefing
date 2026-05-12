@@ -398,7 +398,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -414,16 +414,16 @@ var ACTION_URL = window.location.href.split('?')[0];
 auth.getRedirectResult().then(function(result) {
   if(result && result.user) {
     console.log('Google redirect sign-in success:', result.user.email);
-    // Auth state change will handle showing the app
-    // but explicitly hide login screen immediately
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app').style.display = 'flex';
+    // onAuthStateChanged will fire and handle showing the app
   }
 }).catch(function(e) {
-  console.error('Redirect result error:', e.code, e.message);
-  var msg = document.getElementById('login-msg');
-  if(msg && e.code && e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
-    msg.textContent = 'Sign-in error: ' + e.message;
+  if(e.code && e.code !== 'auth/no-current-user') {
+    console.error('Redirect result error:', e.code, e.message);
+    var msg = document.getElementById('login-msg');
+    if(msg) {
+      msg.textContent = 'Sign-in error: ' + e.message;
+      msg.style.color = 'red';
+    }
   }
 });
 
@@ -471,26 +471,31 @@ window.sendMagicLink = function() {
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
   var provider = new firebase.auth.GoogleAuthProvider();
-  // Use popup — works reliably on GitHub Pages desktop and mobile
-  msg.textContent = 'Opening Google sign-in...';
-  auth.signInWithPopup(provider).then(function(result) {
-    console.log('Google popup sign-in success:', result.user.email);
-    msg.textContent = '';
-    // Auth state change handles showing the app
-  }).catch(function(e) {
-    console.error('Popup error:', e.code, e.message);
-    if(e.code === 'auth/popup-blocked') {
-      // Fall back to redirect if popup blocked
-      msg.textContent = 'Popup blocked — redirecting...';
-      auth.signInWithRedirect(provider).catch(function(e2) {
-        msg.textContent = 'Error: ' + e2.message;
-      });
-    } else if(e.code === 'auth/popup-closed-by-user') {
-      msg.textContent = 'Sign-in cancelled.';
-    } else {
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile) {
+    // Mobile: always use redirect — popups are blocked by iOS/Android browsers
+    msg.textContent = 'Redirecting to Google...';
+    auth.signInWithRedirect(provider).catch(function(e) {
       msg.textContent = 'Error: ' + e.message;
-    }
-  });
+      console.error('Redirect error:', e);
+    });
+  } else {
+    // Desktop: use popup for seamless experience
+    msg.textContent = 'Opening Google sign-in...';
+    auth.signInWithPopup(provider).then(function(result) {
+      msg.textContent = '';
+    }).catch(function(e) {
+      console.error('Popup error:', e.code, e.message);
+      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
+        msg.textContent = 'Redirecting to Google...';
+        auth.signInWithRedirect(provider).catch(function(e2) {
+          msg.textContent = 'Error: ' + e2.message;
+        });
+      } else {
+        msg.textContent = 'Error: ' + e.message;
+      }
+    });
+  }
 };
 
 // ── Sign out ──
@@ -1187,7 +1192,6 @@ function seedLastWeek(){
     console.log('Seeded last week library entries:', toAdd.length);
   }catch(e){console.error('Seed error:',e);}
 }
-le.error('Seed error:',e);}
 }
 </script>
 </body>
