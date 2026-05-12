@@ -81,9 +81,9 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .hbtn:active{background:rgba(255,255,255,0.95);color:var(--orange)}
 .user-btn{
   background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);
-  border-radius:20px;padding:4px 10px 4px 6px;
-  display:flex;align-items:center;gap:6px;cursor:pointer;
-  font-family:'Playfair Display',serif;font-size:10px;font-weight:700;color:#fff;
+  border-radius:20px;padding:5px 12px 5px 6px;
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#fff;
 }
 .user-avatar{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
 .user-avatar img{width:100%;height:100%;object-fit:cover}
@@ -294,7 +294,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
         <div class="hdate"><div id="de"></div></div>
         <div class="user-btn" onclick="showUserMenu()">
           <div class="user-avatar" id="user-avatar">?</div>
-          <span id="user-initial">...</span>
+          <span id="user-initial"></span>
         </div>
       </div>
       <div class="hr-btns">
@@ -340,8 +340,9 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 <!-- User menu -->
 <div id="user-menu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500" onclick="hideUserMenu()">
   <div style="position:absolute;top:calc(var(--st) + 80px);right:16px;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:16px;min-width:220px" onclick="event.stopPropagation()">
-    <div style="font-size:12px;color:var(--t3);margin-bottom:4px;font-style:italic">Signed in as</div>
-    <div style="font-size:14px;font-weight:700;color:var(--t);margin-bottom:16px;word-break:break-all" id="menu-email"></div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:4px;font-style:italic;letter-spacing:.04em;text-transform:uppercase">Signed in as</div>
+    <div style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:4px;font-family:'Playfair Display',serif" id="menu-name"></div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:16px;word-break:break-all" id="menu-email"></div>
     <div style="height:1px;background:var(--b);margin-bottom:12px"></div>
     <button onclick="signOut()" style="width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;cursor:pointer">Sign out</button>
   </div>
@@ -376,7 +377,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -502,9 +503,11 @@ function loadUserData(uid) {
       var p = window._fb_profile || {};
       if(p.firstName) {
         var ui = document.getElementById('user-initial');
+        var mn = document.getElementById('menu-name');
         var me = document.getElementById('menu-email');
         if(ui) ui.textContent = p.firstName;
-        if(me) me.textContent = p.firstName + ' ' + (p.lastName||'') + ' — ' + (p.email||'');
+        if(mn) mn.textContent = p.firstName;
+        if(me) me.textContent = p.email || '';
       }
     }
   });
@@ -578,17 +581,23 @@ auth.onAuthStateChanged(function(user) {
 
 function updateHeader(user) {
   var p = window._fb_profile || {};
-  var displayName = p.firstName || user.displayName || user.email || '?';
-  var initial = displayName[0].toUpperCase();
+  var firstName = p.firstName || (user.displayName ? user.displayName.split(' ')[0] : '') || '';
+  var initial = (firstName || user.email || '?')[0].toUpperCase();
+
+  // Header button: avatar + first name
   var ui = document.getElementById('user-initial');
-  var me = document.getElementById('menu-email');
   var av = document.getElementById('user-avatar');
-  if(ui) ui.textContent = p.firstName || initial;
-  if(me) me.textContent = (p.firstName ? p.firstName+' '+(p.lastName||'')+' — ' : '') + (user.email||'');
+  var mn = document.getElementById('menu-name');
+  var me = document.getElementById('menu-email');
+
+  if(ui) ui.textContent = firstName || initial;
   if(av) {
-    if(user.photoURL) { av.innerHTML = '<img src="'+user.photoURL+'">'; }
+    if(user.photoURL) { av.innerHTML = '<img src="'+user.photoURL+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'; }
     else { av.textContent = initial; }
   }
+  // Popup: "Signed in as" + first name on its own line + email below
+  if(mn) mn.textContent = firstName || user.email || '';
+  if(me) me.textContent = user.email || '';
 }
 
 window._fbSave = saveUserData;
