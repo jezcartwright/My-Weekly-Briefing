@@ -389,15 +389,27 @@ var ACTION_URL = window.location.href.split('?')[0];
 auth.getRedirectResult().then(function(result) {
   if(result && result.user) {
     console.log('Google redirect sign-in success:', result.user.email);
+    try{ sessionStorage.removeItem('google_redirect_pending'); }catch(e){}
+  } else {
+    // No user in result. If we just came back from a redirect, something went wrong silently.
+    try{
+      if(sessionStorage.getItem('google_redirect_pending')){
+        sessionStorage.removeItem('google_redirect_pending');
+        var msg = document.getElementById('login-msg');
+        if(msg){
+          msg.textContent = 'Google sign-in could not complete on this device. This is a known iOS limitation with GitHub Pages \u2014 please use the email link option below instead.';
+          msg.style.color = '#c00';
+        }
+      }
+    }catch(e){}
   }
 }).catch(function(e) {
-  if(e.code && e.code !== 'auth/no-current-user') {
-    console.error('Redirect result error:', e.code, e.message);
-    var msg = document.getElementById('login-msg');
-    if(msg) {
-      msg.textContent = 'Sign-in error: ' + e.message;
-      msg.style.color = 'red';
-    }
+  try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
+  console.error('Redirect result error:', e.code, e.message);
+  var msg = document.getElementById('login-msg');
+  if(msg) {
+    msg.textContent = 'Sign-in error: ' + e.message;
+    msg.style.color = 'red';
   }
 });
 
@@ -448,7 +460,9 @@ window.signInGoogle = function() {
   var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if(isMobile) {
     msg.textContent = 'Redirecting to Google...';
+    try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(e){}
     auth.signInWithRedirect(provider).catch(function(e) {
+      try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
       msg.textContent = 'Error: ' + e.message;
       console.error('Redirect error:', e);
     });
@@ -460,7 +474,9 @@ window.signInGoogle = function() {
       console.error('Popup error:', e.code, e.message);
       if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
         msg.textContent = 'Redirecting to Google...';
+        try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
         auth.signInWithRedirect(provider).catch(function(e2) {
+          try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
           msg.textContent = 'Error: ' + e2.message;
         });
       } else {
