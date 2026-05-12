@@ -846,7 +846,7 @@ function rto(){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
       return'<div class="tc" id="tc-'+i+'">'+
-        '<div class="th" onclick="tgc('+i+')">'+
+        '<div class="th" onclick="tgc('+i+',event)">'+
         '<div class="th-left">'+
         '<span class="tn" style="color:'+ac.color+'">0'+(i+1)+'</span>'+
         '<div class="tw"><div class="tt">'+t.title+'</div><div class="thl">'+t.headline+'</div>'+
@@ -862,7 +862,9 @@ function rto(){
     }).join('')+'</div>';
 }
 function sc(id){ ac=CATS.find(function(c){return c.id===id;}); oc=null; rt(); rto(); rv(id); }
-function tgc(i){
+function tgc(i,e){
+  // Ignore clicks that originated on the like button (defensive against iOS event bubbling)
+  if(e&&e.target&&(e.target.classList.contains('like-btn')||(e.target.closest&&e.target.closest('.like-btn')))) return;
   var tl=document.querySelector('#ts .tl');
   if(!tl)return;
   var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
@@ -872,7 +874,7 @@ function tgc(i){
   });
 }
 function toggleLike(catId,title,e){
-  if(e)e.stopPropagation();
+  if(e){ e.stopPropagation(); if(e.preventDefault) e.preventDefault(); }
   var l=getLikes(); var id=getLikeId(catId,title);
   var idx=l.findIndex(function(x){return x.id===id;});
   if(idx>=0){ l.splice(idx,1); }
@@ -881,15 +883,14 @@ function toggleLike(catId,title,e){
     if(t)l.unshift({id:id,catId:catId,title:title,headline:t.headline,why:t.why,insight:t.insight,attribution:t.attribution,deeper:t.deeper,date:tk()});
   }
   saveLikes(l);
-  var openIdx=oc;
-  rto();
-  if(openIdx!==null){
-    var tl=document.querySelector('#ts .tl');
-    if(tl){
-      var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
-      if(tcs[openIdx]) tcs[openIdx].classList.add('op');
-    }
+  // Update only the heart button in place — preserves open card state on iOS
+  var btn=e&&e.currentTarget?e.currentTarget:(e&&e.target?e.target:null);
+  if(btn&&btn.classList){
+    var nowLiked=l.findIndex(function(x){return x.id===id;})>=0;
+    btn.classList.toggle('liked',nowLiked);
+    btn.innerHTML=nowLiked?'\u2665':'\u2661';
   }
+  return false;
 }
 function rv(id){
   var cat=CATS.find(function(c){return c.id===id;});
