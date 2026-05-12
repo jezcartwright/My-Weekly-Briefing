@@ -92,7 +92,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 #sync-indicator{font-size:9px;color:rgba(255,255,255,0.6);text-align:right;height:12px}
 
 /* ── Views ── */
-#vt,#vl,#vk,#vn{display:flex;flex-direction:column;flex:1;overflow:hidden}
+#vt,#vl,#vk,#vn{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 #vl,#vk,#vn{display:none}
 
 /* ── Tabs ── */
@@ -156,7 +156,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .wk-header.open .wk-toggle{background:rgba(255,102,0,0.08);border-color:#ff6600;color:#ff6600}
 .wk-chevron{transition:transform .25s;display:inline-block;line-height:1}
 .wk-header.open .wk-chevron{transform:rotate(180deg)}
-.wk-body{display:none;border-top:1px solid var(--b)}
+.wk-body{display:none;border-top:1px solid var(--b);overflow:visible}
 .wk-header.open+.wk-body{display:block}
 .lh{padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--b2)}
 .lh:last-child{border-bottom:none}
@@ -398,7 +398,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
@@ -622,11 +622,7 @@ function updateHeader(user) {
 }
 
 window._fbSave = saveUserData;
-window._fbUid = function() { return userUid; };
-</script>
-
-
-<script>
+window._fbUid = function() { return us
 // ════════════════════════════════════════════
 // APP CODE
 // ════════════════════════════════════════════
@@ -913,8 +909,15 @@ function rl(){
   }):h;
 
   var currentWeek=tk();
+  var CAT_ORDER=CATS.map(function(c){return c.id;});
   var groups={};
   filtered.forEach(function(e){if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
+  // Sort each week's entries by canonical CATS order
+  Object.keys(groups).forEach(function(date){
+    groups[date].sort(function(a,b){
+      return CAT_ORDER.indexOf(a.catId) - CAT_ORDER.indexOf(b.catId);
+    });
+  });
   var weekCount=Object.keys(groups).length;
   document.getElementById('lce').textContent=weekCount+' week'+(weekCount!==1?'s':'')+' saved';
 
@@ -1124,10 +1127,38 @@ window.initApp = function(){
   // Clean old library entries
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
   // Seed last week (4 May 2026) if not already in library
+  seedThisWeek();
   seedLastWeek();
   // Render
   rt(); rto(); rv(ac.id);
 };
+
+function seedThisWeek(){
+  // Pre-seed all 6 categories for this week so library shows all content
+  // even if user hasn't browsed every category yet
+  try{
+    var THIS_WEEK=tk();
+    var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
+    var w=getWeekNumber();
+    CATS.forEach(function(cat){
+      // Only add if not already recorded
+      if(h.find(function(e){return e.date===THIS_WEEK&&e.catId===cat.id;})) return;
+      var sets=D[cat.id];
+      if(!sets||!sets.length) return;
+      var topics=sets[w%sets.length];
+      if(!topics||!topics.length) return;
+      h.push({
+        date:THIS_WEEK,
+        catId:cat.id,
+        catLabel:cat.label,
+        catIcon:cat.icon,
+        catColor:cat.color,
+        topics:topics
+      });
+    });
+    localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
+  }catch(e){console.error('Seed this week error:',e);}
+}
 
 function seedLastWeek(){
   try{
@@ -1155,6 +1186,8 @@ function seedLastWeek(){
     localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
     console.log('Seeded last week library entries:', toAdd.length);
   }catch(e){console.error('Seed error:',e);}
+}
+le.error('Seed error:',e);}
 }
 </script>
 </body>
