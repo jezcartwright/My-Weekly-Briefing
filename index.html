@@ -457,33 +457,22 @@ window.sendMagicLink = function() {
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
   var provider = new firebase.auth.GoogleAuthProvider();
-  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if(isMobile) {
-    msg.textContent = 'Redirecting to Google...';
-    try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(e){}
-    auth.signInWithRedirect(provider).catch(function(e) {
-      try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
+  msg.textContent = 'Opening Google sign-in...';
+  auth.signInWithPopup(provider).then(function(result) {
+    msg.textContent = '';
+  }).catch(function(e) {
+    console.error('Popup error:', e.code, e.message);
+    if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+      msg.textContent = 'Popup was blocked. Falling back to redirect...';
+      try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
+      auth.signInWithRedirect(provider).catch(function(e2) {
+        try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
+        msg.textContent = 'Error: ' + e2.message;
+      });
+    } else {
       msg.textContent = 'Error: ' + e.message;
-      console.error('Redirect error:', e);
-    });
-  } else {
-    msg.textContent = 'Opening Google sign-in...';
-    auth.signInWithPopup(provider).then(function(result) {
-      msg.textContent = '';
-    }).catch(function(e) {
-      console.error('Popup error:', e.code, e.message);
-      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
-        msg.textContent = 'Redirecting to Google...';
-        try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
-        auth.signInWithRedirect(provider).catch(function(e2) {
-          try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
-          msg.textContent = 'Error: ' + e2.message;
-        });
-      } else {
-        msg.textContent = 'Error: ' + e.message;
-      }
-    });
-  }
+    }
+  });
 };
 
 window.signOut = function() {
