@@ -231,30 +231,39 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .pdf-footer{text-align:center;padding:20px;font-size:10px;color:var(--t3);border-top:1px solid var(--b)}
 @media(max-width:500px){.two{grid-template-columns:1fr}}
 @media(max-width:430px){
-  #hdr{padding:calc(var(--st) + 10px) 14px 12px;flex-direction:row;align-items:stretch;gap:10px}
-  .hl{flex-direction:column;justify-content:center;gap:0;flex-shrink:0;width:50px;align-items:center}
-  .hl-logo{width:50px;height:50px}
+  #hdr{
+    padding:calc(var(--st) + 10px) 14px 12px;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  /* Left: logo + text centred to logo middle — same as desktop */
+  .hl{display:flex;flex-direction:row;align-items:center;gap:10px;flex:1;min-width:0}
+  .hl-logo{width:50px;height:50px;flex-shrink:0}
   .hl-logo img{width:42px;height:42px}
-  .hl-text{display:none}
-  .hr{flex:1;flex-direction:column;justify-content:space-between;gap:0;align-items:stretch}
-  .hr-titles{display:flex;flex-direction:column;flex:1}
-  .sub-mob{display:block;font-family:'Playfair Display',serif;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.8);font-weight:700;line-height:1;margin-bottom:3px}
-  .h1-mob{display:block;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;line-height:1;letter-spacing:.04em;font-feature-settings:'liga' 0,'dlig' 0}
+  .hl-text{display:flex;flex-direction:column;justify-content:center}
+  .hl-text .sub{font-size:8px;letter-spacing:.14em;margin-bottom:4px}
+  .hl-text h1{font-size:20px;letter-spacing:.04em;font-feature-settings:'liga' 0,'dlig' 0}
+  /* Right: date / user / buttons stacked */
+  .hr{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+  .hr-titles{display:none}
+  .sub-mob,.h1-mob{display:none}
   .hdate{font-size:10px;text-align:right}
-  .hr-btns{display:flex;gap:4px;justify-content:flex-end;margin-top:6px}
-  .hbtn{width:30px;height:28px;font-size:0;padding:0;gap:0}
+  .hr-btns{display:flex;gap:4px}
+  .hbtn{width:32px;height:28px;font-size:0;padding:0}
   .hbtn svg{display:none}
-  .hbtn::after{font-size:14px}
-  #btn-pdf::after{content:'📄'}
-  #btn-notes::after{content:'✏'}
-  #btn-likes::after{content:'♥'}
-  #btn-lib::after{content:'◫'}
+  #btn-pdf::after{content:'📄';font-size:14px}
+  #btn-notes::after{content:'✏';font-size:14px}
+  #btn-likes::after{content:'♥';font-size:14px}
+  #btn-lib::after{content:'◫';font-size:14px}
   .sa{padding:14px 12px calc(var(--sb) + 14px)}
 }
 @media(max-width:375px){
-  .h1-mob{font-size:18px}
+  .hl-text h1{font-size:18px}
   .hl-logo{width:44px;height:44px}
   .hl-logo img{width:36px;height:36px}
+  .hl-text .sub{font-size:7px}
 }
 </style>
 </head>
@@ -302,19 +311,11 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
       </div>
     </div>
     <div class="hr">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-        <div class="hr-titles">
-          <span class="sub-mob">Performance Intelligence</span>
-          <span class="h1-mob">Weekly Briefing</span>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-          <div style="display:flex;align-items:center;gap:6px">
-            <div class="hdate"><div id="de"></div></div>
-            <div class="user-btn" onclick="showUserMenu()">
-              <div class="user-avatar" id="user-avatar">?</div>
-              <span id="user-initial"></span>
-            </div>
-          </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="hdate"><div id="de"></div></div>
+        <div class="user-btn" onclick="showUserMenu()">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <span id="user-initial"></span>
         </div>
       </div>
       <div class="hr-btns">
@@ -397,7 +398,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
 var firebaseConfig = {
-  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  apiKey: "%%FIREBASE_API_KEY%%",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
   projectId: "pi-briefing-38ddc",
   storageBucket: "pi-briefing-38ddc.firebasestorage.app",
