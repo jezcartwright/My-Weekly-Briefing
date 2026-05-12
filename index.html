@@ -1147,6 +1147,23 @@ function generateLibraryPDF(){ generateCurrentPDF(); }
 window.initApp=function(){
   document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
+  // One-time refresh: for last week (2026-05-04) replace any stored topics with
+  // the current D[catId][1] sets, so previously-seeded duplicates get updated.
+  try{
+    var REFRESH_KEY='exec_brief_v3_lastweek_refresh_v2';
+    if(!localStorage.getItem(REFRESH_KEY)){
+      var hh=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
+      var LW='2026-05-04';
+      hh=hh.map(function(e){
+        if(e.date!==LW) return e;
+        var sets=D[e.catId];
+        if(!sets||sets.length<2) return e;
+        return Object.assign({},e,{topics:sets[1]});
+      });
+      localStorage.setItem('exec_brief_v3',JSON.stringify(hh));
+      localStorage.setItem(REFRESH_KEY,'1');
+    }
+  }catch(e){console.error('Refresh error:',e);}
   seedThisWeek();
   seedLastWeek();
   rt(); rto(); rv(ac.id);
@@ -1180,13 +1197,14 @@ function seedLastWeek(){
   try{
     var LAST_WEEK='2026-05-04';
     var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
-    if(h.find(function(e){return e.date===LAST_WEEK;})) return;
-    var toAdd=[];
+    var added=0;
     CATS.forEach(function(cat){
+      // Skip only if THIS category already exists for that date
+      if(h.find(function(e){return e.date===LAST_WEEK&&e.catId===cat.id;})) return;
       var sets=D[cat.id];
       if(!sets||sets.length<2) return;
       var topics=sets[1];
-      toAdd.push({
+      h.unshift({
         date:LAST_WEEK,
         catId:cat.id,
         catLabel:cat.label,
@@ -1194,10 +1212,12 @@ function seedLastWeek(){
         catColor:cat.color,
         topics:topics
       });
+      added++;
     });
-    h=toAdd.concat(h);
-    localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
-    console.log('Seeded last week library entries:',toAdd.length);
+    if(added){
+      localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
+      console.log('Seeded last week library entries:',added);
+    }
   }catch(e){console.error('Seed error:',e);}
 }
 
