@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -28,45 +29,45 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh}
 
 /* Login screen */
-#login-screen{position:fixed;inset:0;background:var(--orange);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:2000;padding:calc(env(safe-area-inset-top,20px) + 24px) 24px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#login-screen{position:fixed;inset:0;background:var(–orange);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:2000;padding:calc(env(safe-area-inset-top,20px) + 24px) 24px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #login-screen.hidden{display:none}
 .login-logo{width:72px;height:72px;margin-bottom:16px;object-fit:contain;flex-shrink:0}
 .login-title{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,0.8);font-weight:700;margin-bottom:8px}
 .login-wb{font-size:32px;font-weight:700;color:#fff;margin-bottom:6px}
 .login-sub{font-size:14px;color:rgba(255,255,255,0.75);font-style:italic;margin-bottom:40px;text-align:center;line-height:1.6}
 .login-box{background:#fff;border-radius:12px;padding:28px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
-.login-box h2{font-size:16px;font-weight:700;color:var(--t);margin-bottom:6px}
-.login-box p{font-size:12px;color:var(--t3);margin-bottom:20px;line-height:1.5}
-.login-input{width:100%;border:1px solid var(--b);border-radius:8px;padding:12px 14px;font-family:'Playfair Display',serif;font-size:14px;color:var(--t);outline:none;margin-bottom:12px}
-.login-input:focus{border-color:var(--orange)}
-.login-btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:14px;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.login-box h2{font-size:16px;font-weight:700;color:var(–t);margin-bottom:6px}
+.login-box p{font-size:12px;color:var(–t3);margin-bottom:20px;line-height:1.5}
+.login-input{width:100%;border:1px solid var(–b);border-radius:8px;padding:12px 14px;font-family:‘Playfair Display’,serif;font-size:14px;color:var(–t);outline:none;margin-bottom:12px}
+.login-input:focus{border-color:var(–orange)}
+.login-btn{width:100%;background:var(–orange);color:#fff;border:none;border-radius:8px;padding:14px;font-family:‘Playfair Display’,serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px}
 .login-btn:active{opacity:.9}
-.login-divider{display:flex;align-items:center;gap:10px;margin:4px 0 12px;color:var(--t3);font-size:11px}
-.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--b)}
-.google-btn{width:100%;background:#fff;color:var(--t);border:1px solid var(--b);border-radius:8px;padding:12px;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.google-btn:active{background:var(--bg)}
-.login-msg{font-size:12px;text-align:center;margin-top:12px;min-height:20px;color:var(--orange);font-weight:600}
+.login-divider{display:flex;align-items:center;gap:10px;margin:4px 0 12px;color:var(–t3);font-size:11px}
+.login-divider::before,.login-divider::after{content:””;flex:1;height:1px;background:var(–b)}
+.google-btn{width:100%;background:#fff;color:var(–t);border:1px solid var(–b);border-radius:8px;padding:12px;font-family:‘Playfair Display’,serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.google-btn:active{background:var(–bg)}
+.login-msg{font-size:12px;text-align:center;margin-top:12px;min-height:20px;color:var(–orange);font-weight:600}
 .login-sent{text-align:center;padding:20px 0}
 .login-sent .check{font-size:40px;margin-bottom:12px}
-.login-sent h3{font-size:16px;font-weight:700;color:var(--t);margin-bottom:8px}
-.login-sent p{font-size:13px;color:var(--t2);line-height:1.6}
+.login-sent h3{font-size:16px;font-weight:700;color:var(–t);margin-bottom:8px}
+.login-sent p{font-size:13px;color:var(–t2);line-height:1.6}
 
 /* Header */
-#hdr{padding:calc(var(--st) + 10px) 18px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(--orange)}
+#hdr{padding:calc(var(–st) + 10px) 18px 12px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:var(–orange)}
 .hl{display:flex;align-items:center;gap:12px}
 .hl-logo{width:72px;height:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#ff6600}
 .hl-logo img{width:60px;height:60px;object-fit:contain}
-.hl-text .sub{font-family:'Playfair Display',serif;font-size:11px;letter-spacing:.18em;color:rgba(255,255,255,0.85);font-weight:700;margin-bottom:8px;line-height:1;text-transform:uppercase}
-.hl-text h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:.06em;line-height:1;font-feature-settings:'liga' 0,'dlig' 0,'kern' 1}
+.hl-text .sub{font-family:‘Playfair Display’,serif;font-size:11px;letter-spacing:.18em;color:rgba(255,255,255,0.85);font-weight:700;margin-bottom:8px;line-height:1;text-transform:uppercase}
+.hl-text h1{font-family:‘Playfair Display’,serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:.06em;line-height:1;font-feature-settings:‘liga’ 0,‘dlig’ 0,‘kern’ 1}
 .hr{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-.hdate{font-size:16px;color:rgba(255,255,255,0.9);text-align:right;font-family:'Playfair Display',serif;font-weight:600}
+.hdate{font-size:16px;color:rgba(255,255,255,0.9);text-align:right;font-family:‘Playfair Display’,serif;font-weight:600}
 .hr-titles{display:none}
 .sub-mob,.h1-mob{display:none}
 .hr-btns{display:flex;gap:7px;align-items:center}
-.hbtn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:4px;font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;width:76px;height:32px;flex-shrink:0;transition:all .2s;white-space:nowrap}
-.hbtn.on{background:rgba(255,255,255,0.95);color:var(--orange)}
-.hbtn:active{background:rgba(255,255,255,0.95);color:var(--orange)}
-.user-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#fff}
+.hbtn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:4px;font-family:‘Playfair Display’,serif;font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;width:76px;height:32px;flex-shrink:0;transition:all .2s;white-space:nowrap}
+.hbtn.on{background:rgba(255,255,255,0.95);color:var(–orange)}
+.hbtn:active{background:rgba(255,255,255,0.95);color:var(–orange)}
+.user-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:‘Playfair Display’,serif;font-size:13px;font-weight:700;color:#fff}
 .user-avatar{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
 .user-avatar img{width:100%;height:100%;object-fit:cover}
 
@@ -75,176 +76,178 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 #vl,#vk,#vn{display:none}
 
 /* Tabs */
-#tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white);scrollbar-width:none}
+#tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(–b);flex-shrink:0;background:var(–white);scrollbar-width:none}
 #tabs::-webkit-scrollbar{display:none}
-.tab{padding:12px 14px 10px;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;flex-shrink:0;background:none;border-top:none;border-left:none;border-right:none}
-.tab.on{color:var(--orange);border-bottom-color:var(--orange)}
-.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
+.tab{padding:12px 14px 10px;font-family:‘Playfair Display’,serif;font-size:11px;font-weight:700;color:var(–t3);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;flex-shrink:0;background:none;border-top:none;border-left:none;border-right:none}
+.tab.on{color:var(–orange);border-bottom-color:var(–orange)}
+.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(–sb) + 18px);background:var(–bg)}
 .ci{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:0 2px}
 .ico{font-size:18px}
 .ci-text .cl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
-.ci-text .cd{font-size:12px;font-style:italic;color:var(--t2)}
+.ci-text .cd{font-size:12px;font-style:italic;color:var(–t2)}
 .tl{display:flex;flex-direction:column;gap:10px}
-.tc{background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;transition:box-shadow .2s}
+.tc{background:var(–white);border:1px solid var(–b);border-radius:8px;overflow:hidden;transition:box-shadow .2s}
 .op{box-shadow:0 4px 16px rgba(255,102,0,0.12)}
 .th{padding:14px 14px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;-webkit-user-select:none;user-select:none}
 .th-left{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
 .tn{font-size:9px;font-weight:700;flex-shrink:0;padding-top:4px;width:18px}
 .tw{flex:1;min-width:0}
-.tt{font-size:15px;font-weight:700;color:var(--t);margin-bottom:3px;line-height:1.3}
-.thl{font-size:12px;font-style:italic;color:var(--t2);line-height:1.5}
+.tt{font-size:15px;font-weight:700;color:var(–t);margin-bottom:3px;line-height:1.3}
+.thl{font-size:12px;font-style:italic;color:var(–t2);line-height:1.5}
 .has-note-pill{display:inline-flex;align-items:center;gap:3px;background:#fff8ee;border:1px solid #f0e8d0;border-radius:10px;padding:2px 7px;font-size:9px;color:#C9A84C;font-weight:700;margin-top:4px}
 .th-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.like-btn{font-size:18px;color:var(--t3);cursor:pointer;background:none;border:none;padding:2px;line-height:1;transition:color .2s}
-.like-btn.liked{color:var(--orange)}
-.tog{font-size:18px;color:var(--t3);cursor:pointer;font-style:normal;transition:transform .25s;display:inline-block;line-height:1}
-.op .tog{transform:rotate(45deg);color:var(--orange)}
-.tb{display:none;padding:0 14px 16px;border-top:1px solid var(--b2)}
+.like-btn{font-size:18px;color:var(–t3);cursor:pointer;background:none;border:none;padding:2px;line-height:1;transition:color .2s}
+.like-btn.liked{color:var(–orange)}
+.tog{font-size:18px;color:var(–t3);cursor:pointer;font-style:normal;transition:transform .25s;display:inline-block;line-height:1}
+.op .tog{transform:rotate(45deg);color:var(–orange)}
+.tb{display:none;padding:0 14px 16px;border-top:1px solid var(–b2)}
 .op .tb{display:block}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
-.lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
-.bt{font-size:12px;color:var(--t2);line-height:1.7}
+.lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(–t3);margin-bottom:8px}
+.bt{font-size:12px;color:var(–t2);line-height:1.7}
 .ref{margin-top:8px;font-size:11px;font-style:italic}
-.ref a,.ref span{color:var(--orange)}
-.it{font-size:12px;font-style:italic;color:var(--t);line-height:1.7;border-left:3px solid var(--orange);padding-left:10px}
-.it-attr{display:block;font-size:10px;font-weight:700;color:var(--orange);margin-top:6px;font-style:normal}
-.db{background:var(--orange-light);border-left:3px solid var(--orange);border-radius:0 6px 6px 0;padding:12px 14px;margin-top:4px}
-.dt{font-size:12px;color:var(--t);line-height:1.8;display:flex;gap:8px;margin-bottom:4px}
-.dt::before{content:"▸";color:var(--orange);flex-shrink:0}
-.dt a{color:var(--orange);text-decoration:none;font-weight:700}
+.ref a,.ref span{color:var(–orange)}
+.it{font-size:12px;font-style:italic;color:var(–t);line-height:1.7;border-left:3px solid var(–orange);padding-left:10px}
+.it-attr{display:block;font-size:10px;font-weight:700;color:var(–orange);margin-top:6px;font-style:normal}
+.db{background:var(–orange-light);border-left:3px solid var(–orange);border-radius:0 6px 6px 0;padding:12px 14px;margin-top:4px}
+.dt{font-size:12px;color:var(–t);line-height:1.8;display:flex;gap:8px;margin-bottom:4px}
+.dt::before{content:“▸”;color:var(–orange);flex-shrink:0}
+.dt a{color:var(–orange);text-decoration:none;font-weight:700}
 .topic-notes{background:#fffdf9;border:1px solid #f0e8d0;border-radius:6px;padding:12px 14px;margin-top:12px;width:100%}
 .topic-notes-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C9A84C;margin-bottom:6px;display:flex;align-items:center;gap:5px}
-.topic-notes-ta{width:100%;border:none;background:transparent;font-family:'Playfair Display',serif;font-size:13px;color:var(--t);resize:none;outline:none;line-height:1.7;min-height:120px;cursor:text;display:block}
+.topic-notes-ta{width:100%;border:none;background:transparent;font-family:‘Playfair Display’,serif;font-size:13px;color:var(–t);resize:none;outline:none;line-height:1.7;min-height:120px;cursor:text;display:block}
 .topic-notes-ta::placeholder{color:#c8bfad;font-style:italic}
 .topic-notes-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #f0e8d0}
-.topic-notes-hint{font-size:10px;color:#c8bfad;font-style:italic;font-family:'Playfair Display',serif}
-.topic-notes-clear{font-size:10px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:'Playfair Display',serif}
-.view-top{padding:14px 16px 10px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white)}
-.view-title{font-size:20px;font-weight:700;color:var(--t)}
-.view-sub{font-size:11px;font-style:italic;color:var(--t2);margin-top:3px}
-.wk{background:var(--white);border:1px solid var(--b);border-radius:8px;margin:0 12px 10px;overflow:hidden}
+.topic-notes-hint{font-size:10px;color:#c8bfad;font-style:italic;font-family:‘Playfair Display’,serif}
+.topic-notes-clear{font-size:10px;color:var(–t3);cursor:pointer;background:none;border:none;font-family:‘Playfair Display’,serif}
+.view-top{padding:14px 16px 10px;border-bottom:1px solid var(–b);flex-shrink:0;background:var(–white)}
+.view-title{font-size:20px;font-weight:700;color:var(–t)}
+.view-sub{font-size:11px;font-style:italic;color:var(–t2);margin-top:3px}
+.wk{background:var(–white);border:1px solid var(–b);border-radius:8px;margin:0 12px 10px;overflow:hidden}
 .wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;-webkit-user-select:none;user-select:none}
 .wk-label-wrap{flex:1;cursor:pointer;min-width:0}
-.wk-label{font-size:13px;font-weight:700;color:var(--t)}
-.wk-label.current{color:var(--orange)}
-.wk-meta{font-size:10px;color:var(--t3);margin-top:2px}
+.wk-label{font-size:13px;font-weight:700;color:var(–t)}
+.wk-label.current{color:var(–orange)}
+.wk-meta{font-size:10px;color:var(–t3);margin-top:2px}
 .wk-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.wk-pdf,.wk-toggle{font-family:'Playfair Display',serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:4px;padding:6px 12px;line-height:1;display:inline-flex;align-items:center;gap:4px}
+.wk-pdf,.wk-toggle{font-family:‘Playfair Display’,serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:4px;padding:6px 12px;line-height:1;display:inline-flex;align-items:center;gap:4px}
 .wk-pdf{background:rgba(255,102,0,0.1);border:1px solid #ff6600;color:#ff6600}
-.wk-toggle{background:rgba(0,0,0,0.05);border:1px solid #ccc;color:var(--t3)}
+.wk-toggle{background:rgba(0,0,0,0.05);border:1px solid #ccc;color:var(–t3)}
 .wk-header.open .wk-toggle{background:rgba(255,102,0,0.08);border-color:#ff6600;color:#ff6600}
 .wk-chevron{transition:transform .25s;display:inline-block;line-height:1}
 .wk-header.open .wk-chevron{transform:rotate(180deg)}
-.wk-body{display:none;border-top:1px solid var(--b);overflow:visible}
+.wk-body{display:none;border-top:1px solid var(–b);overflow:visible}
 .wk-header.open+.wk-body{display:block}
-.lh{padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(--b2)}
+.lh{padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid var(–b2)}
 .lh:last-child{border-bottom:none}
-.op .lh{background:var(--orange-light)}
+.op .lh{background:var(–orange-light)}
 .lh-icon{font-size:12px;flex-shrink:0;padding-top:2px}
 .lh-body{flex:1;min-width:0}
 .lh-cat{font-size:8px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px}
-.lh-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:2px}
-.lh-hl{font-size:11px;font-style:italic;color:var(--t2);line-height:1.4}
-.ltog{font-size:16px;color:var(--t3);flex-shrink:0;transition:transform .25s}
-.op .ltog{transform:rotate(45deg);color:var(--orange)}
-.lb{display:none;padding:12px 14px 16px;border-top:1px solid var(--b2);background:var(--bg)}
+.lh-title{font-size:13px;font-weight:700;color:var(–t);margin-bottom:2px}
+.lh-hl{font-size:11px;font-style:italic;color:var(–t2);line-height:1.4}
+.ltog{font-size:16px;color:var(–t3);flex-shrink:0;transition:transform .25s}
+.op .ltog{transform:rotate(45deg);color:var(–orange)}
+.lb{display:none;padding:12px 14px 16px;border-top:1px solid var(–b2);background:var(–bg)}
 .lb.show{display:block}
 .op .lb{display:block}
-.lh-heart{font-size:16px;color:var(--t3);flex-shrink:0;cursor:pointer;background:none;border:none;padding:2px 6px;margin-right:4px;font-family:'Playfair Display',serif;transition:transform .15s}
+.lh-heart{font-size:16px;color:var(–t3);flex-shrink:0;cursor:pointer;background:none;border:none;padding:2px 6px;margin-right:4px;font-family:‘Playfair Display’,serif;transition:transform .15s}
 .lh-heart.liked{color:#e25555}
 .lh-heart:hover{transform:scale(1.15)}
 .lb .bt{font-size:13px}.lb .it{font-size:13px}.lb .dt{font-size:12px}
-.search-bar{padding:10px 12px;border-bottom:1px solid var(--b);flex-shrink:0;display:flex;gap:8px;background:var(--white)}
-.search-input{flex:1;border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-family:'Playfair Display',serif;font-size:13px;color:var(--t);outline:none;background:var(--bg)}
-.search-clear{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;padding:0 4px}
+.search-bar{padding:10px 12px;border-bottom:1px solid var(–b);flex-shrink:0;display:flex;gap:8px;background:var(–white)}
+.search-input{flex:1;border:1px solid var(–b);border-radius:6px;padding:8px 10px;font-family:‘Playfair Display’,serif;font-size:13px;color:var(–t);outline:none;background:var(–bg)}
+.search-clear{background:none;border:none;color:var(–t3);font-size:18px;cursor:pointer;padding:0 4px}
 .filter-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 12px;gap:6px;flex-shrink:0}
-.ftab{padding:5px 12px;border-radius:20px;border:1px solid var(--b);font-size:10px;font-weight:700;color:var(--t3);cursor:pointer;white-space:nowrap;background:var(--white);transition:all .2s;font-family:'Playfair Display',serif}
+.ftab{padding:5px 12px;border-radius:20px;border:1px solid var(–b);font-size:10px;font-weight:700;color:var(–t3);cursor:pointer;white-space:nowrap;background:var(–white);transition:all .2s;font-family:‘Playfair Display’,serif}
 .ftab.on{color:#fff}
 .ng{margin-bottom:14px}
 .ng-header{display:flex;align-items:center;gap:6px;padding:6px 2px;margin-bottom:6px}
 .ng-icon{font-size:12px}
-.ng-name{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;font-family:'Playfair Display',serif}
-.ng-count{font-size:10px;color:var(--t3);font-style:italic;margin-left:auto;font-family:'Playfair Display',serif}
-.ne{background:var(--white);border:1px solid var(--b);border-radius:6px;margin-bottom:6px;overflow:hidden;cursor:pointer}
+.ng-name{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;font-family:‘Playfair Display’,serif}
+.ng-count{font-size:10px;color:var(–t3);font-style:italic;margin-left:auto;font-family:‘Playfair Display’,serif}
+.ne{background:var(–white);border:1px solid var(–b);border-radius:6px;margin-bottom:6px;overflow:hidden;cursor:pointer}
 .ne-head{padding:10px 12px}
-.ne-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:2px}
-.ne-hl{font-size:10px;font-style:italic;color:var(--t2);margin-bottom:4px;line-height:1.4}
-.ne-date{font-size:9px;color:var(--t3)}
-.ne-preview{font-size:11px;color:var(--t2);line-height:1.6;padding:8px 12px;background:#fffdf9;border-top:1px solid #f0e8d0;font-style:italic;border-left:3px solid #C9A84C}
-.ne-body{display:none;padding:10px 12px;border-top:1px solid var(--b);background:var(--bg)}
+.ne-title{font-size:13px;font-weight:700;color:var(–t);margin-bottom:2px}
+.ne-hl{font-size:10px;font-style:italic;color:var(–t2);margin-bottom:4px;line-height:1.4}
+.ne-date{font-size:9px;color:var(–t3)}
+.ne-preview{font-size:11px;color:var(–t2);line-height:1.6;padding:8px 12px;background:#fffdf9;border-top:1px solid #f0e8d0;font-style:italic;border-left:3px solid #C9A84C}
+.ne-body{display:none;padding:10px 12px;border-top:1px solid var(–b);background:var(–bg)}
 .ne-body.show{display:block}
-.ne-why{font-size:11px;color:var(--t2);line-height:1.65;margin-bottom:8px}
-.ne-quote{font-size:11px;font-style:italic;color:var(--t);line-height:1.7;border-left:3px solid var(--orange);padding-left:8px;margin-bottom:4px}
+.ne-why{font-size:11px;color:var(–t2);line-height:1.65;margin-bottom:8px}
+.ne-quote{font-size:11px;font-style:italic;color:var(–t);line-height:1.7;border-left:3px solid var(–orange);padding-left:8px;margin-bottom:4px}
 .ne-attr{font-size:9px;font-weight:700;margin-top:3px}
 .ne-edit{background:#fffdf9;border:1px solid #f0e8d0;border-radius:6px;padding:10px;margin-top:10px}
-.ne-edit-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px;font-family:'Playfair Display',serif}
-.ne-edit-ta{width:100%;border:none;background:transparent;font-family:'Playfair Display',serif;font-size:12px;color:var(--t);resize:none;outline:none;line-height:1.7;min-height:80px}
-.empty{text-align:center;padding:40px 20px;color:var(--t3)}
+.ne-edit-label{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#C9A84C;margin-bottom:5px;font-family:‘Playfair Display’,serif}
+.ne-edit-ta{width:100%;border:none;background:transparent;font-family:‘Playfair Display’,serif;font-size:12px;color:var(–t);resize:none;outline:none;line-height:1.7;min-height:80px}
+.empty{text-align:center;padding:40px 20px;color:var(–t3)}
 .empty-icon{font-size:32px;display:block;margin-bottom:12px}
-.empty-title{font-size:16px;font-weight:700;color:var(--t2);margin-bottom:6px}
+.empty-title{font-size:16px;font-weight:700;color:var(–t2);margin-bottom:6px}
 .empty-sub{font-size:12px;font-style:italic;line-height:1.6}
-#pdf-view{display:none;position:fixed;inset:0;background:var(--white);z-index:1000;flex-direction:column;overflow:hidden}
+#pdf-view{display:none;position:fixed;inset:0;background:var(–white);z-index:1000;flex-direction:column;overflow:hidden}
 #pdf-view.show{display:flex}
-.pdf-toolbar{background:var(--orange);padding:calc(var(--st) + 10px) 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-shrink:0}
+.pdf-toolbar{background:var(–orange);padding:calc(var(–st) + 10px) 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-shrink:0}
 .pdf-toolbar-title{font-size:16px;font-weight:700;color:#fff}
-.pdf-tbtn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;padding:8px 14px;font-family:'Playfair Display',serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer}
+.pdf-tbtn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;padding:8px 14px;font-family:‘Playfair Display’,serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer}
 .pdf-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .pdf-page{max-width:800px;margin:0 auto;padding:24px 20px 40px}
-.pdf-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid var(--orange)}
+.pdf-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid var(–orange)}
 .pdf-logo{width:60px;height:60px;object-fit:contain}
-.pdf-title-block .pdf-pi{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);margin-bottom:4px}
-.pdf-title-block .pdf-wb{font-size:24px;font-weight:700;color:var(--t)}
-.pdf-meta{margin-left:auto;text-align:right;font-size:11px;color:var(--t3)}
+.pdf-title-block .pdf-pi{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(–t3);margin-bottom:4px}
+.pdf-title-block .pdf-wb{font-size:24px;font-weight:700;color:var(–t)}
+.pdf-meta{margin-left:auto;text-align:right;font-size:11px;color:var(–t3)}
 .pdf-cat-section{margin-bottom:28px}
-.pdf-cat-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:8px 0;border-bottom:1px solid var(--b);margin-bottom:16px}
-.pdf-topic{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b2)}
+.pdf-cat-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:8px 0;border-bottom:1px solid var(–b);margin-bottom:16px}
+.pdf-topic{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(–b2)}
 .pdf-topic:last-child{border-bottom:none}
-.pdf-topic-title{font-size:16px;font-weight:700;color:var(--t);margin-bottom:4px}
-.pdf-topic-hl{font-size:12px;font-style:italic;color:var(--t2);margin-bottom:12px;line-height:1.5}
+.pdf-topic-title{font-size:16px;font-weight:700;color:var(–t);margin-bottom:4px}
+.pdf-topic-hl{font-size:12px;font-style:italic;color:var(–t2);margin-bottom:12px;line-height:1.5}
 .pdf-two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:10px}
-.pdf-lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
-.pdf-bt{font-size:11px;color:var(--t2);line-height:1.65}
-.pdf-it{font-size:11px;font-style:italic;color:var(--t);line-height:1.7;border-left:3px solid var(--orange);padding-left:8px}
-.pdf-attr{font-size:9px;font-weight:700;color:var(--orange);margin-top:4px;display:block}
-.pdf-deeper{background:var(--orange-light);border-left:3px solid var(--orange);padding:10px 12px;border-radius:0 4px 4px 0}
-.pdf-dlbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:6px}
-.pdf-di{font-size:11px;color:var(--t);margin-bottom:4px;display:flex;gap:6px}
-.pdf-di::before{content:"▸";color:var(--orange);flex-shrink:0}
-.pdf-di a{color:var(--orange)}
-.pdf-footer{text-align:center;padding:20px;font-size:10px;color:var(--t3);border-top:1px solid var(--b)}
+.pdf-lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(–t3);margin-bottom:6px}
+.pdf-bt{font-size:11px;color:var(–t2);line-height:1.65}
+.pdf-it{font-size:11px;font-style:italic;color:var(–t);line-height:1.7;border-left:3px solid var(–orange);padding-left:8px}
+.pdf-attr{font-size:9px;font-weight:700;color:var(–orange);margin-top:4px;display:block}
+.pdf-deeper{background:var(–orange-light);border-left:3px solid var(–orange);padding:10px 12px;border-radius:0 4px 4px 0}
+.pdf-dlbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(–orange);margin-bottom:6px}
+.pdf-di{font-size:11px;color:var(–t);margin-bottom:4px;display:flex;gap:6px}
+.pdf-di::before{content:“▸”;color:var(–orange);flex-shrink:0}
+.pdf-di a{color:var(–orange)}
+.pdf-footer{text-align:center;padding:20px;font-size:10px;color:var(–t3);border-top:1px solid var(–b)}
 @media(max-width:500px){.two{grid-template-columns:1fr}}
 @media(max-width:430px){
-  #hdr{padding:calc(var(--st) + 10px) 14px 12px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
-  .hl{display:flex;flex-direction:row;align-items:center;gap:10px;flex:1;min-width:0}
-  .hl-logo{width:50px;height:50px;flex-shrink:0}
-  .hl-logo img{width:42px;height:42px}
-  .hl-text{display:flex;flex-direction:column;justify-content:center}
-  .hl-text .sub{font-size:8px;letter-spacing:.14em;margin-bottom:4px}
-  .hl-text h1{font-size:20px;letter-spacing:.04em;font-feature-settings:'liga' 0,'dlig' 0}
-  .hr{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-  .hr-titles{display:none}
-  .sub-mob,.h1-mob{display:none}
-  .hdate{font-size:10px;text-align:right}
-  .hr-btns{display:flex;gap:4px}
-  .hbtn{width:32px;height:28px;font-size:0;padding:0}
-  .hbtn svg{display:none}
-  #btn-pdf::after{content:'📄';font-size:14px}
-  #btn-notes::after{content:'✏';font-size:14px}
-  #btn-likes::after{content:'♥';font-size:14px}
-  #btn-lib::after{content:'◫';font-size:14px}
-  .sa{padding:14px 12px calc(var(--sb) + 14px)}
+#hdr{padding:calc(var(–st) + 10px) 14px 12px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+.hl{display:flex;flex-direction:row;align-items:center;gap:10px;flex:1;min-width:0}
+.hl-logo{width:50px;height:50px;flex-shrink:0}
+.hl-logo img{width:42px;height:42px}
+.hl-text{display:flex;flex-direction:column;justify-content:center}
+.hl-text .sub{font-size:8px;letter-spacing:.14em;margin-bottom:4px}
+.hl-text h1{font-size:20px;letter-spacing:.04em;font-feature-settings:‘liga’ 0,‘dlig’ 0}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.hr-titles{display:none}
+.sub-mob,.h1-mob{display:none}
+.hdate{font-size:10px;text-align:right}
+.hr-btns{display:flex;gap:4px}
+.hbtn{width:32px;height:28px;font-size:0;padding:0}
+.hbtn svg{display:none}
+#btn-pdf::after{content:‘📄’;font-size:14px}
+#btn-notes::after{content:‘✏’;font-size:14px}
+#btn-likes::after{content:‘♥’;font-size:14px}
+#btn-lib::after{content:‘◫’;font-size:14px}
+.sa{padding:14px 12px calc(var(–sb) + 14px)}
 }
 @media(max-width:375px){
-  .hl-text h1{font-size:18px}
-  .hl-logo{width:44px;height:44px}
-  .hl-logo img{width:36px;height:36px}
-  .hl-text .sub{font-size:7px}
+.hl-text h1{font-size:18px}
+.hl-logo{width:44px;height:44px}
+.hl-logo img{width:36px;height:36px}
+.hl-text .sub{font-size:7px}
 }
 </style>
+
 </head>
 <body>
 
 <!-- LOGIN SCREEN -->
+
 <div id="login-screen">
   <img class="login-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAIrUlEQVR42u1c3Y9dVRX/rXvvdPphPyBhxGiBjj5UhTodSmkRlFKjEiMEgi+EBx7klRdN/BOIoA8kiuHjQV8p0CBppC880BgrGEqBppAgaZma0qJYUvvBzL3n58OspWs2++x77p1zzv3I7GRybs7ZZ6+1fvu3PvY+5wyw0pbVhGQTwCYAGYALIjJPUgA0rM8A9OqICP0J1ak5AF1Mj0xESHIVgHWKz7kWgBaAbwH4CYDbSH4JQAfABQALCmCjZqXvA3BEJxci0gEwA+C5mvXIFMAJAOtUn9MADgHYB+DPLRH5DMArAF4h+XUAPwJwL4DdA/SM1Tnnpgeo018AvADggIgct5MtdY+GiGR64TiAX5H8GoAfA7gHwC6dBZuVtrKyUYG7iI4ftrZjhFTAtEzxMJsWABwGsB/ASyLyfhBSFjELT+oAS2IQyW8CuEvBvCliWFlgGjg3icjfvAuT3AHg9RIB9KD59rqC9kcRORaJwZmIZEsY+L+Msnghi4B5DMAxAI+Q3A7gbv2bcWNQY2cZYLLguX5BawZ6vgngRQAvisiRBGjt/qwhGyRbkfM7ST5C8h0ubR2SC3rspWV6nHVyG/p7NuhTtOXp8o7qvjNiV8vklp/TI2CSbJK8leSvSb6XY0DWA4DbIwBu7wHALAe091THWy081AJaj2CuInkHyd+Q/ID9tZkIgDN9jvWB6nKH1nCDBS0HSFEWhmCuJflDkk+RnFNmFGHQtgiA2woyL1NZT6nstRHQmhrfhq8lwFzv3LtbbLwhAuANBWKduen6ukBrlb42XCx/Oi6LNRZPy3mS5wpm1H6ysF0/p7Jaei4TkXZVhGlVyUYDU5kkWpxWXcYsqKwl9VpVrbYAqmAWZUK2DADb4UbEWABouywFWMccsLKgTz8yRh5AKQjyfOT8fEFwZJwBLLKfNw/gUoSNl3KA7UfGyAFoIEwU6HtR9yLDdkGvdWsTJa6dh46Bkwk3M4M/zQHqol7LA0cCGePDQN0KFwBrCrD0ExFpkxQRod2rtdwnBdi11u4dCwBd9W/PErq1MxHdGsG1VFurslDHcq1OF17jAEy58D8ifSS4lnLhL3Rh+sgBaIatV+O6tbnEtQ8L3L8OwIa6Spo6GXhFlyRi7UTi2skCEzWpssaOgV9MLNO8LicjbsrgWqPLEnBqnBhoRny5yzq3oYXyqQSAp7RPI7Hc87LGyoWvLVDCnAXwUQLAj7RPt1Lm2nFcyk0XAPCEiFzWZ64M6siGiFx2MTIF4FfHCcBOYFSqhHk3oVcj6JMqZabr2pmpFEBbEZBcDeC6AnHp7QLDvl0g3l5Hco1bAY0sA035zQCuTgBoehxNsItBn0ZC3tUAvlJHIqkLwK1Y3GbqRAyyDPwfLL6Xk5ep7dxx7RvLxKIymipzbACcSTDLgHlXRM7mbQS4TYWzLg6mtv63jwOAZsyOAgnkr3pMbYg2g76pRHJjgWw9vAAqWzokJx0DJWHwqz0M/2qB8WZITqoOw/kQvQuA/oF4J+eNBDt3ieRmf1+XMTfrPUyMm/kH9KPowjb2bv3dScS/oyIyp6zNfZYrIpn2mXPZOMupPQX/f8t2JAG02HN7gT4HC8S/MA4eLBDj9tQRByuJf3pcTfLDxPsw5n47tX+zwNhNPe5MuLDJmtMiHiMVB52RuxPg+ZeBWr0YqC8wtbq8rGTnbik6OcPkwgbGnQUK4/36wKgXA5t6z/4C499Z19ZWqS6sf28oC9qJTDnTK0Mcw2cS7xwaA98wfUatfPmGAhczzs4f7rfMcHIO61h5k9TWrwwqKWcaFYaFe936N8/Nn1mGHnbPMwn3tHXxPTVu35Xivg2SR3MCvLncWZIb+82QLtNv1LFirmyy33LvKI5E9r05kR0X9Pio9m0tQ559afVoMHYMxJurzMZlAWgGPZFjkLHkIslrjK3Libc6xjU6ZoyFpsPvljthdRXPG0l+nFPkmjFPlsUGx/onE5NG1WnT0BbVjn0/zSldMnWnSyS3LJd9ERZu0bFjGxemy0NDy0JnSF7tZ8x4vOxY5Fj4eA4L264mbAzFxzU5BuxNZN4OyX+RnCqLfZHJm1IZnURG3jt0ycQB+Kcu7Hu4KuWdDg93YeHLVe8R9qy4zv6NOsudHMWPVPnFkP9CSmXFJtKYucP6DxP7XojMfOaWbbuqdh2ny65AdugJ+4fCjR37ZnPYV1rRXGJxbXrODpyFbsYPRFym7ZZRk3V9IelceVJl5+l1YKAsdOB9N5J5zX0u+09XB7AjtE11CF3ZQLx9YCA6930tMsvzgy5cnSs/FOjkdX1tIG7s2PdgBDyLOU8Puup3ID4diYem84O1stBtV20ieTpIHqbgoWH4MjwobQ4FOprep0leUdt2l5vV3wYzace/k7xqWIpVFw+vIvl+js5P1OItznVvCbbRjYH/JLl12JZKTu+tbqeoEzxe+Halejt3WOX+T4x33/N1FMslbfaej+h/rNJyy7nuL93MmfCLJPcM9YblUhv2qM4GYrvSgj+o+cx1TegFt8MxtOBFQNyrujOwp9za0PbPNOueCGqqf5P8zqiAFwHxNrXB23RSbS1n39AJe04FXNbjKfc/rkYGvIhds2qLt+35UuxyQn7mYh31keWWUQUvYt8W9xjWbPz5suwLYkWH5Gc68EvueW4TI95cfN+otlFt7ZD8Xl8gukGnSZ5xy5/HwgJ1HJq3heRjzt4zJKd7Iot7vrCB5Js60KckH/DXMWbNP6ch+YDaTMVgQ6HnOK5YFpIv6wCHSV5vVB5H8AL7LXRdr7aT5EElTn6R7bd1SO4zl9W37Ec6WSwj/k86l97nt/E+B577/ay+rPODcYx3fcbF7ysmz34OM/dKxiTJ35N83r0CMdYu26NLb9Ja+A/OK8U6XUnyFyTvDzPxSluKBcn7FasrDcAJ/RhmKtfHV1qYI6YUs4kw/q2wrjc2ikd3hXW9sVEA4L9j1b/+fJ6lQQAAAABJRU5ErkJggg==" alt="PI">
   <div class="login-title">Performance Intelligence</div>
@@ -276,6 +279,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 </div>
 
 <!-- MAIN APP -->
+
 <div id="app" style="display:none">
   <div id="hdr">
     <div class="hl">
@@ -334,6 +338,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 </div>
 
 <!-- User menu -->
+
 <div id="user-menu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500" onclick="hideUserMenu()">
   <div style="position:absolute;top:calc(var(--st) + 80px);right:16px;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:16px;min-width:220px" onclick="event.stopPropagation()">
     <div style="font-size:11px;color:var(--t3);margin-bottom:4px;font-style:italic;letter-spacing:.04em;text-transform:uppercase">Signed in as</div>
@@ -345,6 +350,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 </div>
 
 <!-- PDF overlay -->
+
 <div id="pdf-view">
   <div class="pdf-toolbar">
     <div class="pdf-toolbar-title">Weekly Briefing</div>
@@ -365,9 +371,13 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 </div>
 
 <!-- Firebase v8 compat SDK -->
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
 <script>
 // ════════════════════════════════════════════
 // FIREBASE CONFIG
@@ -612,6 +622,7 @@ var CATS=[
 
 var D={};
 </script>
+
 <script id="data-script">
 D.leadership=[[
   {title:"The Successor Problem",headline:"Most leaders plan their exit too late \u2014 succession is a strategy, not an event.",why:"A landmark study by McKinsey found that poor CEO transitions destroy an average of $1 trillion in market value annually among S&P 500 companies alone. Yet fewer than 35% of boards say they have a credible internal successor ready. The cost is not just financial \u2014 rushed successions destabilise culture, strategy, and client relationships simultaneously.",ref:{text:"McKinsey Quarterly: 'The $1 trillion prize: Plugging the succession gap' (2023)",url:"https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/the-ceo-report"},insight:"The secret of my success is that we have gone to exceptional lengths to hire the best people in the world.",attribution:"Steve Jobs, co-founder of Apple",deeper:[{text:"Ask your client: 'If you were gone tomorrow, who steps up \u2014 and what does that reveal about your leadership?'",url:null},{text:"Read 'The CEO Next Door' by Elena Botelho \u2014 based on a 10-year study of 17,000 executives",url:"https://hbr.org/2017/05/what-sets-successful-ceos-apart"},{text:"HBR: 'Are You Ready to Be a CEO?' (Harvard Business Review, 2023)",url:"https://hbr.org/2023/05/are-you-ready-to-be-a-ceo"}]},
@@ -696,49 +707,50 @@ D.philosophy=[[
 D.markets[1][0] = {title:"The Capex Supercycle",headline:"AI and reindustrialisation are driving the largest infrastructure investment wave in 70 years.",why:"Goldman Sachs estimates US capital expenditure on AI infrastructure alone will exceed $1 trillion by 2027, with hyperscalers spending more on data centres in 2025 than the entire US oil & gas industry. The IMF projects global capex intensity will rise to levels not seen since the 1950s post-war rebuild, reshaping debt markets, energy demand, and labour allocation for a generation.",ref:{text:"Goldman Sachs Research: 'Gen AI: Too Much Spend, Too Little Benefit?' (2024)",url:"https://www.goldmansachs.com/insights/articles/gen-ai-too-much-spend-too-little-benefit"},insight:"In the long run, we are all dead. Economists set themselves too easy, too useless a task if in tempestuous seasons they can only tell us that when the storm is long past the ocean is flat again.",attribution:"John Maynard Keynes, economist",deeper:[{text:"Ask your client: 'Where in your business is capital allocation about to be rewritten by AI infrastructure costs?'",url:null},{text:"IMF World Economic Outlook (October 2024): Investment chapter",url:"https://www.imf.org/en/Publications/WEO"},{text:"FT: 'The capex supercycle is here' (2024)",url:"https://www.ft.com/content/capex-supercycle"}]};
 
 // markets[1][1]  (was: "Reshoring as Strategy" — duplicated geopolitics[0][0])
-D.markets[1][1] = {title:"The End of Cheap Capital",headline:"A decade of near-zero rates trained investors and operators in habits that no longer work.",why:"The 2010s ZIRP era inflated valuations, encouraged debt-funded buybacks, and rewarded growth-at-any-cost. With the 10-year Treasury settling around 4-5% and equity risk premiums compressed, the hurdle rate for new investment has roughly doubled. McKinsey research shows that companies which adapted their capital discipline early in rate cycles outperform peers by 4-7 percentage points in TSR over the following five years.",ref:{text:"McKinsey: 'The next normal in finance: Adapting to a higher-rate world' (2024)",url:"https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights"},insight:"Only when the tide goes out do you discover who's been swimming naked.",attribution:"Warren Buffett, Berkshire Hathaway 2001 letter to shareholders",deeper:[{text:"Audit your client's hurdle rates \\u2014 when were they last updated for the new cost of capital?",url:null},{text:"Howard Marks: 'Sea Change' memo (Oaktree Capital, 2022) \\u2014 the definitive read on the regime shift",url:"https://www.oaktreecapital.com/insights/memo/sea-change"},{text:"BIS Annual Economic Report 2024: 'Laying a robust macro-financial foundation'",url:"https://www.bis.org/publ/arpdf/ar2024e.htm"}]};
+D.markets[1][1] = {title:"The End of Cheap Capital",headline:"A decade of near-zero rates trained investors and operators in habits that no longer work.",why:"The 2010s ZIRP era inflated valuations, encouraged debt-funded buybacks, and rewarded growth-at-any-cost. With the 10-year Treasury settling around 4-5% and equity risk premiums compressed, the hurdle rate for new investment has roughly doubled. McKinsey research shows that companies which adapted their capital discipline early in rate cycles outperform peers by 4-7 percentage points in TSR over the following five years.",ref:{text:"McKinsey: 'The next normal in finance: Adapting to a higher-rate world' (2024)",url:"https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights"},insight:"Only when the tide goes out do you discover who's been swimming naked.",attribution:"Warren Buffett, Berkshire Hathaway 2001 letter to shareholders",deeper:[{text:"Audit your client's hurdle rates \u2014 when were they last updated for the new cost of capital?",url:null},{text:"Howard Marks: 'Sea Change' memo (Oaktree Capital, 2022) \u2014 the definitive read on the regime shift",url:"https://www.oaktreecapital.com/insights/memo/sea-change"},{text:"BIS Annual Economic Report 2024: 'Laying a robust macro-financial foundation'",url:"https://www.bis.org/publ/arpdf/ar2024e.htm"}]};
 
 // markets[1][2]  (was: "Private Markets Go Mainstream" — duplicated markets[0][2])
-D.markets[1][2] = {title:"The Return of Active Management",headline:"After a decade of passive dominance, dispersion and concentration are rewarding stock-pickers again.",why:"S&P Indices Versus Active (SPIVA) data shows 2024 was the first year in over a decade where the majority of large-cap active managers beat the S&P 500. The 'Magnificent Seven' have driven extreme index concentration \\u2014 the top 10 stocks now represent ~37% of the S&P 500, the highest in 50 years. Bernstein research argues this creates structural opportunities for fundamental managers that didn't exist in the post-GFC passive era.",ref:{text:"S&P Dow Jones Indices: SPIVA U.S. Year-End 2024 Scorecard",url:"https://www.spglobal.com/spdji/en/research-insights/spiva/"},insight:"The investor's chief problem \\u2014 and even his worst enemy \\u2014 is likely to be himself.",attribution:"Benjamin Graham, author of 'The Intelligent Investor'",deeper:[{text:"Is your client's portfolio more concentrated than they realise? Run the top-10 holdings test.",url:null},{text:"Bernstein: 'The Death of Active Management Has Been Greatly Exaggerated' (2024)",url:"https://www.bernsteinresearch.com/"},{text:"Morningstar: 'Active/Passive Barometer' (semi-annual)",url:"https://www.morningstar.com/lp/active-passive-barometer"}]};
+D.markets[1][2] = {title:"The Return of Active Management",headline:"After a decade of passive dominance, dispersion and concentration are rewarding stock-pickers again.",why:"S&P Indices Versus Active (SPIVA) data shows 2024 was the first year in over a decade where the majority of large-cap active managers beat the S&P 500. The 'Magnificent Seven' have driven extreme index concentration \u2014 the top 10 stocks now represent ~37% of the S&P 500, the highest in 50 years. Bernstein research argues this creates structural opportunities for fundamental managers that didn't exist in the post-GFC passive era.",ref:{text:"S&P Dow Jones Indices: SPIVA U.S. Year-End 2024 Scorecard",url:"https://www.spglobal.com/spdji/en/research-insights/spiva/"},insight:"The investor's chief problem \u2014 and even his worst enemy \u2014 is likely to be himself.",attribution:"Benjamin Graham, author of 'The Intelligent Investor'",deeper:[{text:"Is your client's portfolio more concentrated than they realise? Run the top-10 holdings test.",url:null},{text:"Bernstein: 'The Death of Active Management Has Been Greatly Exaggerated' (2024)",url:"https://www.bernsteinresearch.com/"},{text:"Morningstar: 'Active/Passive Barometer' (semi-annual)",url:"https://www.morningstar.com/lp/active-passive-barometer"}]};
 
 // --- PSYCHOLOGY Week 1 ---
 
 // psychology[1][0]  (was: "The Spotlight Effect" — duplicated psychology[0][0])
-D.psychology[1][0] = {title:"Hedonic Adaptation",headline:"We adapt to good fortune far faster than we expect \\u2014 which is why achievement rarely delivers lasting happiness.",why:"Brickman, Coates and Janoff-Bulman's landmark 1978 study compared lottery winners with paraplegic accident victims and found that within 18 months, both groups reported similar baseline happiness to controls. Daniel Kahneman's later work at Princeton, including the 2010 study with Angus Deaton, refined this: income raises day-to-day happiness only up to about $75,000-$95,000, after which the effect plateaus sharply. The implication for leaders is profound \\u2014 the next promotion, deal, or exit will feel less transformative than imagined.",ref:{text:"Brickman, P., Coates, D. & Janoff-Bulman, R. (1978). 'Lottery winners and accident victims: Is happiness relative?' Journal of Personality and Social Psychology, 36(8), 917-927.",url:"https://psycnet.apa.org/record/1980-01001-001"},insight:"It is not the man who has too little, but the man who craves more, that is poor.",attribution:"Seneca, Roman Stoic philosopher, Letters from a Stoic",deeper:[{text:"Write down what you thought would make you happy five years ago \\u2014 and ask honestly whether it did.",url:null},{text:"Daniel Gilbert's 'Stumbling on Happiness' (2006) \\u2014 the definitive popular treatment",url:"https://www.danielgilbert.com/"},{text:"Kahneman & Deaton (2010). 'High income improves evaluation of life but not emotional well-being.' PNAS, 107(38).",url:"https://www.pnas.org/doi/10.1073/pnas.1011492107"}]};
+D.psychology[1][0] = {title:"Hedonic Adaptation",headline:"We adapt to good fortune far faster than we expect \u2014 which is why achievement rarely delivers lasting happiness.",why:"Brickman, Coates and Janoff-Bulman's landmark 1978 study compared lottery winners with paraplegic accident victims and found that within 18 months, both groups reported similar baseline happiness to controls. Daniel Kahneman's later work at Princeton, including the 2010 study with Angus Deaton, refined this: income raises day-to-day happiness only up to about $75,000-$95,000, after which the effect plateaus sharply. The implication for leaders is profound \u2014 the next promotion, deal, or exit will feel less transformative than imagined.",ref:{text:"Brickman, P., Coates, D. & Janoff-Bulman, R. (1978). 'Lottery winners and accident victims: Is happiness relative?' Journal of Personality and Social Psychology, 36(8), 917-927.",url:"https://psycnet.apa.org/record/1980-01001-001"},insight:"It is not the man who has too little, but the man who craves more, that is poor.",attribution:"Seneca, Roman Stoic philosopher, Letters from a Stoic",deeper:[{text:"Write down what you thought would make you happy five years ago \u2014 and ask honestly whether it did.",url:null},{text:"Daniel Gilbert's 'Stumbling on Happiness' (2006) \u2014 the definitive popular treatment",url:"https://www.danielgilbert.com/"},{text:"Kahneman & Deaton (2010). 'High income improves evaluation of life but not emotional well-being.' PNAS, 107(38).",url:"https://www.pnas.org/doi/10.1073/pnas.1011492107"}]};
 
 // psychology[1][1]  (was: "Psychological Safety at Work" — overlapped leadership[0][1])
-D.psychology[1][1] = {title:"The IKEA Effect",headline:"We systematically overvalue what we help create \\u2014 even when our contribution made it worse.",why:"Harvard's Michael Norton, with Mochon and Ariely, ran a series of experiments showing participants would pay 63% more for IKEA furniture they assembled themselves versus identical pre-assembled units. The effect generalises: leaders overvalue strategies they helped design, parents overvalue their children's mediocre projects, and executives defend acquisitions they sponsored long past the point of evidence. This is why bringing in outside advisors who can challenge ownership bias is worth their fee many times over.",ref:{text:"Norton, M.I., Mochon, D. & Ariely, D. (2012). 'The IKEA effect: When labor leads to love.' Journal of Consumer Psychology, 22(3), 453-460.",url:"https://www.sciencedirect.com/science/article/abs/pii/S1057740811000829"},insight:"It is difficult to get a man to understand something when his salary depends upon his not understanding it.",attribution:"Upton Sinclair, American author and political activist",deeper:[{text:"What initiative are you defending that an outside observer would have killed six months ago?",url:null},{text:"Dan Ariely's 'Predictably Irrational' (2008), Chapter 8 \\u2014 the lay-friendly version",url:"https://danariely.com/books/predictably-irrational/"},{text:"HBR: 'Why You Should Make Time for Self-Reflection' (2017)",url:"https://hbr.org/2017/03/why-you-should-make-time-for-self-reflection-even-if-you-hate-doing-it"}]};
+D.psychology[1][1] = {title:"The IKEA Effect",headline:"We systematically overvalue what we help create \u2014 even when our contribution made it worse.",why:"Harvard's Michael Norton, with Mochon and Ariely, ran a series of experiments showing participants would pay 63% more for IKEA furniture they assembled themselves versus identical pre-assembled units. The effect generalises: leaders overvalue strategies they helped design, parents overvalue their children's mediocre projects, and executives defend acquisitions they sponsored long past the point of evidence. This is why bringing in outside advisors who can challenge ownership bias is worth their fee many times over.",ref:{text:"Norton, M.I., Mochon, D. & Ariely, D. (2012). 'The IKEA effect: When labor leads to love.' Journal of Consumer Psychology, 22(3), 453-460.",url:"https://www.sciencedirect.com/science/article/abs/pii/S1057740811000829"},insight:"It is difficult to get a man to understand something when his salary depends upon his not understanding it.",attribution:"Upton Sinclair, American author and political activist",deeper:[{text:"What initiative are you defending that an outside observer would have killed six months ago?",url:null},{text:"Dan Ariely's 'Predictably Irrational' (2008), Chapter 8 \u2014 the lay-friendly version",url:"https://danariely.com/books/predictably-irrational/"},{text:"HBR: 'Why You Should Make Time for Self-Reflection' (2017)",url:"https://hbr.org/2017/03/why-you-should-make-time-for-self-reflection-even-if-you-hate-doing-it"}]};
 
 // --- TECHNOLOGY Week 1 ---
 
 // technology[1][0]  (was: "AI as Thought Partner" — duplicated technology[0][0])
-D.technology[1][0] = {title:"The Death of the SaaS Stack",headline:"AI agents are collapsing the layer cake of single-purpose SaaS tools that defined the 2010s.",why:"Gartner predicts 30% of enterprise applications will integrate agentic AI by 2027, up from less than 1% in 2024. Bessemer Venture Partners' 2025 State of the Cloud report shows the median enterprise now runs over 250 SaaS tools \\u2014 a complexity tax that agentic AI is designed to eliminate by acting as a unified interface across systems. Box's CEO Aaron Levie has publicly argued that 'every SaaS company is now an AI company or a dead company.'",ref:{text:"Gartner: 'Top Strategic Technology Trends for 2025' (Agentic AI)",url:"https://www.gartner.com/en/articles/top-technology-trends-2025"},insight:"It is not the strongest of the species that survives, nor the most intelligent, but the one most responsive to change.",attribution:"Often attributed to Charles Darwin, though actually said by Leon C. Megginson (1963)",deeper:[{text:"Which of your client's SaaS tools could be replaced by an AI agent in 24 months?",url:null},{text:"Bessemer Venture Partners: 'State of the Cloud 2025'",url:"https://www.bvp.com/atlas/state-of-the-cloud-2025"},{text:"Stratechery (Ben Thompson): writing on AI's disruption of vertical SaaS",url:"https://stratechery.com/"}]};
+D.technology[1][0] = {title:"The Death of the SaaS Stack",headline:"AI agents are collapsing the layer cake of single-purpose SaaS tools that defined the 2010s.",why:"Gartner predicts 30% of enterprise applications will integrate agentic AI by 2027, up from less than 1% in 2024. Bessemer Venture Partners' 2025 State of the Cloud report shows the median enterprise now runs over 250 SaaS tools \u2014 a complexity tax that agentic AI is designed to eliminate by acting as a unified interface across systems. Box's CEO Aaron Levie has publicly argued that 'every SaaS company is now an AI company or a dead company.'",ref:{text:"Gartner: 'Top Strategic Technology Trends for 2025' (Agentic AI)",url:"https://www.gartner.com/en/articles/top-technology-trends-2025"},insight:"It is not the strongest of the species that survives, nor the most intelligent, but the one most responsive to change.",attribution:"Often attributed to Charles Darwin, though actually said by Leon C. Megginson (1963)",deeper:[{text:"Which of your client's SaaS tools could be replaced by an AI agent in 24 months?",url:null},{text:"Bessemer Venture Partners: 'State of the Cloud 2025'",url:"https://www.bvp.com/atlas/state-of-the-cloud-2025"},{text:"Stratechery (Ben Thompson): writing on AI's disruption of vertical SaaS",url:"https://stratechery.com/"}]};
 
 // technology[1][2]  (was: "Cybersecurity as Board Priority" — duplicated technology[0][3])
-D.technology[1][2] = {title:"Synthetic Data and the Training Wall",headline:"Frontier AI labs are running out of human-generated text \\u2014 and synthetic data is the controversial fix.",why:"Epoch AI's widely-cited 2024 paper estimated that the stock of high-quality public text data will be exhausted between 2026 and 2032 at current scaling rates. Labs including Anthropic, OpenAI and Google DeepMind are now training on substantial volumes of model-generated synthetic data \\u2014 a practice that improves capability but raises real risks of model collapse, where successive generations of AI lose touch with the underlying distribution of human knowledge.",ref:{text:"Villalobos, P. et al. (2024). 'Will we run out of data? Limits of LLM scaling based on human-generated data.' Epoch AI / ICML 2024.",url:"https://arxiv.org/abs/2211.04325"},insight:"Garbage in, garbage out.",attribution:"George Fuechsel, IBM programmer (1960s) \\u2014 the original computing maxim",deeper:[{text:"Ask your AI vendors: what percentage of their training data is synthetic vs human-generated?",url:null},{text:"Shumailov, I. et al. (2024). 'AI models collapse when trained on recursively generated data.' Nature, 631.",url:"https://www.nature.com/articles/s41586-024-07566-y"},{text:"The Atlantic: 'The AI Data Crunch' (2024)",url:"https://www.theatlantic.com/"}]};
+D.technology[1][2] = {title:"Synthetic Data and the Training Wall",headline:"Frontier AI labs are running out of human-generated text \u2014 and synthetic data is the controversial fix.",why:"Epoch AI's widely-cited 2024 paper estimated that the stock of high-quality public text data will be exhausted between 2026 and 2032 at current scaling rates. Labs including Anthropic, OpenAI and Google DeepMind are now training on substantial volumes of model-generated synthetic data \u2014 a practice that improves capability but raises real risks of model collapse, where successive generations of AI lose touch with the underlying distribution of human knowledge.",ref:{text:"Villalobos, P. et al. (2024). 'Will we run out of data? Limits of LLM scaling based on human-generated data.' Epoch AI / ICML 2024.",url:"https://arxiv.org/abs/2211.04325"},insight:"Garbage in, garbage out.",attribution:"George Fuechsel, IBM programmer (1960s) \u2014 the original computing maxim",deeper:[{text:"Ask your AI vendors: what percentage of their training data is synthetic vs human-generated?",url:null},{text:"Shumailov, I. et al. (2024). 'AI models collapse when trained on recursively generated data.' Nature, 631.",url:"https://www.nature.com/articles/s41586-024-07566-y"},{text:"The Atlantic: 'The AI Data Crunch' (2024)",url:"https://www.theatlantic.com/"}]};
 
 // technology[1][3]  (was: "Platforms Beat Products" — duplicated technology[0][2])
-D.technology[1][3] = {title:"Quantum's Crossover Year",headline:"After decades of hype, useful quantum advantage is arriving \\u2014 with profound implications for cryptography.",why:"Google's December 2024 announcement of its Willow chip demonstrated quantum error correction at scale \\u2014 a long-standing barrier. McKinsey estimates quantum computing could create $1.3 trillion in value by 2035, with finance and pharmaceuticals as lead beneficiaries. The flip side: NIST has now standardised post-quantum cryptography algorithms because every encrypted communication captured today is potentially readable in 10-15 years (so-called 'harvest now, decrypt later' attacks are already underway).",ref:{text:"Google AI Blog: 'Meet Willow, our state-of-the-art quantum chip' (December 2024)",url:"https://blog.google/technology/google-deepmind/google-willow-quantum-chip/"},insight:"Any sufficiently advanced technology is indistinguishable from magic.",attribution:"Arthur C. Clarke, author and futurist, 'Profiles of the Future' (1962)",deeper:[{text:"Has your client's CISO started a post-quantum cryptography migration plan?",url:null},{text:"NIST: Post-Quantum Cryptography Standardization (FIPS 203, 204, 205)",url:"https://csrc.nist.gov/projects/post-quantum-cryptography"},{text:"McKinsey: 'Quantum Technology Monitor 2024'",url:"https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/quantum-technology-monitor"}]};
+D.technology[1][3] = {title:"Quantum's Crossover Year",headline:"After decades of hype, useful quantum advantage is arriving \u2014 with profound implications for cryptography.",why:"Google's December 2024 announcement of its Willow chip demonstrated quantum error correction at scale \u2014 a long-standing barrier. McKinsey estimates quantum computing could create $1.3 trillion in value by 2035, with finance and pharmaceuticals as lead beneficiaries. The flip side: NIST has now standardised post-quantum cryptography algorithms because every encrypted communication captured today is potentially readable in 10-15 years (so-called 'harvest now, decrypt later' attacks are already underway).",ref:{text:"Google AI Blog: 'Meet Willow, our state-of-the-art quantum chip' (December 2024)",url:"https://blog.google/technology/google-deepmind/google-willow-quantum-chip/"},insight:"Any sufficiently advanced technology is indistinguishable from magic.",attribution:"Arthur C. Clarke, author and futurist, 'Profiles of the Future' (1962)",deeper:[{text:"Has your client's CISO started a post-quantum cryptography migration plan?",url:null},{text:"NIST: Post-Quantum Cryptography Standardization (FIPS 203, 204, 205)",url:"https://csrc.nist.gov/projects/post-quantum-cryptography"},{text:"McKinsey: 'Quantum Technology Monitor 2024'",url:"https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/quantum-technology-monitor"}]};
 
 // --- PHILOSOPHY Week 1 ---
 
 // philosophy[1][0]  (was: "The Examined Life" — duplicated philosophy[0][1])
-D.philosophy[1][0] = {title:"Memento Mori",headline:"Stoic and Buddhist traditions agree: remembering mortality clarifies what matters now.",why:"Roman emperor Marcus Aurelius wrote in his private journal (later published as Meditations) that contemplating death daily sharpened decision-making and dissolved trivial anxieties. Modern psychology validates this: terror management theory, founded by Solomon, Greenberg and Pyszczynski, has shown across 300+ studies that brief mortality reminders increase prioritisation of meaningful relationships and authentic values over status and consumption. Steve Jobs's 2005 Stanford commencement address \\u2014 'remembering I'll be dead soon is the most important tool I've ever encountered' \\u2014 became the most-watched commencement speech ever for a reason.",ref:{text:"Aurelius, M. 'Meditations,' Book IV (c. 170-180 AD), Penguin Classics translation by Martin Hammond",url:"https://www.penguin.co.uk/books/56586/meditations-by-marcus-aurelius/9780140449334"},insight:"You could leave life right now. Let that determine what you do and say and think.",attribution:"Marcus Aurelius, Meditations, Book II",deeper:[{text:"Write your own eulogy. Compare it to how you actually spent the last quarter.",url:null},{text:"Steve Jobs's 2005 Stanford Commencement Address \\u2014 14 minutes worth re-reading the transcript",url:"https://news.stanford.edu/2005/06/14/jobs-061505/"},{text:"Solomon, S., Greenberg, J. & Pyszczynski, T. (2015). 'The Worm at the Core: On the Role of Death in Life.'",url:"https://www.penguinrandomhouse.com/books/313324/the-worm-at-the-core-by-sheldon-solomon-jeff-greenberg-and-tom-pyszczynski/"}]};
+D.philosophy[1][0] = {title:"Memento Mori",headline:"Stoic and Buddhist traditions agree: remembering mortality clarifies what matters now.",why:"Roman emperor Marcus Aurelius wrote in his private journal (later published as Meditations) that contemplating death daily sharpened decision-making and dissolved trivial anxieties. Modern psychology validates this: terror management theory, founded by Solomon, Greenberg and Pyszczynski, has shown across 300+ studies that brief mortality reminders increase prioritisation of meaningful relationships and authentic values over status and consumption. Steve Jobs's 2005 Stanford commencement address \u2014 'remembering I'll be dead soon is the most important tool I've ever encountered' \u2014 became the most-watched commencement speech ever for a reason.",ref:{text:"Aurelius, M. 'Meditations,' Book IV (c. 170-180 AD), Penguin Classics translation by Martin Hammond",url:"https://www.penguin.co.uk/books/56586/meditations-by-marcus-aurelius/9780140449334"},insight:"You could leave life right now. Let that determine what you do and say and think.",attribution:"Marcus Aurelius, Meditations, Book II",deeper:[{text:"Write your own eulogy. Compare it to how you actually spent the last quarter.",url:null},{text:"Steve Jobs's 2005 Stanford Commencement Address \u2014 14 minutes worth re-reading the transcript",url:"https://news.stanford.edu/2005/06/14/jobs-061505/"},{text:"Solomon, S., Greenberg, J. & Pyszczynski, T. (2015). 'The Worm at the Core: On the Role of Death in Life.'",url:"https://www.penguinrandomhouse.com/books/313324/the-worm-at-the-core-by-sheldon-solomon-jeff-greenberg-and-tom-pyszczynski/"}]};
 
 // philosophy[1][1]  (was: "Stoic Decision-Making" — duplicated philosophy[0][0])
-D.philosophy[1][1] = {title:"The Veil of Ignorance",headline:"John Rawls's thought experiment offers leaders a powerful test for fair decisions.",why:"In 'A Theory of Justice' (1971), Harvard philosopher John Rawls proposed that just rules are those we would choose from behind a 'veil of ignorance' \\u2014 not knowing what role we would occupy in the resulting society. The framework has become foundational in organisational design, compensation systems, and AI ethics. Applied to leadership decisions, it asks: would you design this redundancy policy, bonus structure, or board process if you didn't yet know whether you'd be CEO or junior analyst affected by it?",ref:{text:"Rawls, J. (1971). 'A Theory of Justice.' Belknap Press of Harvard University Press.",url:"https://www.hup.harvard.edu/catalog.php?isbn=9780674000780"},insight:"Justice is the first virtue of social institutions, as truth is of systems of thought.",attribution:"John Rawls, 'A Theory of Justice' (1971), opening line",deeper:[{text:"Run your next significant policy decision through the Rawlsian test \\u2014 would you accept it not knowing your position?",url:null},{text:"Michael Sandel's Harvard 'Justice' lectures \\u2014 the most accessible introduction (free online)",url:"https://www.edx.org/learn/justice/harvard-university-justice"},{text:"Thomas Nagel: 'Equality and Partiality' (1991) \\u2014 the most rigorous critique of Rawls",url:"https://global.oup.com/academic/product/equality-and-partiality-9780195098396"}]};
+D.philosophy[1][1] = {title:"The Veil of Ignorance",headline:"John Rawls's thought experiment offers leaders a powerful test for fair decisions.",why:"In 'A Theory of Justice' (1971), Harvard philosopher John Rawls proposed that just rules are those we would choose from behind a 'veil of ignorance' \u2014 not knowing what role we would occupy in the resulting society. The framework has become foundational in organisational design, compensation systems, and AI ethics. Applied to leadership decisions, it asks: would you design this redundancy policy, bonus structure, or board process if you didn't yet know whether you'd be CEO or junior analyst affected by it?",ref:{text:"Rawls, J. (1971). 'A Theory of Justice.' Belknap Press of Harvard University Press.",url:"https://www.hup.harvard.edu/catalog.php?isbn=9780674000780"},insight:"Justice is the first virtue of social institutions, as truth is of systems of thought.",attribution:"John Rawls, 'A Theory of Justice' (1971), opening line",deeper:[{text:"Run your next significant policy decision through the Rawlsian test \u2014 would you accept it not knowing your position?",url:null},{text:"Michael Sandel's Harvard 'Justice' lectures \u2014 the most accessible introduction (free online)",url:"https://www.edx.org/learn/justice/harvard-university-justice"},{text:"Thomas Nagel: 'Equality and Partiality' (1991) \u2014 the most rigorous critique of Rawls",url:"https://global.oup.com/academic/product/equality-and-partiality-9780195098396"}]};
 
 // philosophy[1][3]  (was: "First Principles Thinking" — duplicated philosophy[0][3])
-D.philosophy[1][3] = {title:"The Tyranny of the Urgent",headline:"What is important is rarely urgent; what is urgent is rarely important.",why:"Charles Hummel's 1967 essay 'Tyranny of the Urgent' framed the central time-management failure mode of professional life: urgent tasks (calls, requests, emails) drive out important but non-urgent work (strategy, relationships, health, learning). Dwight Eisenhower formalised this into the four-quadrant matrix later popularised by Stephen Covey in 'The 7 Habits of Highly Effective People' (1989). Decades of executive coaching research confirm: the highest-performing leaders deliberately ring-fence time for Quadrant II (important / not urgent) work, while average performers live in Quadrant I and III.",ref:{text:"Hummel, C.E. (1967). 'Tyranny of the Urgent.' InterVarsity Press essay.",url:"https://www.ivpress.com/tyranny-of-the-urgent"},insight:"What is important is seldom urgent and what is urgent is seldom important.",attribution:"Dwight D. Eisenhower, 34th US President, 1954 speech at Northwestern University",deeper:[{text:"Audit last week's calendar. What percentage was Quadrant II work?",url:null},{text:"Stephen Covey: 'The 7 Habits of Highly Effective People' (1989), Habit 3",url:"https://www.franklincovey.com/the-7-habits/"},{text:"Cal Newport: 'Deep Work' (2016) \\u2014 the modern operational manual for this principle",url:"https://www.calnewport.com/books/deep-work/"}]};
+D.philosophy[1][3] = {title:"The Tyranny of the Urgent",headline:"What is important is rarely urgent; what is urgent is rarely important.",why:"Charles Hummel's 1967 essay 'Tyranny of the Urgent' framed the central time-management failure mode of professional life: urgent tasks (calls, requests, emails) drive out important but non-urgent work (strategy, relationships, health, learning). Dwight Eisenhower formalised this into the four-quadrant matrix later popularised by Stephen Covey in 'The 7 Habits of Highly Effective People' (1989). Decades of executive coaching research confirm: the highest-performing leaders deliberately ring-fence time for Quadrant II (important / not urgent) work, while average performers live in Quadrant I and III.",ref:{text:"Hummel, C.E. (1967). 'Tyranny of the Urgent.' InterVarsity Press essay.",url:"https://www.ivpress.com/tyranny-of-the-urgent"},insight:"What is important is seldom urgent and what is urgent is seldom important.",attribution:"Dwight D. Eisenhower, 34th US President, 1954 speech at Northwestern University",deeper:[{text:"Audit last week's calendar. What percentage was Quadrant II work?",url:null},{text:"Stephen Covey: 'The 7 Habits of Highly Effective People' (1989), Habit 3",url:"https://www.franklincovey.com/the-7-habits/"},{text:"Cal Newport: 'Deep Work' (2016) \u2014 the modern operational manual for this principle",url:"https://www.calnewport.com/books/deep-work/"}]};
 
 // markets[1][3]  (was: "Demographic Divergence" — duplicated geopolitics[0][2])
-D.markets[1][3] = {title:"The Wealth Transfer Begins",headline:"The largest intergenerational wealth handover in history is now underway \\u2014 and most advisors aren't ready.",why:"Cerulli Associates estimates $84 trillion will pass from baby boomers to younger generations by 2045 in the US alone, with about $72 trillion flowing directly to heirs. Yet research from Cerulli and Williams Group consistently shows 70% of inheriting families lose the family wealth by the second generation, and 90% by the third. The reason isn't market performance \\u2014 it's failure to transfer governance, values, and communication alongside the assets.",ref:{text:"Cerulli Associates: 'U.S. High-Net-Worth and Ultra-High-Net-Worth Markets 2024' \\u2014 Great Wealth Transfer projections",url:"https://www.cerulli.com/reports/us-high-net-worth-and-ultra-high-net-worth-markets-2024"},insight:"From shirtsleeves to shirtsleeves in three generations.",attribution:"Andrew Carnegie, industrialist and philanthropist (commonly attributed)",deeper:[{text:"Ask your wealthy clients: 'When was the last time you held a family meeting about money?' The answer reveals the gap.",url:null},{text:"James E. Hughes Jr.: 'Family Wealth: Keeping It in the Family' (2004) \\u2014 the foundational text",url:"https://www.wiley.com/en-us/Family+Wealth%3A+Keeping+It+in+the+Family-p-9781576601518"},{text:"UBS Global Family Office Report 2024",url:"https://www.ubs.com/global/en/family-office-uhnw/reports/global-family-office-report.html"}]};
+D.markets[1][3] = {title:"The Wealth Transfer Begins",headline:"The largest intergenerational wealth handover in history is now underway \u2014 and most advisors aren't ready.",why:"Cerulli Associates estimates $84 trillion will pass from baby boomers to younger generations by 2045 in the US alone, with about $72 trillion flowing directly to heirs. Yet research from Cerulli and Williams Group consistently shows 70% of inheriting families lose the family wealth by the second generation, and 90% by the third. The reason isn't market performance \u2014 it's failure to transfer governance, values, and communication alongside the assets.",ref:{text:"Cerulli Associates: 'U.S. High-Net-Worth and Ultra-High-Net-Worth Markets 2024' \u2014 Great Wealth Transfer projections",url:"https://www.cerulli.com/reports/us-high-net-worth-and-ultra-high-net-worth-markets-2024"},insight:"From shirtsleeves to shirtsleeves in three generations.",attribution:"Andrew Carnegie, industrialist and philanthropist (commonly attributed)",deeper:[{text:"Ask your wealthy clients: 'When was the last time you held a family meeting about money?' The answer reveals the gap.",url:null},{text:"James E. Hughes Jr.: 'Family Wealth: Keeping It in the Family' (2004) \u2014 the foundational text",url:"https://www.wiley.com/en-us/Family+Wealth%3A+Keeping+It+in+the+Family-p-9781576601518"},{text:"UBS Global Family Office Report 2024",url:"https://www.ubs.com/global/en/family-office-uhnw/reports/global-family-office-report.html"}]};
 
 // =============================================================================
 // END REPLACEMENTS
 // =============================================================================
 
 </script>
+
 <script id="app-script">
 // ── Storage: Firebase-backed with localStorage fallback ──
 var SK='exec_brief_v3';
@@ -1097,134 +1109,138 @@ function rn(){
       if(topicData){html+='<div class="lbl" style="margin-bottom:6px">Why It Matters</div><div class="ne-why">'+topicData.why+'</div>'+'<div class="ne-quote" style="border-color:'+meta.color+'">&ldquo;'+topicData.insight+'&rdquo;<div class="ne-attr" style="color:'+meta.color+'">&mdash; '+topicData.attribution+'</div></div>';}
       html+='<div class="ne-edit"><div class="ne-edit-label">\u270F My Note</div>'+
         '<textarea class="ne-edit-ta" oninput="saveTopicNote(\''+cid+'\',\''+e.title.replace(/'/g,"\\'")+'\',this.value)">'+safeNote+'</textarea></div></div></div>';
-    });
-    html+='</div>';
-  });
-  sc.innerHTML=html||'<div class="empty"><span class="empty-icon">\u270F</span><div class="empty-title">No notes in this category</div></div>';
+
+```
+});
+html+='</div>';
+```
+
+});
+sc.innerHTML=html||’<div class="empty"><span class="empty-icon">\u270F</span><div class="empty-title">No notes in this category</div></div>’;
 }
 
 // ── Show view ──
 function showView(v){
-  if(cv===v&&v!=='today')v='today';
-  cv=v;
-  document.getElementById('vt').style.display=v==='today'?'flex':'none';
-  document.getElementById('vl').style.display=v==='library'?'flex':'none';
-  document.getElementById('vk').style.display=v==='likes'?'flex':'none';
-  document.getElementById('vn').style.display=v==='notes'?'flex':'none';
-  document.getElementById('btn-lib').classList.toggle('on',v==='library');
-  document.getElementById('btn-likes').classList.toggle('on',v==='likes');
-  document.getElementById('btn-notes').classList.toggle('on',v==='notes');
-  if(v==='library')rl();
-  else if(v==='likes')rk();
-  else if(v==='notes')rn();
-  else rt();
+if(cv===v&&v!==‘today’)v=‘today’;
+cv=v;
+document.getElementById(‘vt’).style.display=v===‘today’?‘flex’:‘none’;
+document.getElementById(‘vl’).style.display=v===‘library’?‘flex’:‘none’;
+document.getElementById(‘vk’).style.display=v===‘likes’?‘flex’:‘none’;
+document.getElementById(‘vn’).style.display=v===‘notes’?‘flex’:‘none’;
+document.getElementById(‘btn-lib’).classList.toggle(‘on’,v===‘library’);
+document.getElementById(‘btn-likes’).classList.toggle(‘on’,v===‘likes’);
+document.getElementById(‘btn-notes’).classList.toggle(‘on’,v===‘notes’);
+if(v===‘library’)rl();
+else if(v===‘likes’)rk();
+else if(v===‘notes’)rn();
+else rt();
 }
 
 // ── PDF ──
 function generateCurrentPDF(){
-  var d=new Date();
-  document.getElementById('pdf-date').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('pdf-week').textContent='Week '+getWeekNumber();
-  var content=document.getElementById('pdf-content');content.innerHTML='';
-  CATS.forEach(function(cat){
-    var tops=gt(cat.id);if(!tops.length)return;
-    var sec=document.createElement('div');sec.className='pdf-cat-section';
-    sec.innerHTML='<div class="pdf-cat-title" style="color:'+cat.color+'">'+cat.icon+' '+cat.label+'</div>';
-    tops.forEach(function(t){
-      var deeperHtml=(t.deeper||[]).map(function(d){return'<div class="pdf-di">'+linkify(d.text,d.url)+'</div>';}).join('');
-      var topic=document.createElement('div');topic.className='pdf-topic';
-      topic.innerHTML='<div class="pdf-topic-title">'+t.title+'</div>'+
-        '<div class="pdf-topic-hl">'+t.headline+'</div>'+
-        '<div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">'+t.why+'</div></div>'+
-        '<div><div class="pdf-lbl" style="color:'+cat.color+'">Key Insight</div>'+
-        '<div class="pdf-it">"'+t.insight+'"<span class="pdf-attr" style="color:'+cat.color+'">\u2014 '+t.attribution+'</span></div></div></div>'+
-        '<div class="pdf-deeper"><div class="pdf-dlbl">Go Deeper \u2192</div>'+deeperHtml+'</div>';
-      sec.appendChild(topic);
-    });
-    content.appendChild(sec);
-  });
-  document.getElementById('pdf-footer').textContent='Performance Intelligence Weekly Briefing \u2014 '+d.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-  var view=document.getElementById('pdf-view');view.classList.add('show');view.scrollTop=0;
+var d=new Date();
+document.getElementById(‘pdf-date’).textContent=d.toLocaleDateString(‘en-GB’,{weekday:‘long’,day:‘numeric’,month:‘long’,year:‘numeric’});
+document.getElementById(‘pdf-week’).textContent=‘Week ‘+getWeekNumber();
+var content=document.getElementById(‘pdf-content’);content.innerHTML=’’;
+CATS.forEach(function(cat){
+var tops=gt(cat.id);if(!tops.length)return;
+var sec=document.createElement(‘div’);sec.className=‘pdf-cat-section’;
+sec.innerHTML=’<div class="pdf-cat-title" style="color:'+cat.color+'">’+cat.icon+’ ‘+cat.label+’</div>’;
+tops.forEach(function(t){
+var deeperHtml=(t.deeper||[]).map(function(d){return’<div class="pdf-di">’+linkify(d.text,d.url)+’</div>’;}).join(’’);
+var topic=document.createElement(‘div’);topic.className=‘pdf-topic’;
+topic.innerHTML=’<div class="pdf-topic-title">’+t.title+’</div>’+
+‘<div class="pdf-topic-hl">’+t.headline+’</div>’+
+‘<div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">’+t.why+’</div></div>’+
+‘<div><div class="pdf-lbl" style="color:'+cat.color+'">Key Insight</div>’+
+‘<div class="pdf-it">”’+t.insight+’”<span class="pdf-attr" style="color:'+cat.color+'">\u2014 ‘+t.attribution+’</span></div></div></div>’+
+‘<div class="pdf-deeper"><div class="pdf-dlbl">Go Deeper \u2192</div>’+deeperHtml+’</div>’;
+sec.appendChild(topic);
+});
+content.appendChild(sec);
+});
+document.getElementById(‘pdf-footer’).textContent=’Performance Intelligence Weekly Briefing \u2014 ’+d.toLocaleDateString(‘en-GB’,{month:‘long’,year:‘numeric’});
+var view=document.getElementById(‘pdf-view’);view.classList.add(‘show’);view.scrollTop=0;
 }
-function hidePDF(){ document.getElementById('pdf-view').classList.remove('show'); }
+function hidePDF(){ document.getElementById(‘pdf-view’).classList.remove(‘show’); }
 function generateLibraryPDF(){ generateCurrentPDF(); }
 
 // ── Init (called after Firebase auth) ──
 window.initApp=function(){
-  document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
-  // One-time refresh: for last week (2026-05-04) replace any stored topics with
-  // the current D[catId][1] sets, so previously-seeded duplicates get updated.
-  try{
-    var REFRESH_KEY='exec_brief_v3_lastweek_refresh_v2';
-    if(!localStorage.getItem(REFRESH_KEY)){
-      var hh=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
-      var LW='2026-05-04';
-      hh=hh.map(function(e){
-        if(e.date!==LW) return e;
-        var sets=D[e.catId];
-        if(!sets||sets.length<2) return e;
-        return Object.assign({},e,{topics:sets[1]});
-      });
-      localStorage.setItem('exec_brief_v3',JSON.stringify(hh));
-      localStorage.setItem(REFRESH_KEY,'1');
-    }
-  }catch(e){console.error('Refresh error:',e);}
-  seedThisWeek();
-  seedLastWeek();
-  rt(); rto(); rv(ac.id);
+document.getElementById(‘de’).textContent=new Date().toLocaleDateString(‘en-GB’,{weekday:‘long’,day:‘numeric’,month:‘long’,year:‘numeric’});
+try{var h=JSON.parse(localStorage.getItem(‘exec_brief_v3’)||’[]’);var b=h.length;h=h.filter(function(e){return e.date!==‘2026-05-05’;});if(h.length!==b)localStorage.setItem(‘exec_brief_v3’,JSON.stringify(h));}catch(e){}
+// One-time refresh: for last week (2026-05-04) replace any stored topics with
+// the current D[catId][1] sets, so previously-seeded duplicates get updated.
+try{
+var REFRESH_KEY=‘exec_brief_v3_lastweek_refresh_v2’;
+if(!localStorage.getItem(REFRESH_KEY)){
+var hh=JSON.parse(localStorage.getItem(‘exec_brief_v3’)||’[]’);
+var LW=‘2026-05-04’;
+hh=hh.map(function(e){
+if(e.date!==LW) return e;
+var sets=D[e.catId];
+if(!sets||sets.length<2) return e;
+return Object.assign({},e,{topics:sets[1]});
+});
+localStorage.setItem(‘exec_brief_v3’,JSON.stringify(hh));
+localStorage.setItem(REFRESH_KEY,‘1’);
+}
+}catch(e){console.error(‘Refresh error:’,e);}
+seedThisWeek();
+seedLastWeek();
+rt(); rto(); rv(ac.id);
 };
 
 function seedThisWeek(){
-  try{
-    var THIS_WEEK=tk();
-    var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
-    var w=getWeekNumber();
-    CATS.forEach(function(cat){
-      if(h.find(function(e){return e.date===THIS_WEEK&&e.catId===cat.id;})) return;
-      var sets=D[cat.id];
-      if(!sets||!sets.length) return;
-      var topics=sets[w%sets.length];
-      if(!topics||!topics.length) return;
-      h.push({
-        date:THIS_WEEK,
-        catId:cat.id,
-        catLabel:cat.label,
-        catIcon:cat.icon,
-        catColor:cat.color,
-        topics:topics
-      });
-    });
-    localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
-  }catch(e){console.error('Seed this week error:',e);}
+try{
+var THIS_WEEK=tk();
+var h=JSON.parse(localStorage.getItem(‘exec_brief_v3’)||’[]’);
+var w=getWeekNumber();
+CATS.forEach(function(cat){
+if(h.find(function(e){return e.date===THIS_WEEK&&e.catId===cat.id;})) return;
+var sets=D[cat.id];
+if(!sets||!sets.length) return;
+var topics=sets[w%sets.length];
+if(!topics||!topics.length) return;
+h.push({
+date:THIS_WEEK,
+catId:cat.id,
+catLabel:cat.label,
+catIcon:cat.icon,
+catColor:cat.color,
+topics:topics
+});
+});
+localStorage.setItem(‘exec_brief_v3’,JSON.stringify(h.slice(0,180)));
+}catch(e){console.error(‘Seed this week error:’,e);}
 }
 
 function seedLastWeek(){
-  try{
-    var LAST_WEEK='2026-05-04';
-    var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
-    var added=0;
-    CATS.forEach(function(cat){
-      // Skip only if THIS category already exists for that date
-      if(h.find(function(e){return e.date===LAST_WEEK&&e.catId===cat.id;})) return;
-      var sets=D[cat.id];
-      if(!sets||sets.length<2) return;
-      var topics=sets[1];
-      h.unshift({
-        date:LAST_WEEK,
-        catId:cat.id,
-        catLabel:cat.label,
-        catIcon:cat.icon,
-        catColor:cat.color,
-        topics:topics
-      });
-      added++;
-    });
-    if(added){
-      localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
-      console.log('Seeded last week library entries:',added);
-    }
-  }catch(e){console.error('Seed error:',e);}
+try{
+var LAST_WEEK=‘2026-05-04’;
+var h=JSON.parse(localStorage.getItem(‘exec_brief_v3’)||’[]’);
+var added=0;
+CATS.forEach(function(cat){
+// Skip only if THIS category already exists for that date
+if(h.find(function(e){return e.date===LAST_WEEK&&e.catId===cat.id;})) return;
+var sets=D[cat.id];
+if(!sets||sets.length<2) return;
+var topics=sets[1];
+h.unshift({
+date:LAST_WEEK,
+catId:cat.id,
+catLabel:cat.label,
+catIcon:cat.icon,
+catColor:cat.color,
+topics:topics
+});
+added++;
+});
+if(added){
+localStorage.setItem(‘exec_brief_v3’,JSON.stringify(h.slice(0,180)));
+console.log(‘Seeded last week library entries:’,added);
+}
+}catch(e){console.error(‘Seed error:’,e);}
 }
 
 </script>
