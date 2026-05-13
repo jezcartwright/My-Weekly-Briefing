@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Alignment check</title>
+<style>
+body{font-family:Georgia,serif;background:#faf8f5;padding:30px;margin:0}
+:root{--white:#fff;--b:#e5e0d8;--orange:#ff6600;--t:#1a1a1a;--t3:#8a8a8a}
+.tc{background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;margin-bottom:14px;max-width:680px}
+.th{padding:14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px}
+.th-left{display:flex;align-items:flex-start;gap:10px;flex:1}
+.tn{font-size:32px;font-weight:700;color:#C9A84C;line-height:1}
+.tw{flex:1}
+.tt{font-size:18px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.thl{font-size:13px;font-style:italic;color:#4a4a4a;line-height:1.4}
+
+/* THE ACTUAL FIX — same CSS as in the deployed app */
+.th-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.like-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:20px;color:var(--t3);cursor:pointer;background:none;border:none;padding:0;margin:0;line-height:1;transition:color .15s,transform .1s;font-family:'Playfair Display',serif;-webkit-tap-highlight-color:transparent}
+.like-btn.liked{color:#e25555}
+.like-btn:active{transform:scale(0.88)}
+.tog{font-size:20px;color:var(--t3);cursor:pointer;font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:24px;height:32px;line-height:1}
+
+h2{font-size:14px;color:#666;margin-top:30px}
+.measurement{font-size:11px;color:#888;font-family:monospace}
+</style></head>
+<body>
+
+<h2>Desktop viewport (680px max)</h2>
+<div class="tc">
+  <div class="th">
+    <div class="th-left">
+      <span class="tn">01</span>
+      <div class="tw">
+        <div class="tt">Leading Through Ambiguity</div>
+        <div class="thl">The defining skill of senior leadership is making confident decisions with incomplete information.</div>
+      </div>
+    </div>
+    <div class="th-right">
+      <button type="button" class="like-btn">♡</button>
+      <span class="tog">+</span>
+    </div>
+  </div>
+</div>
+<div class="tc">
+  <div class="th">
+    <div class="th-left">
+      <span class="tn">02</span>
+      <div class="tw">
+        <div class="tt">The Energy Audit</div>
+        <div class="thl">Time management is a red herring — energy management is the real lever.</div>
+      </div>
+    </div>
+    <div class="th-right">
+      <button type="button" class="like-btn liked">♥</button>
+      <span class="tog">+</span>
+    </div>
+  </div>
+</div>
+<p class="measurement">Heart and + should be vertically centred relative to each other (both 32px tall, gap 10px between them).</p>
+
+<h2>Mobile viewport (constrained 360px)</h2>
+<div style="max-width:360px;border:1px dashed #ccc">
+  <div class="tc" style="margin:0;border-radius:0;border-left:0;border-right:0">
+    <div class="th">
+      <div class="th-left">
+        <span class="tn">01</span>
+        <div class="tw">
+          <div class="tt">Leading Through Ambiguity</div>
+          <div class="thl">The defining skill of senior leadership is making confident decisions with incomplete information.</div>
+        </div>
+      </div>
+      <div class="th-right">
+        <button type="button" class="like-btn">♡</button>
+        <span class="tog">+</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2>JS-measured alignment check</h2>
+<div id="check" class="measurement">Running…</div>
+
+<script>
+window.addEventListener('load', function(){
+  var btn = document.querySelector('.like-btn');
+  var tog = document.querySelector('.tog');
+  var br = btn.getBoundingClientRect();
+  var tr = tog.getBoundingClientRect();
+  var btnCenter = br.top + br.height/2;
+  var togCenter = tr.top + tr.height/2;
+  var diff = Math.abs(btnCenter - togCenter);
+  document.getElementById('check').innerHTML =
+    'Heart button: top=' + br.top.toFixed(1) + ', height=' + br.height.toFixed(1) + ', centreY=' + btnCenter.toFixed(1) + '<br>' +
+    'Plus toggle:  top=' + tr.top.toFixed(1) + ', height=' + tr.height.toFixed(1) + ', centreY=' + togCenter.toFixed(1) + '<br>' +
+    'Vertical centre delta: <strong>' + diff.toFixed(2) + 'px</strong> ' +
+    (diff < 0.5 ? '✅ aligned' : '⚠ misaligned');
+});
+</script>
+
+</body></html>
