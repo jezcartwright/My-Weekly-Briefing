@@ -95,7 +95,13 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .thl{font-size:12px;font-style:italic;color:var(--t2);line-height:1.5}
 .has-note-pill{display:inline-flex;align-items:center;gap:3px;background:#fff8ee;border:1px solid #f0e8d0;border-radius:10px;padding:2px 7px;font-size:9px;color:#C9A84C;font-weight:700;margin-top:4px}
 .th-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.like-btn{position:absolute;top:10px;right:10px;z-index:2;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--t3);cursor:pointer;background:none;border:none;padding:0;line-height:1;transition:color .2s;font-family:'Playfair Display',serif}
+.like-btn{position:absolute;top:10px;right:10px;z-index:2;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--t3);cursor:pointer;background:none;border:none;padding:0;line-height:1;transition:color .2s;font-family:'Playfair Display',serif;display:none}
+.like-row{margin:18px 0 0;padding:0 14px}
+.like-action{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--b);border-radius:999px;padding:8px 16px;font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent}
+.like-action:hover{border-color:var(--orange);color:var(--orange)}
+.like-action.liked{background:#fff4ec;border-color:var(--orange);color:var(--orange)}
+.like-action-heart{font-size:16px;line-height:1}
+.like-action.liked .like-action-heart{color:#e25555}
 .like-btn.liked{color:var(--orange)}
 .tog{font-size:18px;color:var(--t3);cursor:pointer;font-style:normal;transition:transform .25s;display:inline-block;line-height:1}
 .op .tog{transform:rotate(45deg);color:var(--orange)}
@@ -805,6 +811,7 @@ function bh(t,catId,color){
   var refHtml=t.ref&&t.ref.text?'<div class="ref">'+linkify(t.ref.text,t.ref.url)+'</div>':'';
   var deeperItems=(t.deeper||[]).map(function(d){return'<div class="dt">'+linkify(d.text,d.url)+'</div>';}).join('');
   var saved=getTopicNote(catId,t.title);
+  var liked=isLiked(catId,t.title);
   var k=(catId+'::'+t.title).replace(/[^a-z0-9]/gi,'_');
   var taId='tn-ta-'+k;
   var ta=document.createElement('textarea');
@@ -820,12 +827,18 @@ function bh(t,catId,color){
     '<span class="topic-notes-hint">Saved to your account</span>'+
     '<button class="topic-notes-clear" onclick="event.stopPropagation();clearTopicNote(\''+catId.replace(/'/g,"\\'")+'\',\''+t.title.replace(/'/g,"\\'")+'\'  )">Clear</button>'+
     '</div></div>';
+  var likeRowHtml='<div class="like-row" onclick="event.stopPropagation()">'+
+    '<button class="like-action'+(liked?' liked':'')+'" onclick="event.stopPropagation();toggleLikeBody(\''+catId.replace(/'/g,"\\'")+'\',\''+t.title.replace(/'/g,"\\'")+'\',this)">'+
+    '<span class="like-action-heart">'+(liked?'\u2665':'\u2661')+'</span>'+
+    '<span class="like-action-text">'+(liked?'Saved to Liked':'Save to Liked')+'</span>'+
+    '</button></div>';
   return'<div class="two">'+
     '<div><div class="lbl">Why It Matters</div><div class="bt">'+t.why+'</div>'+refHtml+'</div>'+
     '<div><div class="lbl" style="color:'+color+'">Key Insight</div>'+
     '<div class="it">"'+t.insight+'"<span class="it-attr">\u2014 '+t.attribution+'</span></div></div>'+
     '</div>'+
     '<div class="db"><div class="lbl" style="margin-bottom:9px">Go Deeper \u2192</div>'+deeperItems+'</div>'+
+    likeRowHtml+
     notesHtml;
 }
 function noteInput(el,catId,title){saveTopicNote(catId,title,el.value);}
@@ -843,12 +856,9 @@ function rto(){
     '<div class="ci-text"><div class="cl" style="color:'+ac.color+'">'+ac.label+'</div>'+
     '<div class="cd">Four high-signal topics for this week \u2014 new set every Monday</div></div></div>'+
     '<div class="tl">'+tops.map(function(t,i){
-      var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
       return'<div class="tc" id="tc-'+i+'">'+
-        '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ac.id+'\',\''+t.title.replace(/'/g,"\\'")+'\',event);return false;">'+
-        (liked?'\u2665':'\u2661')+'</button>'+
-        '<div class="th" onclick="tgc('+i+',event)">'+
+        '<div class="th" onclick="tgc('+i+')">'+
         '<div class="th-left">'+
         '<span class="tn" style="color:'+ac.color+'">0'+(i+1)+'</span>'+
         '<div class="tw"><div class="tt">'+t.title+'</div><div class="thl">'+t.headline+'</div>'+
@@ -862,9 +872,7 @@ function rto(){
     }).join('')+'</div>';
 }
 function sc(id){ ac=CATS.find(function(c){return c.id===id;}); oc=null; rt(); rto(); rv(id); }
-function tgc(i,e){
-  // Ignore clicks that originated on the like button (defensive against iOS event bubbling)
-  if(e&&e.target&&(e.target.classList.contains('like-btn')||(e.target.closest&&e.target.closest('.like-btn')))) return;
+function tgc(i){
   var tl=document.querySelector('#ts .tl');
   if(!tl)return;
   var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
@@ -873,6 +881,24 @@ function tgc(i,e){
     else{ tc.classList.remove('op'); }
   });
 }
+function toggleLikeBody(catId,title,btn){
+  var l=getLikes(); var id=getLikeId(catId,title);
+  var idx=l.findIndex(function(x){return x.id===id;});
+  if(idx>=0){ l.splice(idx,1); }
+  else{
+    var tops=gt(catId); var t=tops.find(function(x){return x.title===title;});
+    if(t)l.unshift({id:id,catId:catId,title:title,headline:t.headline,why:t.why,insight:t.insight,attribution:t.attribution,deeper:t.deeper,date:tk()});
+  }
+  saveLikes(l);
+  var nowLiked=l.findIndex(function(x){return x.id===id;})>=0;
+  btn.classList.toggle('liked',nowLiked);
+  var heart=btn.querySelector('.like-action-heart');
+  var text=btn.querySelector('.like-action-text');
+  if(heart) heart.innerHTML=nowLiked?'\u2665':'\u2661';
+  if(text) text.textContent=nowLiked?'Saved to Liked':'Save to Liked';
+  return false;
+}
+// Legacy toggleLike kept for backward compatibility (no longer called from rendered HTML)
 function toggleLike(catId,title,e){
   if(e){ e.stopPropagation(); if(e.preventDefault) e.preventDefault(); }
   var l=getLikes(); var id=getLikeId(catId,title);
@@ -883,13 +909,6 @@ function toggleLike(catId,title,e){
     if(t)l.unshift({id:id,catId:catId,title:title,headline:t.headline,why:t.why,insight:t.insight,attribution:t.attribution,deeper:t.deeper,date:tk()});
   }
   saveLikes(l);
-  // Update only the heart button in place — preserves open card state on iOS
-  var btn=e&&e.currentTarget?e.currentTarget:(e&&e.target?e.target:null);
-  if(btn&&btn.classList){
-    var nowLiked=l.findIndex(function(x){return x.id===id;})>=0;
-    btn.classList.toggle('liked',nowLiked);
-    btn.innerHTML=nowLiked?'\u2665':'\u2661';
-  }
   return false;
 }
 function rv(id){
