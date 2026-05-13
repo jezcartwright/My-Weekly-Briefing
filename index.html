@@ -85,9 +85,9 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .ci-text .cl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
 .ci-text .cd{font-size:12px;font-style:italic;color:var(--t2)}
 .tl{display:flex;flex-direction:column;gap:10px}
-.tc{background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;transition:box-shadow .2s}
+.tc{background:var(--white);border:1px solid var(--b);border-radius:8px;overflow:hidden;transition:box-shadow .2s;position:relative}
 .op{box-shadow:0 4px 16px rgba(255,102,0,0.12)}
-.th{padding:14px 14px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;-webkit-user-select:none;user-select:none}
+.th{padding:14px 44px 12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;-webkit-user-select:none;user-select:none}
 .th-left{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
 .tn{font-size:9px;font-weight:700;flex-shrink:0;padding-top:4px;width:18px}
 .tw{flex:1;min-width:0}
@@ -95,7 +95,7 @@ body{font-family:'Playfair Display',serif;background:var(--bg);color:var(--t);ma
 .thl{font-size:12px;font-style:italic;color:var(--t2);line-height:1.5}
 .has-note-pill{display:inline-flex;align-items:center;gap:3px;background:#fff8ee;border:1px solid #f0e8d0;border-radius:10px;padding:2px 7px;font-size:9px;color:#C9A84C;font-weight:700;margin-top:4px}
 .th-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.like-btn{font-size:18px;color:var(--t3);cursor:pointer;background:none;border:none;padding:2px;line-height:1;transition:color .2s}
+.like-btn{position:absolute;top:10px;right:10px;z-index:2;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--t3);cursor:pointer;background:none;border:none;padding:0;line-height:1;transition:color .2s;font-family:'Playfair Display',serif}
 .like-btn.liked{color:var(--orange)}
 .tog{font-size:18px;color:var(--t3);cursor:pointer;font-style:normal;transition:transform .25s;display:inline-block;line-height:1}
 .op .tog{transform:rotate(45deg);color:var(--orange)}
@@ -846,6 +846,8 @@ function rto(){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
       return'<div class="tc" id="tc-'+i+'">'+
+        '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ac.id+'\',\''+t.title.replace(/'/g,"\\'")+'\',event);return false;">'+
+        (liked?'\u2665':'\u2661')+'</button>'+
         '<div class="th" onclick="tgc('+i+',event)">'+
         '<div class="th-left">'+
         '<span class="tn" style="color:'+ac.color+'">0'+(i+1)+'</span>'+
@@ -853,8 +855,6 @@ function rto(){
         (hasNote?'<div class="has-note-pill">\u270F My note</div>':'')+
         '</div></div>'+
         '<div class="th-right">'+
-        '<button class="like-btn'+(liked?' liked':'')+'" onclick="toggleLike(\''+ac.id+'\',\''+t.title.replace(/'/g,"\\'")+'\',event)">'+
-        (liked?'\u2665':'\u2661')+'</button>'+
         '<span class="tog">+</span>'+
         '</div></div>'+
         '<div class="tb">'+bh(t,ac.id,ac.color)+'</div>'+
