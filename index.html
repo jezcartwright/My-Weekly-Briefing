@@ -392,27 +392,19 @@ var ACTION_URL = window.location.href.split('?')[0];
 auth.getRedirectResult().then(function(result) {
   if(result && result.user) {
     console.log('Google redirect sign-in success:', result.user.email);
-    try{ sessionStorage.removeItem('google_redirect_pending'); }catch(e){}
-  } else {
-    // No user in result. If we just came back from a redirect, something went wrong silently.
-    try{
-      if(sessionStorage.getItem('google_redirect_pending')){
-        sessionStorage.removeItem('google_redirect_pending');
-        var msg = document.getElementById('login-msg');
-        if(msg){
-          msg.textContent = 'Google sign-in could not complete on this device. This is a known iOS limitation with GitHub Pages \u2014 please use the email link option below instead.';
-          msg.style.color = '#c00';
-        }
-      }
-    }catch(e){}
   }
+  // Always clear the pending marker — onAuthStateChanged will handle the actual auth state
+  try{ sessionStorage.removeItem('google_redirect_pending'); }catch(e){}
 }).catch(function(e) {
   try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
   console.error('Redirect result error:', e.code, e.message);
-  var msg = document.getElementById('login-msg');
-  if(msg) {
-    msg.textContent = 'Sign-in error: ' + e.message;
-    msg.style.color = 'red';
+  // Only show error to user if it's an actual auth error, not a benign "no redirect" state
+  if(e.code && e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    var msg = document.getElementById('login-msg');
+    if(msg) {
+      msg.textContent = 'Sign-in error: ' + e.message;
+      msg.style.color = 'red';
+    }
   }
 });
 
@@ -459,42 +451,39 @@ window.sendMagicLink = function() {
 // Google sign-in
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
-  function show(t,color){ msg.textContent = t; msg.style.color = color || ''; msg.style.fontSize='13px'; msg.style.whiteSpace='normal'; }
+  function show(t, color){ msg.textContent = t; msg.style.color = color || ''; }
   try {
-    show('Starting Google sign-in…');
-    if(typeof firebase === 'undefined') { show('ERROR: Firebase library did not load.', 'red'); return; }
-    if(!firebase.auth) { show('ERROR: Firebase auth library did not load.', 'red'); return; }
+    if(typeof firebase === 'undefined' || !firebase.auth) {
+      show('Firebase did not load. Please refresh the page.', 'red');
+      return;
+    }
     var provider = new firebase.auth.GoogleAuthProvider();
     var ua = navigator.userAgent || '';
     var isTouchDevice = /iPhone|iPad|iPod|Android/i.test(ua) ||
                         (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
-    show('Device detected: ' + (isTouchDevice ? 'touch (using redirect)' : 'desktop (using popup)') + '. UA: ' + ua.substring(0,60));
-    setTimeout(function(){
-      if(isTouchDevice) {
-        show('Redirecting to Google… (if nothing happens in 3 seconds, popup may be blocked)');
-        try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
-        auth.signInWithRedirect(provider).catch(function(e) {
-          try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
-          show('Redirect error: ' + (e.code||'') + ' — ' + (e.message||''), 'red');
-        });
-      } else {
-        show('Opening Google sign-in popup…');
-        auth.signInWithPopup(provider).then(function(){ show(''); }).catch(function(e) {
-          if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-            show('Popup blocked — falling back to redirect…');
-            try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
-            auth.signInWithRedirect(provider).catch(function(e2) {
-              try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
-              show('Redirect error: ' + (e2.code||'') + ' — ' + (e2.message||''), 'red');
-            });
-          } else {
-            show('Popup error: ' + (e.code||'') + ' — ' + (e.message||''), 'red');
-          }
-        });
-      }
-    }, 1500); // brief delay so user can read which path was taken
+    if(isTouchDevice) {
+      show('Redirecting to Google…');
+      try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
+      auth.signInWithRedirect(provider).catch(function(e) {
+        try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
+        show('Sign-in error: ' + (e.message || e.code), 'red');
+      });
+    } else {
+      show('Opening Google sign-in…');
+      auth.signInWithPopup(provider).then(function(){ show(''); }).catch(function(e) {
+        if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
+          try{ sessionStorage.setItem('google_redirect_pending','1'); }catch(_){}
+          auth.signInWithRedirect(provider).catch(function(e2) {
+            try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
+            show('Sign-in error: ' + (e2.message || e2.code), 'red');
+          });
+        } else {
+          show('Sign-in error: ' + (e.message || e.code), 'red');
+        }
+      });
+    }
   } catch(err) {
-    show('JS error: ' + (err && err.message ? err.message : err), 'red');
+    show('Error: ' + (err && err.message ? err.message : err), 'red');
   }
 };
 
