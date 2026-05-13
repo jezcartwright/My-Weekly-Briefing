@@ -847,7 +847,7 @@ function rto(){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
       var safeTitle=t.title.replace(/"/g,'&quot;');
-      return'<div class="tc" id="tc-'+i+'" data-idx="'+i+'" data-cat="'+ac.id+'" data-title="'+safeTitle+'">'+
+      return'<div class="tc'+(oc===i?' op':'')+'" id="tc-'+i+'" data-idx="'+i+'" data-cat="'+ac.id+'" data-title="'+safeTitle+'">'+
         '<div class="th">'+
         '<div class="th-left">'+
         '<span class="tn" style="color:'+ac.color+'">0'+(i+1)+'</span>'+
@@ -862,43 +862,57 @@ function rto(){
         '<div class="tb">'+bh(t,ac.id,ac.color)+'</div>'+
         '</div>';
     }).join('')+'</div>';
-  // Attach single delegated handler at the list level — no per-element onclick.
-  // Guard against duplicate listeners if rto() is called more than once.
+  wireTopicListHandlers();
+}
+// Bind handlers directly to each like button and each header.
+// No delegation, no bubbling reliance. Each handler stops the event hard.
+function wireTopicListHandlers(){
   var tl=document.querySelector('#ts .tl');
-  if(tl && !tl._handlerAttached){
-    tl._handlerAttached=true;
-    tl.addEventListener('click',handleTopicListClick);
+  if(!tl) return;
+  // Like buttons — bind to capture phase so we run before anything else
+  var likeBtns=tl.querySelectorAll('[data-like-btn]');
+  for(var i=0;i<likeBtns.length;i++){
+    (function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+        var card=btn.closest('.tc');
+        if(!card) return false;
+        var catId=card.getAttribute('data-cat');
+        var title=card.getAttribute('data-title');
+        doToggleLike(catId,title,btn);
+        // Defensive: after the click cycle finishes, re-apply open state from oc
+        setTimeout(reapplyOpenState,0);
+        return false;
+      },true); // <-- capture phase
+    })(likeBtns[i]);
+  }
+  // Headers — bind to header div
+  var headers=tl.querySelectorAll('.th');
+  for(var j=0;j<headers.length;j++){
+    (function(h){
+      h.addEventListener('click',function(ev){
+        // If click bubbled up from inside the like button area, ignore
+        if(ev.target && ev.target.closest && ev.target.closest('[data-like-btn]')) return;
+        var card=h.closest('.tc');
+        if(!card) return;
+        var idx=parseInt(card.getAttribute('data-idx'),10);
+        if(isNaN(idx)) return;
+        var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
+        var wasOpen=card.classList.contains('op');
+        tcs.forEach(function(tc){tc.classList.remove('op');});
+        if(!wasOpen){ card.classList.add('op'); oc=idx; }
+        else { oc=null; }
+      });
+    })(headers[j]);
   }
 }
-function handleTopicListClick(e){
-  var target=e.target;
-  // 1. If the click was on/inside a like button, handle as a like and stop here
-  var likeBtn=target.closest?target.closest('[data-like-btn]'):null;
-  if(likeBtn){
-    e.preventDefault(); e.stopPropagation();
-    var card=likeBtn.closest('.tc');
-    if(!card) return;
-    var catId=card.getAttribute('data-cat');
-    var title=card.getAttribute('data-title');
-    doToggleLike(catId,title,likeBtn);
-    return;
-  }
-  // 2. If the click was inside the expanded body (.tb), don't toggle the card
-  if(target.closest && target.closest('.tb')) return;
-  // 3. If the click was on/inside a topic header, toggle the card
-  var th=target.closest?target.closest('.th'):null;
-  if(!th) return;
-  var card2=th.closest('.tc');
-  if(!card2) return;
-  var idx=parseInt(card2.getAttribute('data-idx'),10);
-  if(isNaN(idx)) return;
+function reapplyOpenState(){
   var tl=document.querySelector('#ts .tl');
   if(!tl) return;
   var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
-  tcs.forEach(function(tc,i){
-    if(i===idx){ var wasOpen=tc.classList.contains('op'); tc.classList.toggle('op',!wasOpen); oc=wasOpen?null:idx; }
-    else{ tc.classList.remove('op'); }
-  });
+  tcs.forEach(function(tc,i){ tc.classList.toggle('op', i===oc); });
 }
 function doToggleLike(catId,title,btn){
   var l=getLikes(); var id=getLikeId(catId,title);
