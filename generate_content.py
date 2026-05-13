@@ -13,16 +13,16 @@ import base64
 import datetime
 import anthropic
 
-REPO = "jezcartwright/My-Daily-Briefing"
+REPO = "jezcartwright/My-Weekly-Briefing"
 FILE_PATH = "index.html"
 
 CATEGORIES = [
-    {"id": "leadership",   "label": "Leadership",   "color": "#ff6600"},
-    {"id": "markets",      "label": "Markets",      "color": "#2a8a6e"},
-    {"id": "psychology",   "label": "Psychology",   "color": "#c0392b"},
-    {"id": "technology",   "label": "Technology",   "color": "#2980b9"},
-    {"id": "geopolitics",  "label": "Geopolitics",  "color": "#8e44ad"},
-    {"id": "philosophy",   "label": "Philosophy",   "color": "#27ae60"},
+    {"id": "leadership",   "label": "Leadership",   "color": "#C9A84C"},
+    {"id": "markets",      "label": "Markets",      "color": "#7EB8A4"},
+    {"id": "psychology",   "label": "Psychology",   "color": "#C47F6B"},
+    {"id": "technology",   "label": "Technology",   "color": "#7A9CC4"},
+    {"id": "geopolitics",  "label": "Geopolitics",  "color": "#9B7EC4"},
+    {"id": "philosophy",   "label": "Philosophy",   "color": "#A4B87E"},
 ]
 
 SYSTEM_PROMPT = """You are an expert editor for Performance Intelligence Weekly Briefing — 
@@ -107,7 +107,7 @@ def generate_category_content(client: anthropic.Anthropic, cat: dict, today: str
     print(f"  Generating {cat['label']} content...")
     
     response = client.messages.create(
-        model="claude-opus-4-5",
+        model="claude-opus-4-7",
         max_tokens=4000,
         system=SYSTEM_PROMPT,
         tools=[{"type": "web_search_20250305", "name": "web_search"}],
