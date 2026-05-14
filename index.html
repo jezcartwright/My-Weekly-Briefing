@@ -268,13 +268,6 @@ html.login-active{background:var(--orange)}
       Sign in with Google
     </button>
     <div class="login-msg" id="login-msg"></div>
-    <div id="debug-panel" style="margin-top:14px;padding:10px;background:#f5f5f5;border-radius:6px;font-family:Menlo,monospace;font-size:10px;color:#333;line-height:1.4;max-height:200px;overflow-y:auto;word-break:break-all">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-weight:700">
-        <span>Debug log</span>
-        <button onclick="clearDebugLog()" style="font-size:10px;padding:2px 6px;background:#fff;border:1px solid #ddd;border-radius:3px;cursor:pointer">Clear</button>
-      </div>
-      <div id="debug-display"></div>
-    </div>
   </div>
   <div id="login-sent" class="login-box" style="display:none;text-align:center">
     <div class="login-sent">
@@ -395,61 +388,13 @@ var auth = firebase.auth();
 var db = firebase.firestore();
 var ACTION_URL = window.location.href.split('?')[0];
 
-// ============================================================
-// DEBUG LOGGER — survives redirects via sessionStorage
-// Shows every sign-in event on the login screen so we can diagnose
-// ============================================================
-function debugLog(msg) {
-  try {
-    var log = JSON.parse(sessionStorage.getItem('_debug_log') || '[]');
-    var now = new Date();
-    var t = now.getHours().toString().padStart(2,'0') + ':' +
-            now.getMinutes().toString().padStart(2,'0') + ':' +
-            now.getSeconds().toString().padStart(2,'0');
-    log.push(t + ' ' + msg);
-    // Keep last 30 entries
-    if(log.length > 30) log = log.slice(-30);
-    sessionStorage.setItem('_debug_log', JSON.stringify(log));
-    console.log('[DEBUG]', msg);
-    // Also show on screen if login screen is visible
-    renderDebugLog();
-  } catch(e) {}
-}
-function renderDebugLog() {
-  try {
-    var log = JSON.parse(sessionStorage.getItem('_debug_log') || '[]');
-    var el = document.getElementById('debug-display');
-    if(!el) return;
-    el.innerHTML = log.map(function(l){return '<div>' + l + '</div>';}).join('');
-  } catch(e) {}
-}
-function clearDebugLog() {
-  try { sessionStorage.removeItem('_debug_log'); renderDebugLog(); } catch(e) {}
-}
-
-debugLog('Page loaded. UA: ' + (navigator.userAgent||'').substring(0,80));
-debugLog('URL: ' + window.location.href.substring(0,80));
-// Render initial state when DOM is ready
-if(document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderDebugLog);
-} else {
-  renderDebugLog();
-}
-
 // Handle Google redirect result on page load
-debugLog('Calling getRedirectResult...');
 auth.getRedirectResult().then(function(result) {
   if(result && result.user) {
-    debugLog('SUCCESS getRedirectResult: ' + result.user.email);
-  } else if(result) {
-    debugLog('getRedirectResult returned result but no user. credential=' + !!result.credential);
-  } else {
-    debugLog('getRedirectResult returned null (normal if no redirect happened)');
+    console.log('Google sign-in success:', result.user.email);
   }
-  try{ sessionStorage.removeItem('google_redirect_pending'); }catch(e){}
 }).catch(function(e) {
-  try{ sessionStorage.removeItem('google_redirect_pending'); }catch(_){}
-  debugLog('ERROR getRedirectResult: ' + (e.code||'?') + ' ' + (e.message||'').substring(0,100));
+  console.error('Redirect result error:', e.code, e.message);
   if(e.code && e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
     var msg = document.getElementById('login-msg');
     if(msg) {
@@ -503,10 +448,8 @@ window.sendMagicLink = function() {
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
   function show(t, color){ msg.textContent = t; msg.style.color = color || ''; }
-  debugLog('signInGoogle() clicked');
   try {
     if(typeof firebase === 'undefined' || !firebase.auth) {
-      debugLog('ERROR: Firebase not loaded');
       show('Firebase did not load. Please refresh the page.', 'red');
       return;
     }
@@ -514,24 +457,14 @@ window.signInGoogle = function() {
     var ua = navigator.userAgent || '';
     var isTouchDevice = /iPhone|iPad|iPod|Android/i.test(ua) ||
                         (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
-    debugLog('isTouchDevice=' + isTouchDevice + ' maxTouchPoints=' + navigator.maxTouchPoints);
     if(isTouchDevice) {
-      debugLog('Calling signInWithRedirect...');
       show('Redirecting to Google…');
-      auth.signInWithRedirect(provider).then(function(){
-        debugLog('signInWithRedirect promise resolved (page should be redirecting)');
-      }).catch(function(e) {
-        debugLog('signInWithRedirect ERROR: ' + (e.code||'?') + ' ' + (e.message||''));
+      auth.signInWithRedirect(provider).catch(function(e) {
         show('Sign-in error: ' + (e.message || e.code), 'red');
       });
     } else {
-      debugLog('Calling signInWithPopup...');
       show('Opening Google sign-in…');
-      auth.signInWithPopup(provider).then(function(){
-        debugLog('signInWithPopup SUCCESS');
-        show('');
-      }).catch(function(e) {
-        debugLog('signInWithPopup error: ' + (e.code||'?'));
+      auth.signInWithPopup(provider).then(function(){ show(''); }).catch(function(e) {
         if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
           auth.signInWithRedirect(provider).catch(function(e2) {
             show('Sign-in error: ' + (e2.message || e2.code), 'red');
@@ -542,7 +475,6 @@ window.signInGoogle = function() {
       });
     }
   } catch(err) {
-    debugLog('signInGoogle EXCEPTION: ' + (err && err.message ? err.message : err));
     show('Error: ' + (err && err.message ? err.message : err), 'red');
   }
 };
@@ -604,7 +536,6 @@ function saveUserData() {
 }
 
 auth.onAuthStateChanged(function(user) {
-  debugLog('onAuthStateChanged fired. user=' + (user ? user.email : 'null'));
   if(user) {
     userUid = user.uid;
     window._fb_likes = [];
