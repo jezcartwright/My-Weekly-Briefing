@@ -76,11 +76,13 @@ html.login-active{background:var(--orange)}
 #vt,#vl,#vk,#vn{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 #vl,#vk,#vn{display:none}
 
-/* Tabs */
-#tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white);scrollbar-width:none}
+/* Tabs — solid pills, category colour fills when active */
+#tabs{display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white);scrollbar-width:none;padding:10px 12px}
 #tabs::-webkit-scrollbar{display:none}
-.tab{padding:12px 14px 10px;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:var(--t3);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;flex-shrink:0;background:none;border-top:none;border-left:none;border-right:none}
-.tab.on{color:var(--orange);border-bottom-color:var(--orange)}
+.tab{padding:8px 14px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--tab-c,#888);background:#fff;border:1px solid var(--tab-c,#888);border-radius:3px;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0;opacity:0.62;line-height:1}
+.tab:hover{opacity:1}
+.tab.on{background:var(--tab-c);color:#fff;opacity:1}
+.tab .tab-ico{display:none}
 .sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
 /* Category banner — coloured band per category (set inline via background) */
 .ci{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:-18px -16px 16px;padding:14px 18px;background:var(--cat-color,#EFE9DD);color:#fff}
@@ -197,8 +199,10 @@ html.login-active{background:var(--orange)}
 .pdf-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#F2EFE9}
 .pdf-page{max-width:820px;margin:24px auto 40px;padding:0;background:#FBF8F2;box-shadow:0 1px 0 #E0D8CB,0 20px 40px -24px rgba(0,0,0,0.08);border-radius:2px;overflow:hidden}
 /* Orange editorial header — matches PDF mockup top */
+/* Orange editorial header — matches PDF mockup top */
 .pdf-header{background:var(--orange);color:#fff;padding:30px 40px 26px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border:none;margin:0}
 .pdf-logo{display:none}
+.pdf-logo-mark{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:76px;line-height:0.85;color:#fff;flex-shrink:0;letter-spacing:-0.02em}
 .pdf-title-block .pdf-pi{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-weight:600;margin-bottom:6px;opacity:.95}
 .pdf-title-block .pdf-wb{font-family:'Playfair Display',serif;font-size:36px;font-weight:600;color:#fff;line-height:1;letter-spacing:-0.005em}
 .pdf-meta{margin-left:auto;text-align:right;font-family:'Inter',sans-serif;color:#fff}
@@ -371,7 +375,7 @@ html.login-active{background:var(--orange)}
   </div>
   <div class="pdf-scroll"><div class="pdf-page">
     <div class="pdf-header">
-      <img class="pdf-logo" src="data:image/png;base64,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" alt="PI">
+      <div class="pdf-logo-mark">π</div>
       <div class="pdf-title-block"><div class="pdf-pi">Performance Intelligence</div><div class="pdf-wb">Weekly Briefing</div></div>
       <div class="pdf-meta"><div id="pdf-date"></div><div id="pdf-week"></div></div>
     </div>
@@ -855,7 +859,7 @@ function noteInput(el,catId,title){saveTopicNote(catId,title,el.value);}
 // ── Render ──
 function rt(){
   document.getElementById('tabs').innerHTML=CATS.map(function(c){
-    return'<button class="tab'+(c.id===ac.id?' on':'')+'" style="border-bottom-color:'+(c.id===ac.id?c.color:'transparent')+'" onclick="sc(\''+c.id+'\')">'+'<span style="color:'+c.color+'">'+c.icon+'</span>'+c.label+'</button>';
+    return'<button class="tab'+(c.id===ac.id?' on':'')+'" style="--tab-c:'+c.color+'" onclick="sc(\''+c.id+'\')">'+c.label+'</button>';
   }).join('');
 }
 function rto(){
