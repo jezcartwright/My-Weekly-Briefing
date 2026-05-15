@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Final palette — locked in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:#F2EFE9;
+    color:#1B1816;
+    font-family:'Inter',system-ui,sans-serif;
+    padding:40px 24px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto}
+  h1{
+    font-family:'Playfair Display',serif;
+    font-weight:600;
+    font-size:30px;
+    margin-bottom:8px;
+    text-align:center;
+  }
+  .lede{
+    font-size:14.5px;
+    color:#5C534B;
+    line-height:1.55;
+    max-width:680px;
+    margin:0 auto 36px;
+    text-align:center;
+  }
+  .stack{
+    background:#FBF8F2;
+    border-radius:2px;
+    overflow:hidden;
+    box-shadow:0 1px 0 #E0D8CB, 0 20px 40px -24px rgba(0,0,0,0.08);
+    margin-bottom:30px;
+  }
+  .pi-header{
+    background:#FF6600;
+    color:#fff;
+    padding:34px 44px 30px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+  }
+  .pi-header .left .mark{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:26px;
+    line-height:1;
+    margin-bottom:14px;
+    display:inline-block;
+    opacity:0.92;
+  }
+  .pi-header .left .eyebrow{
+    font-size:11px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    font-weight:600;
+    opacity:0.95;
+    margin-bottom:6px;
+  }
+  .pi-header .left h2{
+    font-family:'Playfair Display',serif;
+    font-weight:600;
+    font-size:42px;
+    line-height:1;
+    letter-spacing:-0.005em;
+  }
+  .pi-header .right{text-align:right}
+  .pi-header .right .date{font-size:15px;font-weight:500;margin-bottom:4px}
+  .pi-header .right .week{font-size:13px;opacity:0.88}
+
+  .cat{
+    padding:18px 44px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    color:#fff;
+    gap:24px;
+  }
+  .cat .name{
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:0.24em;
+    text-transform:uppercase;
+  }
+  .cat .tag{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:14px;
+    color:rgba(255,255,255,0.92);
+  }
+  .swatches{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .sw{
+    background:#fff;
+    border:1px solid #E0D8CB;
+    border-left:4px solid var(--c);
+    border-radius:2px;
+    padding:18px 22px;
+  }
+  .sw .num{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    letter-spacing:0.08em;
+    font-weight:700;
+    color:var(--c-dark);
+    margin-bottom:4px;
+  }
+  .sw .ttl{
+    font-family:'Playfair Display',serif;
+    font-size:18px;
+    font-weight:600;
+    line-height:1.2;
+    margin-bottom:4px;
+  }
+  .sw .hl{
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:12.5px;
+    color:#5C534B;
+    line-height:1.4;
+    margin-bottom:12px;
+  }
+  .sw .deeper-lbl{
+    font-family:'Inter',sans-serif;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--c-dark);
+    margin-bottom:6px;
+  }
+  .sw .bullet{
+    display:flex;
+    gap:8px;
+    font-size:12px;
+    color:#1B1816;
+    line-height:1.5;
+    align-items:flex-start;
+  }
+  .sw .bullet::before{
+    content:"";
+    display:inline-block;
+    width:6px;
+    height:6px;
+    background:var(--c);
+    margin-top:6px;
+    flex-shrink:0;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <h1>Final palette — locked in</h1>
+  <p class="lede">Technology is now HP cyan-blue <code>#0096D6</code>, which gives clean separation from Markets navy. Six distinct, saturated colours threading through the publication. Ready to ship.</p>
+
+  <div class="stack">
+    <div class="pi-header">
+      <div class="left">
+        <span class="mark">π</span>
+        <div class="eyebrow">Performance Intelligence</div>
+        <h2>Weekly Briefing</h2>
+      </div>
+      <div class="right">
+        <div class="date">Saturday, 09 May 2026</div>
+        <div class="week">Week 19</div>
+      </div>
+    </div>
+    <div class="cat" style="background:#FF6600">
+      <span class="name">Leadership</span>
+      <span class="tag">Four high-signal topics for this week</span>
+    </div>
+    <div class="cat" style="background:#0E3A7B">
+      <span class="name">Markets</span>
+      <span class="tag">Four high-signal topics for this week</span>
+    </div>
+    <div class="cat" style="background:#C8243C">
+      <span class="name">Psychology</span>
+      <span class="tag">Four high-signal topics for this week</span>
+    </div>
+    <div class="cat" style="background:#0096D6">
+      <span class="name">Technology</span>
+      <span class="tag">Four high-signal topics for this week</span>
+    </div>
+    <div class="cat" style="background:#6B2DA8">
+      <span class="name">Geopolitics</span>
+      <span class="tag">Four high-signal topics for this week</span>
+    </div>
+    <div class="cat" style="background:#2E7A3E">
+      <span class="name">Philosophy</span>
+      <span class="tag">Four high-signal topics for this week</span>
+    </div>
+  </div>
+
+  <div class="swatches">
+
+    <div class="sw" style="--c:#FF6600;--c-dark:#C24E00">
+      <div class="num">01</div>
+      <div class="ttl">Leading Through Ambiguity</div>
+      <div class="hl">The defining skill of senior leadership.</div>
+      <div class="deeper-lbl">Go Deeper →</div>
+      <div class="bullet">Am I waiting for data, or for certainty?</div>
+    </div>
+
+    <div class="sw" style="--c:#0E3A7B;--c-dark:#08285A">
+      <div class="num">02</div>
+      <div class="ttl">Pricing Power as Strategy</div>
+      <div class="hl">The purest signal of a strong business.</div>
+      <div class="deeper-lbl">Go Deeper →</div>
+      <div class="bullet">When did you last raise prices?</div>
+    </div>
+
+    <div class="sw" style="--c:#C8243C;--c-dark:#9A1A2D">
+      <div class="num">01</div>
+      <div class="ttl">The Spotlight Effect</div>
+      <div class="hl">People dramatically overestimate.</div>
+      <div class="deeper-lbl">Go Deeper →</div>
+      <div class="bullet">When did you last stay silent out of fear?</div>
+    </div>
+
+    <div class="sw" style="--c:#0096D6;--c-dark:#006FA0">
+      <div class="num">01</div>
+      <div class="ttl">AI as Thought Partner</div>
+      <div class="hl">Structured thinking at speed.</div>
+      <div class="deeper-lbl">Go Deeper →</div>
+      <div class="bullet">Have you used AI to argue the opposite?</div>
+    </div>
+
+    <div class="sw" style="--c:#6B2DA8;--c-dark:#4F2080">
+      <div class="num">01</div>
+      <div class="ttl">Reshoring as Strategy</div>
+      <div class="hl">Resilience is now the competitive factor.</div>
+      <div class="deeper-lbl">Go Deeper →</div>
+      <div class="bullet">Map your top 10 suppliers — where are they?</div>
+    </div>
+
+    <div class="sw" style="--c:#2E7A3E;--c-dark:#1F5A2C">
+      <div class="num">02</div>
+      <div class="ttl">The Examined Life</div>
+      <div class="hl">Self-awareness is the strongest predictor.</div>
+      <div class="deeper-lbl">Go Deeper →</div>
+      <div class="bullet">When did you last examine your motivations?</div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
