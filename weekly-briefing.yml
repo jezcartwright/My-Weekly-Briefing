@@ -75,6 +75,36 @@ jobs:
           echo "Week: $(date +%V)"
           echo "Date: $(date '+%A, %d %B %Y')"
 
+      # generate_content.py commits the new index.html to the repo via the
+      # GitHub API. That commit is NOT in this runner's working tree (the
+      # checkout happened before generation). Pull it so the deploy step
+      # publishes the freshly generated file, not the pre-generation one.
+      - name: Pull the just-committed content
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --no-rebase origin main
+          echo "Working tree now at: $(git log -1 --pretty=format:'%h %s')"
+
+      # Deploy directly from THIS workflow run. We do not rely on the commit
+      # triggering deploy-firebase.yml — commits made with the automatic
+      # GITHUB_TOKEN do not trigger other workflows (GitHub loop-prevention).
+      # This mirrors deploy-firebase.yml exactly: same action, same secret,
+      # same channel/project. Reuses the existing FIREBASE_SERVICE_ACCOUNT.
+      - name: Deploy to Firebase Hosting
+        if: steps.guard.outputs.skip != 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: pi-briefing-38ddc
+
+      - name: Confirm deploy
+        if: steps.guard.outputs.skip != 'true'
+        run: echo "Deployed freshly generated content to https://pi-briefing-38ddc.web.app"
+
       - name: Note when skipped
         if: steps.guard.outputs.skip == 'true'
         run: echo "Backup run skipped — primary already generated today's content."
