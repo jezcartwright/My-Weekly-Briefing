@@ -150,7 +150,44 @@ def parse_topics_json(raw: str, label: str) -> list:
     except (ValueError, SyntaxError):
         pass
 
-    # Could not recover — raise so the caller can skip THIS category only.
+    # Could not recover. Before giving up, dump the raw text so we can see
+    # EXACTLY what the model produced and fix the real cause — no guessing.
+    print(f"    ===== UNRECOVERABLE JSON DIAGNOSTIC: {label} =====")
+
+    # Re-run a strict parse purely to capture the precise error position.
+    err_pos = None
+    try:
+        json.loads(raw)
+    except json.JSONDecodeError as e:
+        err_pos = e.pos
+        print(f"    strict error: {e.msg} at line {e.lineno} col {e.colno} (char {e.pos})")
+
+    # Focused window: ~400 chars either side of the failure point so the
+    # log stays readable but shows the actual offending region.
+    if err_pos is not None:
+        lo = max(0, err_pos - 400)
+        hi = min(len(raw), err_pos + 400)
+        print(f"    --- raw text around char {err_pos} (showing {lo}..{hi}) ---")
+        window = raw[lo:hi]
+        # Mark the exact failure point with a visible caret on its own line.
+        rel = err_pos - lo
+        print("    " + window[:rel].replace("\n", "\n    "))
+        print("    >>>>>>>>>> FAILURE POINT >>>>>>>>>>")
+        print("    " + window[rel:].replace("\n", "\n    "))
+    else:
+        # No position available — print a bounded head + tail of the raw text.
+        head = raw[:1200]
+        tail = raw[-1200:] if len(raw) > 2400 else ""
+        print("    --- raw text (head, first 1200 chars) ---")
+        print("    " + head.replace("\n", "\n    "))
+        if tail:
+            print("    --- raw text (tail, last 1200 chars) ---")
+            print("    " + tail.replace("\n", "\n    "))
+
+    print(f"    --- raw length: {len(raw)} chars ---")
+    print(f"    ===== END DIAGNOSTIC: {label} =====")
+
+    # Raise so the caller can skip THIS category only.
     raise ValueError(f"Unrecoverable JSON for {label}")
 
 
