@@ -55,7 +55,13 @@ Quality standards:
 - Write for intelligent executives who read broadly
 - British spelling throughout (organisation, behaviour, recognise etc.)
 
-Return ONLY valid JSON — no markdown, no explanation, no backticks."""
+Return ONLY valid JSON — no markdown, no explanation, no backticks.
+
+CRITICAL JSON RULES:
+- Any double-quote character inside a string value MUST be escaped as \\".
+  Prefer single quotes for quotations within text (e.g. 'as Seneca put it').
+- Do not use smart/curly quotes; use straight ' and ". Do not use em dashes; use a hyphen.
+- No trailing commas. Output must parse with a strict JSON parser on the first attempt."""
 
 USER_PROMPT_TEMPLATE = """Today is {today}. 
 
@@ -95,6 +101,59 @@ CATEGORY_FOCUS = {
 }
 
 
+def parse_topics_json(raw: str, label: str) -> list:
+    """Parse the model's JSON array tolerantly.
+
+    The model occasionally emits JSON with an unescaped quote or apostrophe
+    inside a string value, or a trailing comma, or smart quotes. A single
+    strict json.loads() turns any of those into a hard failure for the whole
+    run. This tries strict first (the common case), then applies a series of
+    safe repairs and retries before giving up.
+    """
+    # Fast path — most weeks the JSON is clean.
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"    ! {label}: strict JSON parse failed ({e}); attempting repair...")
+
+    repaired = raw
+
+    # 1. Normalise smart quotes / unicode punctuation that breaks JSON.
+    replacements = {
+        '\u201c': '"', '\u201d': '"',   # curly double quotes
+        '\u2018': "'", '\u2019': "'",   # curly single quotes / apostrophes
+        '\u2013': '-', '\u2014': '-',   # en / em dash (safe inside strings)
+        '\u00a0': ' ',                  # non-breaking space
+    }
+    for bad, good in replacements.items():
+        repaired = repaired.replace(bad, good)
+
+    # 2. Remove trailing commas before } or ]  (e.g.  "x": 1, }  ->  "x": 1 }).
+    repaired = re.sub(r',(\s*[}\]])', r'\1', repaired)
+
+    try:
+        result = json.loads(repaired)
+        print(f"    ! {label}: recovered after light repair.")
+        return result
+    except json.JSONDecodeError as e:
+        print(f"    ! {label}: still invalid after light repair ({e}); trying strict-strings repair...")
+
+    # 3. Last resort: try Python's more permissive literal parser. It accepts
+    #    single-quoted strings and is more forgiving of stray quotes. We only
+    #    use its result if it yields a list of dicts shaped like topics.
+    try:
+        import ast
+        candidate = ast.literal_eval(repaired)
+        if isinstance(candidate, list) and all(isinstance(x, dict) for x in candidate):
+            print(f"    ! {label}: recovered via permissive literal parse.")
+            return candidate
+    except (ValueError, SyntaxError):
+        pass
+
+    # Could not recover — raise so the caller can skip THIS category only.
+    raise ValueError(f"Unrecoverable JSON for {label}")
+
+
 def generate_category_content(client: anthropic.Anthropic, cat: dict, today: str) -> list:
     """Call Claude API with web search to generate content for one category."""
     
@@ -130,7 +189,8 @@ def generate_category_content(client: anthropic.Anthropic, cat: dict, today: str
     if start == -1 or end == 0:
         raise ValueError(f"No JSON array found in response for {cat['label']}: {clean[:200]}")
     
-    topics = json.loads(clean[start:end])
+    raw = clean[start:end]
+    topics = parse_topics_json(raw, cat["label"])
     
     if len(topics) != 4:
         raise ValueError(f"Expected 4 topics for {cat['label']}, got {len(topics)}")
@@ -288,12 +348,36 @@ def main():
     
     client = anthropic.Anthropic(api_key=anthropic_key)
     
-    # Generate content for all 6 categories
+    # Generate content for all 6 categories.
+    # If one category fails (bad JSON from the model, etc.) we skip THAT
+    # category and keep the rest, rather than losing the entire week.
     all_content = {}
+    failures = []
     print("\n1. Generating content via Claude API with web search...")
     for cat in CATEGORIES:
-        topics = generate_category_content(client, cat, today)
-        all_content[cat["id"]] = topics
+        try:
+            topics = generate_category_content(client, cat, today)
+            all_content[cat["id"]] = topics
+        except Exception as e:
+            print(f"  ✗ {cat['label']} FAILED: {e}")
+            print(f"    Skipping {cat['label']} this week, continuing with the others.")
+            failures.append(cat["label"])
+
+    # Safety floor: if too few categories succeeded, abort rather than
+    # publish a gutted briefing that would also push good older content
+    # down the 4-week history.
+    MIN_CATEGORIES = 4
+    if len(all_content) < MIN_CATEGORIES:
+        raise RuntimeError(
+            f"Only {len(all_content)} of {len(CATEGORIES)} categories succeeded "
+            f"(failed: {', '.join(failures) or 'none'}). "
+            f"Below the safety floor of {MIN_CATEGORIES}; aborting without committing "
+            f"so existing content is preserved. Re-run the workflow to try again."
+        )
+
+    if failures:
+        print(f"\n  Note: proceeding with {len(all_content)} categories; "
+              f"{len(failures)} skipped this week ({', '.join(failures)}).")
     
     # Get current HTML from GitHub
     print("\n2. Fetching current index.html from GitHub...")
