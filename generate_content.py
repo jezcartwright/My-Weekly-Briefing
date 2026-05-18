@@ -61,7 +61,12 @@ CRITICAL JSON RULES:
 - Any double-quote character inside a string value MUST be escaped as \\".
   Prefer single quotes for quotations within text (e.g. 'as Seneca put it').
 - Do not use smart/curly quotes; use straight ' and ". Do not use em dashes; use a hyphen.
-- No trailing commas. Output must parse with a strict JSON parser on the first attempt."""
+- No trailing commas. Output must parse with a strict JSON parser on the first attempt.
+- Output the JSON array EXACTLY ONCE. Do not repeat it. Do not write any preamble
+  such as "Here is the final JSON:" and do not write anything after the closing ].
+- Do not include citation markers, footnote tags, or any <...> tags inside string
+  values. Write plain prose only. The very first character of your response must be
+  [ and the very last character must be ]."""
 
 USER_PROMPT_TEMPLATE = """Today is {today}. 
 
@@ -230,18 +235,60 @@ def generate_category_content(client: anthropic.Anthropic, cat: dict, today: str
             text_content += block.text
     
     # Parse JSON
-    # Strip any markdown fences if present
+    # 1. Strip any markdown fences if present.
     clean = re.sub(r'```json\s*|\s*```', '', text_content).strip()
-    
-    # Find JSON array
+
+    # 2. Strip web-search citation markers that leak into the model output
+    #    (e.g. <cite index="54-5,54-6">...</cite>). These otherwise end up
+    #    embedded inside the JSON string values and pollute the briefing text.
+    clean = re.sub(r'</?cite[^>]*>', '', clean)
+
+    # 3. Extract ONLY the first complete top-level JSON array.
+    #    The model sometimes emits the array, then prose like
+    #    "Here is the final JSON:", then a SECOND array. A naive
+    #    "first [ ... last ]" grab swallows the prose and the duplicate,
+    #    which guarantees a parse failure ("Extra data"). Instead we walk
+    #    the string tracking bracket depth (ignoring brackets inside
+    #    strings) and stop the instant the first top-level array closes.
     start = clean.find('[')
-    end = clean.rfind(']') + 1
-    if start == -1 or end == 0:
+    if start == -1:
         raise ValueError(f"No JSON array found in response for {cat['label']}: {clean[:200]}")
-    
+
+    depth = 0
+    end = -1
+    in_string = False
+    escape = False
+    for i in range(start, len(clean)):
+        ch = clean[i]
+        if escape:
+            escape = False
+            continue
+        if ch == '\\' and in_string:
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == '[':
+            depth += 1
+        elif ch == ']':
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+
+    if end == -1:
+        # Never closed — fall back to last ] so the diagnostic can still
+        # show us what happened.
+        end = clean.rfind(']') + 1
+        if end == 0:
+            raise ValueError(f"Unterminated JSON array for {cat['label']}: {clean[:200]}")
+
     raw = clean[start:end]
     topics = parse_topics_json(raw, cat["label"])
-    
+
     if len(topics) != 4:
         raise ValueError(f"Expected 4 topics for {cat['label']}, got {len(topics)}")
     
