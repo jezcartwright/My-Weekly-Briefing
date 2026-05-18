@@ -141,51 +141,64 @@ def parse_topics_json(raw: str, label: str) -> list:
     # 3. Last resort: try Python's more permissive literal parser. It accepts
     #    single-quoted strings and is more forgiving of stray quotes. We only
     #    use its result if it yields a list of dicts shaped like topics.
+    #    NOTE: literal_eval can raise more than ValueError/SyntaxError on
+    #    pathological input (RecursionError, MemoryError, TypeError, etc.).
+    #    We must catch broadly here so a failure CANNOT bypass the diagnostic
+    #    block below.
     try:
         import ast
         candidate = ast.literal_eval(repaired)
         if isinstance(candidate, list) and all(isinstance(x, dict) for x in candidate):
             print(f"    ! {label}: recovered via permissive literal parse.")
             return candidate
-    except (ValueError, SyntaxError):
-        pass
+    except Exception as e:  # noqa: BLE001 - intentional broad catch
+        print(f"    ! {label}: permissive literal parse failed ({type(e).__name__}: {e}).")
 
     # Could not recover. Before giving up, dump the raw text so we can see
     # EXACTLY what the model produced and fix the real cause — no guessing.
-    print(f"    ===== UNRECOVERABLE JSON DIAGNOSTIC: {label} =====")
-
-    # Re-run a strict parse purely to capture the precise error position.
-    err_pos = None
+    # The whole diagnostic is wrapped defensively: it must NEVER be the thing
+    # that fails silently. If anything here breaks, we still print the raw
+    # text in the crudest possible way.
     try:
-        json.loads(raw)
-    except json.JSONDecodeError as e:
-        err_pos = e.pos
-        print(f"    strict error: {e.msg} at line {e.lineno} col {e.colno} (char {e.pos})")
+        print(f"    ===== UNRECOVERABLE JSON DIAGNOSTIC: {label} =====")
 
-    # Focused window: ~400 chars either side of the failure point so the
-    # log stays readable but shows the actual offending region.
-    if err_pos is not None:
-        lo = max(0, err_pos - 400)
-        hi = min(len(raw), err_pos + 400)
-        print(f"    --- raw text around char {err_pos} (showing {lo}..{hi}) ---")
-        window = raw[lo:hi]
-        # Mark the exact failure point with a visible caret on its own line.
-        rel = err_pos - lo
-        print("    " + window[:rel].replace("\n", "\n    "))
-        print("    >>>>>>>>>> FAILURE POINT >>>>>>>>>>")
-        print("    " + window[rel:].replace("\n", "\n    "))
-    else:
-        # No position available — print a bounded head + tail of the raw text.
-        head = raw[:1200]
-        tail = raw[-1200:] if len(raw) > 2400 else ""
-        print("    --- raw text (head, first 1200 chars) ---")
-        print("    " + head.replace("\n", "\n    "))
-        if tail:
-            print("    --- raw text (tail, last 1200 chars) ---")
-            print("    " + tail.replace("\n", "\n    "))
+        # Re-run a strict parse purely to capture the precise error position.
+        err_pos = None
+        try:
+            json.loads(raw)
+        except json.JSONDecodeError as e:
+            err_pos = e.pos
+            print(f"    strict error: {e.msg} at line {e.lineno} col {e.colno} (char {e.pos})")
 
-    print(f"    --- raw length: {len(raw)} chars ---")
-    print(f"    ===== END DIAGNOSTIC: {label} =====")
+        # Focused window: ~400 chars either side of the failure point so the
+        # log stays readable but shows the actual offending region.
+        if err_pos is not None:
+            lo = max(0, err_pos - 400)
+            hi = min(len(raw), err_pos + 400)
+            print(f"    --- raw text around char {err_pos} (showing {lo}..{hi}) ---")
+            window = raw[lo:hi]
+            rel = err_pos - lo
+            print("    " + window[:rel].replace("\n", "\n    "))
+            print("    >>>>>>>>>> FAILURE POINT >>>>>>>>>>")
+            print("    " + window[rel:].replace("\n", "\n    "))
+        else:
+            head = raw[:1200]
+            tail = raw[-1200:] if len(raw) > 2400 else ""
+            print("    --- raw text (head, first 1200 chars) ---")
+            print("    " + head.replace("\n", "\n    "))
+            if tail:
+                print("    --- raw text (tail, last 1200 chars) ---")
+                print("    " + tail.replace("\n", "\n    "))
+
+        print(f"    --- raw length: {len(raw)} chars ---")
+        print(f"    ===== END DIAGNOSTIC: {label} =====")
+    except Exception as diag_err:  # noqa: BLE001 - diagnostic must never fail silently
+        print(f"    !! diagnostic itself errored ({type(diag_err).__name__}: {diag_err})")
+        print(f"    !! crude raw dump for {label} (repr, first 3000 chars):")
+        try:
+            print("    " + repr(raw)[:3000])
+        except Exception:
+            print("    !! could not even repr the raw text")
 
     # Raise so the caller can skip THIS category only.
     raise ValueError(f"Unrecoverable JSON for {label}")
