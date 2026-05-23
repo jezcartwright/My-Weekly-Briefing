@@ -68,6 +68,10 @@ html.login-active{background:var(--orange)}
 .hbtn{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:4px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;width:76px;height:32px;flex-shrink:0;transition:all .2s;white-space:nowrap}
 .hbtn.on{background:rgba(255,255,255,0.95);color:var(--orange)}
 .hbtn:active{background:rgba(255,255,255,0.95);color:var(--orange)}
+.aa-pill{padding:0 8px;gap:1px;line-height:1;width:auto;min-width:54px}
+.aa-pill .aa-s{font-size:10px;line-height:1;font-weight:700}
+.aa-pill .aa-l{font-size:14px;line-height:1;font-weight:700;margin-left:1px}
+.aa-pill.on,.aa-pill:active{background:rgba(255,255,255,0.95);color:var(--orange)}
 .user-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:20px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#fff}
 .user-avatar{font-family:'Inter',sans-serif;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
 .user-avatar img{width:100%;height:100%;object-fit:cover}
@@ -244,6 +248,19 @@ html.login-active{background:var(--orange)}
 .pdf-di::before{content:"";display:inline-block;width:6px;height:6px;background:var(--bullet,var(--orange));flex-shrink:0;margin-top:6px}
 .pdf-di a{color:#A0530B;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:0.5px}
 .pdf-footer{text-align:center;padding:16px 40px 20px;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;color:#8E857C;border-top:1px solid #E0D8CB;background:#FBF8F2}
+/* Larger reading text — Aa pill toggle */
+body.text-large .tt{font-size:19px}
+body.text-large .thl{font-size:14.5px}
+body.text-large .bt{font-size:14.5px}
+body.text-large .it{font-size:15.5px}
+body.text-large .ref{font-size:13.5px}
+body.text-large .dt{font-size:14.5px}
+body.text-large .lh-title{font-size:19px}
+body.text-large .lh-hl{font-size:14.5px}
+body.text-large .ne-hl{font-size:11.25px}
+body.text-large .ne-preview{font-size:12.5px}
+body.text-large .ne-why{font-size:12.5px}
+body.text-large .ne-quote{font-size:12.5px}
 @media(max-width:500px){.two{grid-template-columns:1fr}}
 @media(max-width:430px){
   #hdr{padding:calc(var(--st) + 10px) 14px 12px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
@@ -330,6 +347,7 @@ html.login-active{background:var(--orange)}
         <button class="hbtn" id="btn-notes" onclick="showView('notes')">✏ Notes</button>
         <button class="hbtn" id="btn-likes" onclick="showView('likes')">♥ Liked</button>
         <button class="hbtn" id="btn-lib" onclick="showView('library')">◫ Library</button>
+        <button class="hbtn aa-pill" id="btn-textsize" onclick="toggleTextSize()" title="Text size" aria-label="Toggle text size"><span class="aa-s">Aa</span><span class="aa-l">Aa</span></button>
       </div>
     </div>
   </div>
@@ -1397,8 +1415,14 @@ function hidePDF(){ document.getElementById('pdf-view').classList.remove('show')
 function generateLibraryPDF(){ generateCurrentPDF(); }
 
 // ── Init (called after Firebase auth) ──
+window.toggleTextSize=function(){
+  var on=document.body.classList.toggle('text-large');
+  document.getElementById('btn-textsize').classList.toggle('on',on);
+  try{localStorage.setItem('exec_brief_v3_text_size',on?'large':'default');}catch(e){}
+};
 window.initApp=function(){
   document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  try{if(localStorage.getItem('exec_brief_v3_text_size')==='large'){document.body.classList.add('text-large');document.getElementById('btn-textsize').classList.add('on');}}catch(e){}
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
   // One-time refresh: for last week (2026-05-04) replace any stored topics with
   // the current D[catId][1] sets, so previously-seeded duplicates get updated.
