@@ -576,7 +576,9 @@ window.sendMagicLink = function() {
   });
 };
 
-// Google sign-in
+// Google sign-in — popup-first on ALL platforms (works around iOS Safari
+// cross-site tracking which breaks signInWithRedirect with custom domain).
+// Falls back to signInWithRedirect only if popup is genuinely blocked.
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
   function show(t, color){ msg.textContent = t; msg.style.color = color || ''; }
@@ -586,27 +588,27 @@ window.signInGoogle = function() {
       return;
     }
     var provider = new firebase.auth.GoogleAuthProvider();
-    var ua = navigator.userAgent || '';
-    var isTouchDevice = /iPhone|iPad|iPod|Android/i.test(ua) ||
-                        (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
-    if(isTouchDevice) {
-      show('Redirecting to Google…');
-      auth.signInWithRedirect(provider).catch(function(e) {
+    if(window._debugAdd) window._debugAdd('signInGoogle invoked — trying popup first');
+    show('Opening Google sign-in…');
+    auth.signInWithPopup(provider).then(function(result){
+      if(window._debugAdd) window._debugAdd('signInWithPopup SUCCESS', result && result.user ? {email: result.user.email} : 'no user');
+      show('');
+    }).catch(function(e) {
+      if(window._debugAdd) window._debugAdd('signInWithPopup ERROR', {code: e.code, message: e.message});
+      // Only fall back to redirect for genuine popup-related blocks
+      if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request' || e.code === 'auth/operation-not-supported-in-this-environment') {
+        if(window._debugAdd) window._debugAdd('Falling back to signInWithRedirect', {reason: e.code});
+        show('Redirecting to Google…');
+        auth.signInWithRedirect(provider).catch(function(e2) {
+          if(window._debugAdd) window._debugAdd('signInWithRedirect also failed', {code: e2.code, message: e2.message});
+          show('Sign-in error: ' + (e2.message || e2.code), 'red');
+        });
+      } else {
         show('Sign-in error: ' + (e.message || e.code), 'red');
-      });
-    } else {
-      show('Opening Google sign-in…');
-      auth.signInWithPopup(provider).then(function(){ show(''); }).catch(function(e) {
-        if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
-          auth.signInWithRedirect(provider).catch(function(e2) {
-            show('Sign-in error: ' + (e2.message || e2.code), 'red');
-          });
-        } else {
-          show('Sign-in error: ' + (e.message || e.code), 'red');
-        }
-      });
-    }
+      }
+    });
   } catch(err) {
+    if(window._debugAdd) window._debugAdd('signInGoogle threw', err && err.message ? err.message : String(err));
     show('Error: ' + (err && err.message ? err.message : err), 'red');
   }
 };
