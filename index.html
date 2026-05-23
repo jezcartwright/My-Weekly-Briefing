@@ -292,14 +292,6 @@ body.text-large .ne-quote{font-size:12.5px}
 </style>
 </head>
 <body class="login-active">
-<!-- DIAGNOSTIC PANEL (only renders when URL contains #debug) -->
-<div id="debug-panel" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#111;color:#0f0;font-family:Menlo,monospace;font-size:11px;line-height:1.45;padding:10px 12px;max-height:80vh;overflow:auto;border-bottom:2px solid #0f0;box-shadow:0 4px 16px rgba(0,0,0,0.5);-webkit-text-size-adjust:100%">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;border-bottom:1px solid #0f0;padding-bottom:6px">
-    <strong style="color:#0f0;font-size:12px">DIAGNOSTIC MODE</strong>
-    <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#0f0;color:#000;border:none;padding:4px 8px;border-radius:3px;font-family:Menlo,monospace;font-size:10px;font-weight:bold">CLOSE</button>
-  </div>
-  <div id="debug-log" style="white-space:pre-wrap;word-break:break-word">Initialising...</div>
-</div>
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
@@ -456,76 +448,12 @@ var auth = firebase.auth();
 var db = firebase.firestore();
 var ACTION_URL = window.location.href.split('?')[0];
 
-// ── Diagnostic mode (#debug in URL) ──
-window._debugMode = (window.location.hash || '').indexOf('debug') >= 0;
-window._debugLog = [];
-window._debugAdd = function(label, data){
-  var t = new Date().toISOString().substr(11,12);
-  var line = '[' + t + '] ' + label;
-  if(data !== undefined){
-    try { line += ': ' + (typeof data === 'string' ? data : JSON.stringify(data, null, 2)); }
-    catch(e){ line += ': [unserialisable: ' + String(data) + ']'; }
-  }
-  window._debugLog.push(line);
-  if(window._debugMode){
-    var panel = document.getElementById('debug-panel');
-    var log = document.getElementById('debug-log');
-    if(panel && log){
-      panel.style.display = 'block';
-      log.textContent = window._debugLog.join('\n\n');
-    }
-  }
-};
-if(window._debugMode){
-  // Show panel immediately
-  document.addEventListener('DOMContentLoaded', function(){
-    var panel = document.getElementById('debug-panel');
-    if(panel) panel.style.display = 'block';
-  });
-  // Also try right now in case DOMContentLoaded already fired
-  setTimeout(function(){
-    var panel = document.getElementById('debug-panel');
-    if(panel) panel.style.display = 'block';
-  }, 0);
-  window._debugAdd('Debug mode ON');
-  window._debugAdd('URL', window.location.href);
-  window._debugAdd('User agent', navigator.userAgent);
-  // Dump Firebase-related localStorage keys
-  try {
-    var keys = [];
-    for(var i=0; i<localStorage.length; i++){
-      var k = localStorage.key(i);
-      if(k && (k.indexOf('firebase')>=0 || k.indexOf('Firebase')>=0 || k.indexOf('exec_brief')>=0 || k.indexOf('email')>=0)){
-        var v = localStorage.getItem(k);
-        keys.push(k + ' = ' + (v && v.length>200 ? v.substr(0,200)+'…[truncated]' : v));
-      }
-    }
-    window._debugAdd('localStorage Firebase keys', keys.length ? keys.join('\n') : '(none)');
-  } catch(e){ window._debugAdd('localStorage read error', e.message); }
-  // Capture global errors
-  window.addEventListener('error', function(ev){
-    window._debugAdd('GLOBAL ERROR', (ev.error && ev.error.message ? ev.error.message : ev.message) + (ev.filename ? ' @ ' + ev.filename + ':' + ev.lineno : ''));
-  });
-  window.addEventListener('unhandledrejection', function(ev){
-    window._debugAdd('UNHANDLED REJECTION', ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason));
-  });
-}
-
 // Handle Google redirect result on page load
-if(window._debugAdd) window._debugAdd('Calling auth.getRedirectResult()');
 auth.getRedirectResult().then(function(result) {
-  if(window._debugAdd){
-    if(result && result.user){
-      window._debugAdd('getRedirectResult SUCCESS', {email: result.user.email, uid: result.user.uid, providerId: result.credential && result.credential.providerId});
-    } else {
-      window._debugAdd('getRedirectResult RESOLVED but no user', {result_keys: result ? Object.keys(result) : 'null'});
-    }
-  }
   if(result && result.user) {
     console.log('Google sign-in success:', result.user.email);
   }
 }).catch(function(e) {
-  if(window._debugAdd) window._debugAdd('getRedirectResult ERROR', {code: e.code, message: e.message});
   console.error('Redirect result error:', e.code, e.message);
   if(e.code && e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
     var msg = document.getElementById('login-msg');
@@ -588,19 +516,12 @@ window.signInGoogle = function() {
       return;
     }
     var provider = new firebase.auth.GoogleAuthProvider();
-    if(window._debugAdd) window._debugAdd('signInGoogle invoked — trying popup first');
     show('Opening Google sign-in…');
-    auth.signInWithPopup(provider).then(function(result){
-      if(window._debugAdd) window._debugAdd('signInWithPopup SUCCESS', result && result.user ? {email: result.user.email} : 'no user');
-      show('');
-    }).catch(function(e) {
-      if(window._debugAdd) window._debugAdd('signInWithPopup ERROR', {code: e.code, message: e.message});
+    auth.signInWithPopup(provider).then(function(){ show(''); }).catch(function(e) {
       // Only fall back to redirect for genuine popup-related blocks
       if(e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request' || e.code === 'auth/operation-not-supported-in-this-environment') {
-        if(window._debugAdd) window._debugAdd('Falling back to signInWithRedirect', {reason: e.code});
         show('Redirecting to Google…');
         auth.signInWithRedirect(provider).catch(function(e2) {
-          if(window._debugAdd) window._debugAdd('signInWithRedirect also failed', {code: e2.code, message: e2.message});
           show('Sign-in error: ' + (e2.message || e2.code), 'red');
         });
       } else {
@@ -608,7 +529,6 @@ window.signInGoogle = function() {
       }
     });
   } catch(err) {
-    if(window._debugAdd) window._debugAdd('signInGoogle threw', err && err.message ? err.message : String(err));
     show('Error: ' + (err && err.message ? err.message : err), 'red');
   }
 };
@@ -670,7 +590,6 @@ function saveUserData() {
 }
 
 auth.onAuthStateChanged(function(user) {
-  if(window._debugAdd) window._debugAdd('onAuthStateChanged fired', user ? {email: user.email, uid: user.uid, providerId: (user.providerData && user.providerData[0] ? user.providerData[0].providerId : 'unknown')} : 'null (signed out)');
   if(user) {
     userUid = user.uid;
     window._fb_likes = [];
