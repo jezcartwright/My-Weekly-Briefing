@@ -1480,28 +1480,47 @@ function seedThisWeek(){
 
 function seedLastWeek(){
   try{
-    var LAST_WEEK='2026-05-04';
+    // Dynamic: walk D[cat][1..N], assign each historical set to the Monday i weeks ago.
+    // Date for set[i] = this week's Monday minus i*7 days.
+    var thisMon=tk();
+    var thisMonDate=new Date(thisMon+'T00:00:00');
+    function monNWeeksAgo(n){
+      var d=new Date(thisMonDate);
+      d.setDate(d.getDate()-7*n);
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
     var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');
     var added=0;
+    // Find max set length across categories (some categories may have fewer sets than others)
+    var maxSets=0;
     CATS.forEach(function(cat){
-      // Skip only if THIS category already exists for that date
-      if(h.find(function(e){return e.date===LAST_WEEK&&e.catId===cat.id;})) return;
       var sets=D[cat.id];
-      if(!sets||sets.length<2) return;
-      var topics=sets[1];
-      h.unshift({
-        date:LAST_WEEK,
-        catId:cat.id,
-        catLabel:cat.label,
-        catIcon:cat.icon,
-        catColor:cat.color,
-        topics:topics
-      });
-      added++;
+      if(sets&&sets.length>maxSets) maxSets=sets.length;
     });
+    // For each historical week index (1, 2, 3...), seed each category that has a set at that index
+    for(var i=1;i<maxSets;i++){
+      var weekDate=monNWeeksAgo(i);
+      CATS.forEach(function(cat){
+        // Skip if this category+date already seeded
+        if(h.find(function(e){return e.date===weekDate&&e.catId===cat.id;})) return;
+        var sets=D[cat.id];
+        if(!sets||sets.length<=i) return;
+        var topics=sets[i];
+        if(!topics||!topics.length) return;
+        h.unshift({
+          date:weekDate,
+          catId:cat.id,
+          catLabel:cat.label,
+          catIcon:cat.icon,
+          catColor:cat.color,
+          topics:topics
+        });
+        added++;
+      });
+    }
     if(added){
       localStorage.setItem('exec_brief_v3',JSON.stringify(h.slice(0,180)));
-      console.log('Seeded last week library entries:',added);
+      console.log('Seeded historical library entries:',added);
     }
   }catch(e){console.error('Seed error:',e);}
 }
