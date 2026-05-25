@@ -595,6 +595,15 @@ auth.onAuthStateChanged(function(user) {
     window._fb_likes = [];
     window._fb_notes = {};
     window._fb_profile = {};
+    db.collection('users').doc(user.uid).set({
+      basicProfile: {
+        email: user.email || null,
+        displayName: user.displayName || null,
+        photoURL: user.photoURL || null,
+        signInMethod: (user.providerData[0] && user.providerData[0].providerId) || 'unknown',
+        lastSignedInAt: new Date().toISOString()
+      }
+    }, { merge: true });
 
     var savedName = localStorage.getItem('nameForSignIn');
     if(savedName) {
