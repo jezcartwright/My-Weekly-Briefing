@@ -215,14 +215,151 @@ def parse_topics_json(raw: str, label: str) -> list:
     raise ValueError(f"Unrecoverable JSON for {label}")
 
 
-def generate_category_content(client: anthropic.Anthropic, cat: dict, today: str) -> list:
+def extract_recent_topics(html_content: str, max_sets_back: int = 4) -> dict:
+    """Pull recently-published topic titles + headlines from index.html.
+
+    Used to give the model an explicit "do not repeat" list so each week's
+    content stays distinct from the previous 4 weeks. The state IS the data
+    in the live file — no separate state.json to drift out of sync.
+
+    Returns {cat_id: [{title, headline, set_index}, ...]} where set_index 0
+    is the most recently published set. If parsing fails for any reason,
+    returns {} — generation continues without anti-repetition rather than
+    crashing the whole run.
+    """
+    out = {}
+    try:
+        for m in re.finditer(r'D\.(\w+)\s*=\s*\[', html_content):
+            cat = m.group(1)
+            start = m.end() - 1
+            # String-aware walk to matching ]
+            depth = 0
+            in_str = False
+            quote = ''
+            esc = False
+            end = -1
+            for i in range(start, len(html_content)):
+                ch = html_content[i]
+                if esc:
+                    esc = False
+                    continue
+                if in_str:
+                    if ch == '\\':
+                        esc = True
+                    elif ch == quote:
+                        in_str = False
+                    continue
+                if ch in ('"', "'"):
+                    in_str = True
+                    quote = ch
+                    continue
+                if ch == '[':
+                    depth += 1
+                elif ch == ']':
+                    depth -= 1
+                    if depth == 0:
+                        end = i
+                        break
+            if end == -1:
+                continue
+            block = html_content[start + 1:end]
+            # Extract each top-level set within this block
+            sets = []
+            d = 0
+            in_str = False
+            quote = ''
+            esc = False
+            set_start = None
+            for i, ch in enumerate(block):
+                if esc:
+                    esc = False
+                    continue
+                if in_str:
+                    if ch == '\\':
+                        esc = True
+                    elif ch == quote:
+                        in_str = False
+                    continue
+                if ch in ('"', "'"):
+                    in_str = True
+                    quote = ch
+                    continue
+                if ch == '[':
+                    d += 1
+                    if d == 1:
+                        set_start = i
+                elif ch == ']':
+                    d -= 1
+                    if d == 0 and set_start is not None:
+                        sets.append(block[set_start:i + 1])
+                        set_start = None
+            cat_topics = []
+            for si, s in enumerate(sets[:max_sets_back]):
+                for tm in re.finditer(
+                    r'\{title:"((?:[^"\\]|\\.)*)",headline:"((?:[^"\\]|\\.)*)"',
+                    s,
+                ):
+                    title = tm.group(1).replace('\\"', '"').replace('\\\\', '\\')
+                    headline = tm.group(2).replace('\\"', '"').replace('\\\\', '\\')
+                    cat_topics.append({
+                        'title': title,
+                        'headline': headline,
+                        'set_index': si,
+                    })
+            out[cat] = cat_topics
+    except Exception as e:  # noqa: BLE001 — never fail the run on extraction
+        print(f"  ! extract_recent_topics: parsing failed ({e}); "
+              f"continuing without anti-repetition list")
+        return {}
+    return out
+
+
+def format_recent_for_prompt(cat_id: str, recent_topics: dict) -> str:
+    """Format the recent-topics list for inclusion in the user prompt.
+
+    Returns an empty string if no recent topics exist for this category,
+    so first-time runs (or post-reset runs) don't get a confusing empty
+    'avoid these' block.
+    """
+    topics = recent_topics.get(cat_id, [])
+    if not topics:
+        return ""
+    lines = ["", "RECENTLY PUBLISHED IN THIS CATEGORY (DO NOT REPEAT):"]
+    # Group by week for readability and weight: set 0 = most recent
+    for t in topics:
+        age = ("last week" if t['set_index'] == 0
+               else f"{t['set_index']+1} weeks ago")
+        lines.append(f"- [{age}] {t['title']} — {t['headline']}")
+    lines.append("")
+    lines.append(
+        "Generate 4 topics that are GENUINELY DIFFERENT from the above. "
+        "Different angle, different research, different argument. "
+        "Same broad theme is acceptable (e.g. another AI story) but the "
+        "specific insight, headline and evidence base must be fresh."
+    )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def generate_category_content(
+    client: anthropic.Anthropic,
+    cat: dict,
+    today: str,
+    recent_topics: dict = None,
+) -> list:
     """Call Claude API with web search to generate content for one category."""
-    
+
     prompt = USER_PROMPT_TEMPLATE.format(
         today=today,
         category=cat["label"],
         category_focus=CATEGORY_FOCUS[cat["id"]],
     )
+
+    # Append the anti-repetition block if we have history for this category.
+    if recent_topics:
+        avoid_block = format_recent_for_prompt(cat["id"], recent_topics)
+        if avoid_block:
+            prompt = prompt + "\n" + avoid_block
     
     print(f"  Generating {cat['label']} content...")
     
@@ -553,6 +690,59 @@ def commit_file(token: str, content: str, sha: str, message: str) -> None:
     print(f"  ✓ Committed: {result['commit']['html_url']}")
 
 
+def _normalise_for_compare(text: str) -> str:
+    """Lowercase, strip punctuation/articles for loose title comparison."""
+    if not text:
+        return ""
+    s = text.lower()
+    # Strip everything that isn't a letter, digit or space
+    s = re.sub(r'[^a-z0-9\s]', ' ', s)
+    # Drop noise words
+    stopwords = {'the', 'a', 'an', 'of', 'and', 'or', 'to', 'for',
+                 'in', 'on', 'is', 'are', 'as', 'how', 'why'}
+    tokens = [t for t in s.split() if t and t not in stopwords]
+    return ' '.join(tokens)
+
+
+def check_for_overlap(new_content: dict, recent_topics: dict) -> list:
+    """Compare each new topic against recent ones in the same category.
+
+    Returns a list of human-readable overlap warnings. A "warning" fires when
+    a new title shares >=60% of significant tokens with any recent title.
+    This is intentionally lenient — false positives are fine (we just log
+    them), false negatives are what we're trying to catch.
+    """
+    warnings = []
+    for cat_id, new_topics in new_content.items():
+        recents = recent_topics.get(cat_id, [])
+        if not recents:
+            continue
+        for nt in new_topics:
+            new_norm = _normalise_for_compare(nt.get('title', ''))
+            if not new_norm:
+                continue
+            new_tokens = set(new_norm.split())
+            if len(new_tokens) < 2:
+                continue
+            for rt in recents:
+                old_norm = _normalise_for_compare(rt.get('title', ''))
+                old_tokens = set(old_norm.split())
+                if not old_tokens:
+                    continue
+                overlap = new_tokens & old_tokens
+                # Ratio against the SMALLER set so a 3-word title vs 5-word
+                # title can still flag if all 3 overlap.
+                ratio = len(overlap) / min(len(new_tokens), len(old_tokens))
+                if ratio >= 0.6:
+                    warnings.append(
+                        f"{cat_id}: new '{nt['title']}' overlaps with "
+                        f"recent '{rt['title']}' (set {rt['set_index']}, "
+                        f"{int(ratio*100)}% token overlap)"
+                    )
+                    break  # one warning per new topic is enough
+    return warnings
+
+
 def main():
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     github_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
@@ -571,15 +761,32 @@ def main():
     
     client = anthropic.Anthropic(api_key=anthropic_key)
     
-    # Generate content for all 6 categories.
+    # 1. Fetch current HTML FIRST so we know what's been published recently.
+    # The anti-repetition list is built from the live file — single source of
+    # truth, no separate state file to drift out of sync.
+    print("\n1. Fetching current index.html from GitHub...")
+    html_content, file_sha = get_current_file(github_token)
+    print(f"  ✓ Got file ({len(html_content)//1024}KB, SHA: {file_sha[:8]}...)")
+
+    print("\n2. Extracting recently-published topics for anti-repetition...")
+    recent_topics = extract_recent_topics(html_content, max_sets_back=4)
+    total_recent = sum(len(v) for v in recent_topics.values())
+    if total_recent:
+        print(f"  ✓ Found {total_recent} recent topics across "
+              f"{len(recent_topics)} categories (last 4 weeks)")
+    else:
+        print("  ! No recent topics found — first run or empty file. "
+              "Generation will proceed without anti-repetition list.")
+
+    # 2. Generate content for all 6 categories.
     # If one category fails (bad JSON from the model, etc.) we skip THAT
     # category and keep the rest, rather than losing the entire week.
     all_content = {}
     failures = []
-    print("\n1. Generating content via Claude API with web search...")
+    print("\n3. Generating content via Claude API with web search...")
     for cat in CATEGORIES:
         try:
-            topics = generate_category_content(client, cat, today)
+            topics = generate_category_content(client, cat, today, recent_topics)
             all_content[cat["id"]] = topics
         except Exception as e:
             print(f"  ✗ {cat['label']} FAILED: {e}")
@@ -601,21 +808,30 @@ def main():
     if failures:
         print(f"\n  Note: proceeding with {len(all_content)} categories; "
               f"{len(failures)} skipped this week ({', '.join(failures)}).")
-    
-    # Get current HTML from GitHub
-    print("\n2. Fetching current index.html from GitHub...")
-    html_content, file_sha = get_current_file(github_token)
-    print(f"  ✓ Got file ({len(html_content)//1024}KB, SHA: {file_sha[:8]}...)")
-    
-    # Update the HTML
-    print("\n3. Updating content in index.html...")
+
+    # 3. Post-generation overlap check — warn (not fail) if any new title
+    # closely matches a recent one. This is a tripwire, not a hard gate;
+    # Claude is usually obedient with the "do not repeat" instruction, but
+    # if it slips we want to know so the prompt can be tightened.
+    print("\n4. Checking new content against recent for overlap...")
+    overlaps = check_for_overlap(all_content, recent_topics)
+    if overlaps:
+        print(f"  ! {len(overlaps)} possible overlap(s) detected:")
+        for o in overlaps:
+            print(f"    - {o}")
+        print("  (continuing — review on staging before Monday merge)")
+    else:
+        print("  ✓ No overlaps with recent content")
+
+    # 4. Update the HTML
+    print("\n5. Updating content in index.html...")
     updated_html = update_html(html_content, all_content)
-    
-    # Commit back to GitHub
-    print("\n4. Committing to GitHub...")
+
+    # 5. Commit back to GitHub
+    print("\n6. Committing to GitHub...")
     commit_message = f"Weekly briefing content update — Week {week}, {today}"
     commit_file(github_token, updated_html, file_sha, commit_message)
-    
+
     print(f"\n✅ Done! Week {week} briefing published.")
 
 
