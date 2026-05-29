@@ -18,11 +18,21 @@ jobs:
   rebuild-draft:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout staging branch
+      - name: "Checkout main (code — build_teaser.py + mailer.py)"
         uses: actions/checkout@v5
         with:
-          ref: staging
+          ref: main
           fetch-depth: 1
+
+      - name: Overlay staging's index.html (content only, not code)
+        run: |
+          # Grab only index.html from staging, leaving build_teaser.py and
+          # mailer.py from main. This way the draft is always rebuilt with
+          # the latest email template even if staging was created days ago.
+          git fetch origin staging --depth=1
+          git checkout origin/staging -- index.html
+          echo "Code from main:    $(git log -1 --pretty=format:'%h %s')"
+          echo "Content (index.html) from staging: $(git log origin/staging -1 --pretty=format:'%h %s')"
 
       - name: Set up Python
         uses: actions/setup-python@v6
