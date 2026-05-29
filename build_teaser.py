@@ -152,9 +152,16 @@ Edit this draft before Monday 06:17 GMT to change what gets sent — or leave it
 <tr><td align="center">
 <table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:640px;border:1px solid #e8e4df;">
 <tr><td style="background:#ff6600;padding:28px 32px;color:#fff;">
-  <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;opacity:0.9;margin-bottom:8px;font-weight:700;">Performance Intelligence</div>
-  <div style="font-family:Georgia,serif;font-size:30px;font-weight:600;">Weekly Briefing</div>
-  <div style="font-size:13px;opacity:0.85;margin-top:6px;">Week {week} · {date_str}</div>
+  <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+  <td valign="middle" width="72" style="padding-right:18px;">
+    <img src="https://weeklybriefing.jezcartwright.com/favicon-512x512.png" width="56" height="56" alt="PI" style="display:block;width:56px;height:56px;border:0;">
+  </td>
+  <td valign="middle">
+    <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;opacity:0.9;margin-bottom:4px;font-weight:700;">Performance Intelligence</div>
+    <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;line-height:1;">Weekly Briefing</div>
+    <div style="font-size:13px;opacity:0.85;margin-top:4px;">Week {week} · {date_str}</div>
+  </td>
+  </tr></table>
 </td></tr>
 <tr><td style="padding:24px 32px 32px;">
 {preview_block}
