@@ -1,0 +1,43 @@
+name: SMOKE TEST — Gmail auth check
+
+# Throwaway workflow to verify GMAIL_SA_JSON + domain-wide delegation work.
+# Delete this file once the dry-run is complete.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Gmail libs
+        run: pip install google-auth google-api-python-client
+
+      - name: Run smoke test
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: python smoke_test_mailer.py
+
+      - name: Send a real test email
+        if: ${{ success() }}
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          cat > smoke_body.html <<'EOF'
+          <html><body style="font-family:system-ui,sans-serif;">
+          <h2 style="color:#ff6600;">PI Briefing — Gmail auth smoke test</h2>
+          <p>If you're reading this, the service account can successfully send mail as jc@.</p>
+          <p>This was sent by the SMOKE TEST workflow. Safe to delete this email and the workflow.</p>
+          </body></html>
+          EOF
+          python -m mailer send \
+            --to "jc@jezcartwright.com" \
+            --subject "[PI Briefing] Gmail auth smoke test — success" \
+            --body-file smoke_body.html
+          echo "✓ Test email sent. Check jc@'s inbox."
