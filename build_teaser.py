@@ -110,9 +110,14 @@ def _extract_this_week(html: str) -> dict:
     return out
 
 
-def build_teaser_html(html: str, preview_url: str = "",
+def build_teaser_html(html: str, preview_url: str = "",  # noqa: ARG001 — kept for backward compat with workflows; not rendered
                       live_url: str = "https://weeklybriefing.jezcartwright.com/") -> str:
-    """Render the teaser email body from the freshly-generated index.html."""
+    """Render the teaser email body from the freshly-generated index.html.
+
+    The preview_url parameter is accepted but ignored — preview URLs belong
+    in the Friday operational summary email, not in the teaser that may
+    eventually go to subscribers.
+    """
     data = _extract_this_week(html)
     today = datetime.date.today()
     week = today.isocalendar()[1]
@@ -136,16 +141,6 @@ def build_teaser_html(html: str, preview_url: str = "",
   <ul style="list-style:none;padding:0;margin:0;">{items}</ul>
 </div>''')
 
-    preview_block = ""
-    if preview_url:
-        preview_block = f'''
-<div style="background:#fff8ee;border:1px solid #f0e8d0;border-radius:6px;padding:12px 14px;margin:18px 0;font-size:13px;">
-<strong style="color:#c9a84c;">FRIDAY PREVIEW</strong><br>
-This draft has been auto-staged on Friday for your review. The full briefing is live at:<br>
-<a href="{preview_url}" style="color:#FF6600;">{preview_url}</a><br>
-Edit this draft before Monday 06:17 GMT to change what gets sent — or leave it and it'll go as-is.
-</div>'''
-
     return f'''<!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;padding:24px 0;">
@@ -164,7 +159,6 @@ Edit this draft before Monday 06:17 GMT to change what gets sent — or leave it
   </tr></table>
 </td></tr>
 <tr><td style="padding:24px 32px 32px;">
-{preview_block}
 <p style="font-size:14px;color:#222;line-height:1.55;">
 This week's briefing is live. Six categories, four topics each, twenty-four signals worth your attention.
 </p>
