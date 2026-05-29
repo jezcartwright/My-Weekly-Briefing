@@ -1,0 +1,188 @@
+"""Build the Monday teaser email body from the latest staging index.html.
+
+Extracts the 6 categories x 4 topic titles + headlines from the live D[catId]
+data in index.html and renders them as a clean HTML email. Designed to be
+called from the Friday workflow after generate_content.py has updated the
+staging branch.
+
+Usage:
+    python build_teaser.py path/to/index.html > teaser.html
+"""
+from __future__ import annotations
+
+import re
+import sys
+import datetime
+
+# Mirror of the category palette in index.html so colours match the site.
+CATEGORIES = [
+    ("leadership",  "Leadership",   "#FF6600"),
+    ("markets",     "Markets",      "#0E3A7B"),
+    ("psychology",  "Psychology",   "#C8243C"),
+    ("technology",  "Technology",   "#0096D6"),
+    ("geopolitics", "Geopolitics",  "#6B2DA8"),
+    ("philosophy",  "Philosophy",   "#2E7A3E"),
+]
+
+
+def _extract_this_week(html: str) -> dict:
+    """Pull set 0 (most recent) for each category: list of {title, headline}.
+
+    Reuses the same string-aware bracket-walking approach as
+    generate_content.extract_recent_topics, but only returns set 0.
+    """
+    out = {}
+    for m in re.finditer(r'D\.(\w+)\s*=\s*\[', html):
+        cat = m.group(1)
+        start = m.end() - 1
+        depth = 0
+        in_str = False
+        quote = ''
+        esc = False
+        end = -1
+        for i in range(start, len(html)):
+            ch = html[i]
+            if esc:
+                esc = False
+                continue
+            if in_str:
+                if ch == '\\':
+                    esc = True
+                elif ch == quote:
+                    in_str = False
+                continue
+            if ch in ('"', "'"):
+                in_str = True
+                quote = ch
+                continue
+            if ch == '[':
+                depth += 1
+            elif ch == ']':
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if end == -1:
+            continue
+        block = html[start + 1:end]
+        # First top-level [ ... ] is set 0
+        d = 0
+        in_str = False
+        quote = ''
+        esc = False
+        set_start = None
+        first_set = None
+        for i, ch in enumerate(block):
+            if esc:
+                esc = False
+                continue
+            if in_str:
+                if ch == '\\':
+                    esc = True
+                elif ch == quote:
+                    in_str = False
+                continue
+            if ch in ('"', "'"):
+                in_str = True
+                quote = ch
+                continue
+            if ch == '[':
+                d += 1
+                if d == 1:
+                    set_start = i
+            elif ch == ']':
+                d -= 1
+                if d == 0 and set_start is not None:
+                    first_set = block[set_start:i + 1]
+                    break
+        if not first_set:
+            continue
+        topics = []
+        for tm in re.finditer(
+            r'\{title:"((?:[^"\\]|\\.)*)",headline:"((?:[^"\\]|\\.)*)"',
+            first_set,
+        ):
+            topics.append({
+                'title': tm.group(1).replace('\\"', '"').replace('\\\\', '\\'),
+                'headline': tm.group(2).replace('\\"', '"').replace('\\\\', '\\'),
+            })
+        out[cat] = topics
+    return out
+
+
+def build_teaser_html(html: str, preview_url: str = "",
+                      live_url: str = "https://weeklybriefing.jezcartwright.com/") -> str:
+    """Render the teaser email body from the freshly-generated index.html."""
+    data = _extract_this_week(html)
+    today = datetime.date.today()
+    week = today.isocalendar()[1]
+    date_str = today.strftime("%-d %B %Y")
+
+    sections = []
+    for cat_id, label, colour in CATEGORIES:
+        topics = data.get(cat_id, [])
+        if not topics:
+            continue
+        items = "".join(
+            f'<li style="margin:0 0 14px 0;padding:0;">'
+            f'<div style="font-weight:600;color:#1a1a1a;font-size:15px;">{t["title"]}</div>'
+            f'<div style="color:#555;font-size:13.5px;font-style:italic;margin-top:2px;">{t["headline"]}</div>'
+            f'</li>'
+            for t in topics
+        )
+        sections.append(f'''
+<div style="margin:28px 0 0;">
+  <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:{colour};margin-bottom:10px;border-bottom:2px solid {colour};padding-bottom:6px;">{label}</div>
+  <ul style="list-style:none;padding:0;margin:0;">{items}</ul>
+</div>''')
+
+    preview_block = ""
+    if preview_url:
+        preview_block = f'''
+<div style="background:#fff8ee;border:1px solid #f0e8d0;border-radius:6px;padding:12px 14px;margin:18px 0;font-size:13px;">
+<strong style="color:#c9a84c;">FRIDAY PREVIEW</strong><br>
+This draft has been auto-staged on Friday for your review. The full briefing is live at:<br>
+<a href="{preview_url}" style="color:#FF6600;">{preview_url}</a><br>
+Edit this draft before Monday 06:17 GMT to change what gets sent — or leave it and it'll go as-is.
+</div>'''
+
+    return f'''<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;padding:24px 0;">
+<tr><td align="center">
+<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:640px;border:1px solid #e8e4df;">
+<tr><td style="background:#ff6600;padding:28px 32px;color:#fff;">
+  <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;opacity:0.9;margin-bottom:8px;font-weight:700;">Performance Intelligence</div>
+  <div style="font-family:Georgia,serif;font-size:30px;font-weight:600;">Weekly Briefing</div>
+  <div style="font-size:13px;opacity:0.85;margin-top:6px;">Week {week} · {date_str}</div>
+</td></tr>
+<tr><td style="padding:24px 32px 32px;">
+{preview_block}
+<p style="font-size:14px;color:#222;line-height:1.55;">
+This week's briefing is live. Six categories, four topics each, twenty-four signals worth your attention.
+</p>
+<p style="font-size:14px;color:#222;line-height:1.55;">
+<a href="{live_url}" style="background:#ff6600;color:#fff;text-decoration:none;padding:10px 18px;border-radius:4px;font-weight:600;display:inline-block;">Read the full briefing →</a>
+</p>
+{"".join(sections)}
+<hr style="margin:32px 0 16px;border:none;border-top:1px solid #e8e4df;">
+<p style="font-size:11px;color:#888;line-height:1.6;">
+Performance Intelligence Weekly Briefing · helping you win.<br>
+Sent automatically Monday morning from jc@jezcartwright.com.
+</p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>'''
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python build_teaser.py path/to/index.html [preview_url]",
+              file=sys.stderr)
+        sys.exit(1)
+    with open(sys.argv[1], "r", encoding="utf-8") as f:
+        html_in = f.read()
+    preview = sys.argv[2] if len(sys.argv) > 2 else ""
+    print(build_teaser_html(html_in, preview_url=preview))

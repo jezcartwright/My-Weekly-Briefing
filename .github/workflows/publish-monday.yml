@@ -1,0 +1,154 @@
+name: Monday Publish — Promote Staging + Send Email
+
+# Monday 06:17 GMT auto-run promotes the staging branch to main (which triggers
+# the existing deploy-firebase.yml workflow to push live) and sends the Gmail
+# draft prepared on Friday.
+#
+# The cron is COMMENTED OUT initially — workflow_dispatch only — for dry-run.
+# Uncomment when ready for Monday 9 June (the Monday after first Friday run).
+
+on:
+  # schedule:
+  #   - cron: '17 6 * * 1'   # 06:17 UTC every Monday
+  workflow_dispatch:
+    inputs:
+      abort:
+        description: 'Set to "true" to abort publish (skip merge + email)'
+        required: false
+        default: 'false'
+
+jobs:
+  publish-monday:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check abort flag
+        if: ${{ github.event.inputs.abort == 'true' }}
+        run: |
+          echo "❌ Aborted by user input. Staging branch left intact; nothing was published."
+          exit 78  # neutral exit, marks the run as skipped
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify staging branch exists and is ahead of main
+        id: verify_staging
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main staging
+          if ! git rev-parse --verify origin/staging >/dev/null 2>&1; then
+            echo "::error::No staging branch found. Did Friday's workflow run?"
+            exit 1
+          fi
+          AHEAD=$(git rev-list --count origin/main..origin/staging)
+          BEHIND=$(git rev-list --count origin/staging..origin/main)
+          echo "staging is $AHEAD commits ahead of main and $BEHIND commits behind"
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "::error::Staging has no new commits compared to main. Nothing to publish."
+            exit 1
+          fi
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "::warning::Main has moved forward since staging was created. Fast-forward merge will fail; will need manual merge."
+          fi
+
+      - name: Fast-forward merge staging → main
+        run: |
+          git checkout main
+          git pull --ff-only origin main
+          git merge --ff-only origin/staging
+          git push origin main
+          echo "✅ staging merged to main ($(git rev-parse --short HEAD))"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Gmail dependencies
+        run: pip install google-auth google-api-python-client
+
+      - name: Find the Friday-staged draft and send it
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          WEEK=$(date -u +%V)
+          # Find draft by subject. List recent drafts, fetch each, match subject.
+          python <<'PYEOF'
+          import os, sys, base64
+          from mailer import list_drafts, get_draft, send_draft
+
+          import datetime
+          week = datetime.date.today().isocalendar()[1]
+          expected_subject = f"Performance Intelligence Weekly Briefing — Week {week}"
+
+          drafts = list_drafts(max_results=20)
+          if not drafts:
+              print("ERROR: no drafts found in jc@'s inbox.")
+              sys.exit(1)
+
+          match_id = None
+          for d in drafts:
+              full = get_draft(d['id'])
+              headers = full.get('message', {}).get('payload', {}).get('headers', [])
+              subj = next((h['value'] for h in headers if h.get('name') == 'Subject'), '')
+              if subj.strip() == expected_subject:
+                  match_id = d['id']
+                  print(f"Matched draft id={match_id} subject={subj!r}")
+                  break
+
+          if not match_id:
+              print(f"ERROR: no draft found with subject {expected_subject!r}")
+              print("Recent drafts seen:")
+              for d in drafts[:10]:
+                  full = get_draft(d['id'])
+                  headers = full.get('message', {}).get('payload', {}).get('headers', [])
+                  subj = next((h['value'] for h in headers if h.get('name') == 'Subject'), '(no subject)')
+                  print(f"  {d['id']}: {subj}")
+              sys.exit(1)
+
+          msg_id = send_draft(match_id)
+          print(f"✅ Draft sent. Gmail message id: {msg_id}")
+          PYEOF
+
+      - name: Delete staging branch (cleanup)
+        if: ${{ success() }}
+        run: |
+          git push origin --delete staging
+          echo "✓ staging branch deleted; ready for next Friday."
+
+      - name: Done
+        run: |
+          echo "✅ Monday publish complete."
+          echo "   Main now has this week's content (deploy-firebase.yml triggered automatically)."
+          echo "   Teaser email sent from jc@jezcartwright.com."
+
+      - name: Notify on failure
+        if: ${{ failure() }}
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          pip install google-auth google-api-python-client --quiet || true
+          WEEK=$(date -u +%V)
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          cat > failure.html <<EOF
+          <html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#222;">
+          <h2 style="color:#c00;">PI Briefing Week $WEEK — Monday publish FAILED</h2>
+          <p>The Monday auto-publish workflow did not complete. The teaser email may or may not have been sent — check Gmail Sent folder.</p>
+          <p><strong>What to do:</strong></p>
+          <ol>
+            <li>Open the workflow run: <a href="$RUN_URL">$RUN_URL</a></li>
+            <li>Check whether the merge step succeeded — if so, the live site is updated but the email may not have gone</li>
+            <li>If the merge failed, the staging branch still exists and you can re-run the publish workflow</li>
+          </ol>
+          </body></html>
+          EOF
+          python -m mailer send \
+            --to "jc@jezcartwright.com" \
+            --subject "[PI Briefing] ⚠️ Monday publish failed (week $WEEK)" \
+            --body-file failure.html || echo "(could not send failure email)"

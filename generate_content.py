@@ -8,6 +8,7 @@ then updates index.html in the repo.
 
 import os
 import re
+import sys
 import json
 import base64
 import datetime
@@ -648,11 +649,15 @@ def update_html(html: str, all_content: dict) -> str:
     return html
 
 
-def get_current_file(token: str) -> tuple[str, str]:
-    """Get current index.html content and SHA from GitHub API."""
+def get_current_file(token: str, branch: str = "main") -> tuple[str, str]:
+    """Get current index.html content and SHA from a given branch.
+
+    Defaults to main so the existing Monday workflow keeps working unchanged.
+    The Friday workflow passes branch='staging' to stage content for review.
+    """
     import requests
-    
-    url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
+
+    url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}?ref={branch}"
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json",
@@ -661,16 +666,17 @@ def get_current_file(token: str) -> tuple[str, str]:
     resp = requests.get(url, headers=headers)
     resp.raise_for_status()
     data = resp.json()
-    
+
     file_content = base64.b64decode(data['content']).decode('utf-8')
     sha = data['sha']
     return file_content, sha
 
 
-def commit_file(token: str, content: str, sha: str, message: str) -> None:
-    """Commit updated index.html to GitHub."""
+def commit_file(token: str, content: str, sha: str, message: str,
+                branch: str = "main") -> None:
+    """Commit updated index.html to GitHub on the given branch."""
     import requests
-    
+
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
     headers = {
         "Authorization": f"token {token}",
@@ -682,12 +688,12 @@ def commit_file(token: str, content: str, sha: str, message: str) -> None:
         "message": message,
         "content": base64.b64encode(content.encode('utf-8')).decode('ascii'),
         "sha": sha,
-        "branch": "main",
+        "branch": branch,
     }
     resp = requests.put(url, headers=headers, json=payload)
     resp.raise_for_status()
     result = resp.json()
-    print(f"  ✓ Committed: {result['commit']['html_url']}")
+    print(f"  ✓ Committed to {branch}: {result['commit']['html_url']}")
 
 
 def _normalise_for_compare(text: str) -> str:
@@ -746,26 +752,27 @@ def check_for_overlap(new_content: dict, recent_topics: dict) -> list:
 def main():
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     github_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
-    
+    target_branch = os.environ.get("TARGET_BRANCH", "main").strip() or "main"
+
     if not anthropic_key:
         raise ValueError("ANTHROPIC_API_KEY environment variable not set")
     if not github_token:
         raise ValueError("GH_TOKEN environment variable not set")
-    
+
     today = datetime.date.today().strftime("%A, %d %B %Y")
     week = datetime.date.today().isocalendar()[1]
-    
+
     print(f"Performance Intelligence Weekly Briefing Generator")
-    print(f"Date: {today} | Week: {week}")
+    print(f"Date: {today} | Week: {week} | Target branch: {target_branch}")
     print("=" * 60)
-    
+
     client = anthropic.Anthropic(api_key=anthropic_key)
-    
+
     # 1. Fetch current HTML FIRST so we know what's been published recently.
     # The anti-repetition list is built from the live file — single source of
     # truth, no separate state file to drift out of sync.
-    print("\n1. Fetching current index.html from GitHub...")
-    html_content, file_sha = get_current_file(github_token)
+    print(f"\n1. Fetching current index.html from {target_branch}...")
+    html_content, file_sha = get_current_file(github_token, branch=target_branch)
     print(f"  ✓ Got file ({len(html_content)//1024}KB, SHA: {file_sha[:8]}...)")
 
     print("\n2. Extracting recently-published topics for anti-repetition...")
@@ -830,10 +837,52 @@ def main():
     # 5. Commit back to GitHub
     print("\n6. Committing to GitHub...")
     commit_message = f"Weekly briefing content update — Week {week}, {today}"
-    commit_file(github_token, updated_html, file_sha, commit_message)
+    commit_file(github_token, updated_html, file_sha, commit_message,
+                branch=target_branch)
 
     print(f"\n✅ Done! Week {week} briefing published.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:  # noqa: BLE001 — outermost catch by design
+        import traceback
+        tb = traceback.format_exc()
+        print(f"\n❌ FAILED: {type(e).__name__}: {e}", file=sys.stderr)
+        print(tb, file=sys.stderr)
+
+        # Best-effort failure notification. If mailer itself is broken we
+        # don't compound the problem — just log and exit with the original
+        # failure code so the workflow shows red.
+        try:
+            from mailer import send_email
+            run_url = ""
+            server = os.environ.get("GITHUB_SERVER_URL", "")
+            repo = os.environ.get("GITHUB_REPOSITORY", "")
+            run_id = os.environ.get("GITHUB_RUN_ID", "")
+            if server and repo and run_id:
+                run_url = f"{server}/{repo}/actions/runs/{run_id}"
+            workflow = os.environ.get("GITHUB_WORKFLOW", "(unknown workflow)")
+            body = f"""<html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#222;">
+<h2 style="color:#c00;">PI Briefing: content generation failed</h2>
+<p><strong>Workflow:</strong> {workflow}</p>
+<p><strong>Error:</strong> {type(e).__name__}: {e}</p>
+{f'<p><strong>Run:</strong> <a href="{run_url}">{run_url}</a></p>' if run_url else ''}
+<h3>Traceback</h3>
+<pre style="background:#f5f5f5;padding:12px;border:1px solid #ddd;white-space:pre-wrap;font-size:12px;">{tb}</pre>
+<p style="color:#666;font-size:12px;">Sent automatically by mailer.py from the failed run.
+The repo state has NOT been modified — re-run the workflow to retry.</p>
+</body></html>"""
+            send_email(
+                to="jc@jezcartwright.com",
+                subject=f"[PI Briefing] {workflow} failed: {type(e).__name__}",
+                body_html=body,
+            )
+            print("(failure notification email sent to jc@jezcartwright.com)",
+                  file=sys.stderr)
+        except Exception as mail_err:  # noqa: BLE001
+            print(f"(also could not send failure email: {mail_err})",
+                  file=sys.stderr)
+
+        sys.exit(1)
