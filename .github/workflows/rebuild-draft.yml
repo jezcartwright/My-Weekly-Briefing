@@ -1,0 +1,60 @@
+name: Rebuild Draft Only — from current staging
+
+# Lightweight workflow that rebuilds the Monday teaser draft from the
+# CURRENT contents of the staging branch, without re-generating content.
+#
+# Use cases:
+#   - You sent/deleted the existing draft and need a fresh one for editing
+#   - You manually edited index.html on staging and want the draft to match
+#   - You changed build_teaser.py and want to regenerate the draft
+#
+# Does NOT run Claude (no API cost), does NOT touch main, does NOT redeploy
+# the preview channel.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rebuild-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v5
+        with:
+          ref: staging
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Gmail dependencies
+        run: pip install google-auth google-api-python-client
+
+      - name: Compute ISO week
+        id: week
+        run: echo "n=$(date -u +%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Build teaser email from staging index.html
+        run: |
+          # We don't have a fresh preview URL handy without redeploying, so
+          # link to the *expected* preview URL based on this week's channel
+          # naming convention. If you want the live preview URL, re-run the
+          # full Friday workflow instead.
+          PREVIEW_URL="https://pi-briefing-38ddc--staging-week-${{ steps.week.outputs.n }}.web.app"
+          python build_teaser.py index.html "$PREVIEW_URL" > teaser.html
+          echo "✓ teaser.html built ($(wc -c < teaser.html) bytes)"
+
+      - name: Save as Gmail draft
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          WEEK="${{ steps.week.outputs.n }}"
+          SUBJECT="Performance Intelligence Weekly Briefing — Week $WEEK"
+          python -m mailer draft \
+            --to "jc@jezcartwright.com" \
+            --subject "$SUBJECT" \
+            --body-file teaser.html
+          echo "✓ Draft saved in jc@jezcartwright.com Drafts folder."
+          echo "  Edit at your leisure; Monday workflow will send whatever's there."
