@@ -81,7 +81,7 @@ jobs:
           # Find draft by subject. List recent drafts, fetch each, match subject.
           python <<'PYEOF'
           import os, sys, base64
-          from mailer import list_drafts, get_draft, send_draft
+          from mailer import list_drafts, get_draft, strip_and_send_draft
 
           import datetime
           week = datetime.date.today().isocalendar()[1]
@@ -112,8 +112,10 @@ jobs:
                   print(f"  {d['id']}: {subj}")
               sys.exit(1)
 
-          msg_id = send_draft(match_id)
+          msg_id, stripped = strip_and_send_draft(match_id)
           print(f"✅ Draft sent. Gmail message id: {msg_id}")
+          if stripped:
+              print(f"  (stripped {stripped} reviewer block(s) before send)")
           PYEOF
 
       - name: Delete staging branch (cleanup)

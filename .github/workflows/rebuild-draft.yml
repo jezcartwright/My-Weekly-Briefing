@@ -24,15 +24,24 @@ jobs:
           ref: main
           fetch-depth: 1
 
-      - name: Overlay staging's index.html (content only, not code)
+      - name: Overlay staging's index.html and .preview-url
         run: |
-          # Grab only index.html from staging, leaving build_teaser.py and
-          # mailer.py from main. This way the draft is always rebuilt with
-          # the latest email template even if staging was created days ago.
+          # Grab index.html and (if it exists) the persisted preview URL
+          # from staging, leaving build_teaser.py + mailer.py at the main
+          # version. The .preview-url file is only present from Friday
+          # workflows that ran after that feature was added; rebuild gracefully
+          # if it's not there.
           git fetch origin staging --depth=1
           git checkout origin/staging -- index.html
+          if git show origin/staging:.preview-url >/dev/null 2>&1; then
+            git checkout origin/staging -- .preview-url
+            echo "Preview URL found: $(cat .preview-url)"
+          else
+            echo "(no .preview-url on staging — the draft will not include a reviewer block this time)"
+            echo "" > .preview-url
+          fi
           echo "Code from main:    $(git log -1 --pretty=format:'%h %s')"
-          echo "Content (index.html) from staging: $(git log origin/staging -1 --pretty=format:'%h %s')"
+          echo "Content from staging: $(git log origin/staging -1 --pretty=format:'%h %s')"
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -48,13 +57,15 @@ jobs:
 
       - name: Build teaser email from staging index.html
         run: |
-          # We don't have a fresh preview URL handy without redeploying, so
-          # link to the *expected* preview URL based on this week's channel
-          # naming convention. If you want the live preview URL, re-run the
-          # full Friday workflow instead.
-          PREVIEW_URL="https://pi-briefing-38ddc--staging-week-${{ steps.week.outputs.n }}.web.app"
+          # Read the actual preview URL that the Friday workflow saved to
+          # staging — no guessing at URL patterns.
+          PREVIEW_URL=$(cat .preview-url | tr -d '[:space:]')
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "::error::.preview-url is empty. The reviewer block in the draft will be omitted."
+          fi
           python build_teaser.py index.html "$PREVIEW_URL" > teaser.html
           echo "✓ teaser.html built ($(wc -c < teaser.html) bytes)"
+          echo "  preview URL embedded: $PREVIEW_URL"
 
       - name: Save as Gmail draft
         env:

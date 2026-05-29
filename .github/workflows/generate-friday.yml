@@ -81,6 +81,18 @@ jobs:
           channelId: ${{ github.event.inputs.preview_channel_id != '' && github.event.inputs.preview_channel_id || format('staging-week-{0}', steps.compute_week.outputs.week) }}
           expires: 7d
 
+      - name: Persist preview URL to staging branch
+        env:
+          PREVIEW_URL: ${{ steps.firebase_preview.outputs.details_url }}
+        run: |
+          # Save the *actual* preview URL (with Firebase's random hash) so
+          # rebuild-draft can use it later in the week without redeploying.
+          echo "$PREVIEW_URL" > .preview-url
+          git add .preview-url
+          git commit -m "Record preview URL for staging"
+          git push origin staging
+          echo "✓ Saved preview URL to staging branch: $PREVIEW_URL"
+
       - name: Build teaser email body from staging index.html
         id: build_teaser
         env:

@@ -135,6 +135,115 @@ def get_draft(draft_id: str) -> dict:
     ).execute()
 
 
+def _extract_html_body(draft: dict) -> tuple[str, dict]:
+    """Pull the HTML body out of a Gmail draft's payload.
+
+    Returns (html_string, headers_dict_keyed_by_name). The headers dict makes
+    it easy to preserve subject/to/from when re-saving.
+    """
+    payload = draft.get("message", {}).get("payload", {})
+    headers = {h["name"].lower(): h["value"]
+               for h in payload.get("headers", [])
+               if h.get("name") and h.get("value")}
+
+    def walk(part):
+        if part.get("mimeType") == "text/html" and part.get("body", {}).get("data"):
+            return base64.urlsafe_b64decode(part["body"]["data"]).decode("utf-8")
+        for child in part.get("parts", []) or []:
+            found = walk(child)
+            if found:
+                return found
+        return None
+
+    html = walk(payload) or ""
+    return html, headers
+
+
+def _strip_review_blocks(html: str) -> tuple[str, int]:
+    """Remove every element with data-strip-on-send="true" (any case, any quotes).
+
+    Defensive parser — finds opening tag with the marker, walks balanced
+    same-named tags to find its matching close, removes the entire span.
+    Returns (cleaned_html, count_of_blocks_removed).
+
+    Gmail's editor sometimes normalises attribute quoting when a draft is
+    edited and re-saved, so we tolerate both single and double quotes.
+    """
+    import re
+    cleaned = html
+    removed = 0
+    while True:
+        # Match: < TAG ...stuff... data-strip-on-send = "true" or 'true' ... >
+        # Case insensitive, both quote styles, optional whitespace around =.
+        m = re.search(
+            r'''<(\w+)([^>]*\bdata-strip-on-send\s*=\s*['"]true['"][^>]*)>''',
+            cleaned,
+            re.IGNORECASE,
+        )
+        if not m:
+            break
+        tag = m.group(1).lower()
+        open_pos = m.start()
+        depth = 1
+        pos = m.end()
+        close_pos = -1
+        open_re = re.compile(rf'<{tag}\b[^>]*>', re.IGNORECASE)
+        close_re = re.compile(rf'</{tag}\s*>', re.IGNORECASE)
+        while pos < len(cleaned) and depth > 0:
+            o = open_re.search(cleaned, pos)
+            c = close_re.search(cleaned, pos)
+            if not c:
+                break
+            if o and o.start() < c.start():
+                depth += 1
+                pos = o.end()
+            else:
+                depth -= 1
+                pos = c.end()
+                if depth == 0:
+                    close_pos = c.end()
+                    break
+        if close_pos == -1:
+            break
+        cleaned = cleaned[:open_pos] + cleaned[close_pos:]
+        removed += 1
+    return cleaned, removed
+
+
+def strip_and_send_draft(draft_id: str) -> tuple[str, int]:
+    """Fetch a draft, strip review-only blocks, update the draft, send it.
+
+    Returns (sent_message_id, number_of_blocks_stripped).
+
+    This is the Monday workflow's send path. Using update-then-send rather
+    than send-with-new-body so the Gmail "Sent" record reflects exactly what
+    was sent — useful for audit.
+    """
+    service = _build_service()
+    draft = service.users().drafts().get(
+        userId="me", id=draft_id, format="full"
+    ).execute()
+
+    html, headers = _extract_html_body(draft)
+    cleaned, removed_count = _strip_review_blocks(html)
+
+    if removed_count > 0:
+        # Re-build the message with the cleaned body, preserve subject/to
+        subject = headers.get("subject", "")
+        to = headers.get("to", DELEGATE_USER)
+        new_message = _build_message(to, subject, cleaned)
+        service.users().drafts().update(
+            userId="me",
+            id=draft_id,
+            body={"id": draft_id, "message": new_message},
+        ).execute()
+
+    result = service.users().drafts().send(
+        userId="me", body={"id": draft_id}
+    ).execute()
+    return result.get("id", ""), removed_count
+
+
 def _cli():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="cmd", required=True)

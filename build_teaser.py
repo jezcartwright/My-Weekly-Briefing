@@ -110,13 +110,15 @@ def _extract_this_week(html: str) -> dict:
     return out
 
 
-def build_teaser_html(html: str, preview_url: str = "",  # noqa: ARG001 — kept for backward compat with workflows; not rendered
+def build_teaser_html(html: str, preview_url: str = "",
                       live_url: str = "https://weeklybriefing.jezcartwright.com/") -> str:
     """Render the teaser email body from the freshly-generated index.html.
 
-    The preview_url parameter is accepted but ignored — preview URLs belong
-    in the Friday operational summary email, not in the teaser that may
-    eventually go to subscribers.
+    If preview_url is provided, a clearly-marked reviewer block is included
+    at the top of the email body. The block is wrapped with
+    data-strip-on-send="true" so the Monday workflow can surgically remove
+    it before the email is sent to subscribers — even if the user forgot to
+    delete it manually.
     """
     data = _extract_this_week(html)
     today = datetime.date.today()
@@ -141,6 +143,18 @@ def build_teaser_html(html: str, preview_url: str = "",  # noqa: ARG001 — kept
   <ul style="list-style:none;padding:0;margin:0;">{items}</ul>
 </div>''')
 
+    review_block = ""
+    if preview_url:
+        review_block = f'''
+<div data-strip-on-send="true" class="review-only" style="background:#fff3cd;border:2px solid #c9a84c;border-radius:6px;padding:14px 16px;margin:0 0 24px 0;font-size:13px;color:#664d03;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<div style="font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#8a6d12;font-size:11px;margin-bottom:6px;">⚠ Reviewer note — auto-removed before send</div>
+<div style="color:#664d03;line-height:1.55;">
+This block only appears in your draft. The Monday workflow will strip it automatically before sending to subscribers.<br><br>
+<strong>Preview next week's full briefing:</strong> <a href="{preview_url}" style="color:#a0530b;font-weight:600;">{preview_url}</a><br>
+<span style="color:#7a5f12;font-size:12px;">Edit the rest of this draft as you like — anything outside this yellow block goes out as-is on Monday 06:17 GMT.</span>
+</div>
+</div>'''
+
     return f'''<!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;padding:24px 0;">
@@ -159,6 +173,7 @@ def build_teaser_html(html: str, preview_url: str = "",  # noqa: ARG001 — kept
   </tr></table>
 </td></tr>
 <tr><td style="padding:24px 32px 32px;">
+{review_block}
 <p style="font-size:14px;color:#222;line-height:1.55;">
 This week's briefing is live. Six categories, four topics each, twenty-four signals worth your attention.
 </p>
