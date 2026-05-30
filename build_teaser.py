@@ -133,7 +133,7 @@ def build_teaser_html(html: str, preview_url: str = "",
         items = "".join(
             f'<li style="margin:0 0 14px 0;padding:0;">'
             f'<div style="font-weight:600;color:#1a1a1a;font-size:15px;">{t["title"]}</div>'
-            f'<div style="color:#555;font-size:13.5px;font-style:italic;margin-top:2px;">{t["headline"]}</div>'
+            f'<div style="color:#1a1a1a;font-size:13.5px;margin-top:2px;">{t["headline"]}</div>'
             f'</li>'
             for t in topics
         )
@@ -182,7 +182,7 @@ This week's briefing is live. Six categories, four topics each, twenty-four sign
 </p>
 {"".join(sections)}
 <hr style="margin:32px 0 16px;border:none;border-top:1px solid #e8e4df;">
-<p style="font-size:11px;color:#888;line-height:1.6;">
+<p style="font-size:11px;color:#1a1a1a;line-height:1.6;">
 Performance Intelligence Weekly Briefing · helping you win.<br>
 Sent automatically Monday morning from jc@jezcartwright.com.
 </p>
