@@ -109,6 +109,52 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
   table.subs th:nth-child(4),table.subs td:nth-child(4){display:none}
   #detail .panel{width:100%}
 }
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--b)}
+.tab{background:none;border:none;padding:10px 18px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t);opacity:.55;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{opacity:.85}
+.tab.on{opacity:1;border-bottom-color:var(--orange);color:var(--orange)}
+.view{display:none}
+.view.show{display:block}
+
+/* Compose form */
+.compose-wrap{display:grid;grid-template-columns:1fr;gap:24px}
+.compose-form{background:var(--paper);border:1px solid var(--b);border-radius:8px;padding:24px;box-shadow:var(--shadow);max-width:760px}
+.compose-h{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin:0 0 6px;color:var(--t)}
+.compose-sub{font-size:13px;color:var(--t);opacity:.7;margin:0 0 22px;line-height:1.5}
+.lbl{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--t);opacity:.7;margin:14px 0 6px}
+.input,.select,.textarea{width:100%;border:1px solid var(--b);border-radius:6px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper);color:var(--t);outline:none}
+.textarea{font-family:Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55;resize:vertical}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--orange)}
+.radio-group{display:flex;flex-direction:column;gap:8px;padding:6px 0}
+.radio-group-inline{flex-direction:row;flex-wrap:wrap;gap:18px}
+.radio{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+.radio input{accent-color:var(--orange);cursor:pointer}
+.recip-count{color:var(--t);opacity:.55;font-size:12px}
+
+.compose-actions{display:flex;align-items:center;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--b)}
+.btn-primary{background:var(--orange);color:#fff;border:none;border-radius:6px;padding:11px 22px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.btn-primary:hover{background:#e65a00}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:var(--paper);border:1px solid var(--b);border-radius:6px;padding:10px 18px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--t);cursor:pointer}
+.btn-secondary:hover{border-color:var(--orange);color:var(--orange)}
+.compose-msg{font-size:12px;color:var(--t);opacity:.7;margin-left:auto}
+.compose-msg.error{color:#c00;opacity:1;font-weight:600}
+.compose-msg.success{color:#2E7A3E;opacity:1;font-weight:600}
+
+.preview-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+
+/* Send progress */
+.send-progress{background:var(--paper);border:1px solid var(--b);border-radius:8px;padding:24px;margin-top:20px;box-shadow:var(--shadow);max-width:760px}
+.send-progress h3{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;margin:0 0 14px;color:var(--t)}
+.progress-bar{background:#f0e8d0;border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px}
+.progress-fill{background:var(--orange);height:100%;width:0;transition:width .3s}
+.progress-text{font-size:13px;color:var(--t);margin-bottom:12px}
+.progress-log{list-style:none;padding:0;margin:0;max-height:240px;overflow-y:auto;font-family:Menlo,monospace;font-size:11.5px;background:#faf6ee;border:1px solid var(--b);border-radius:4px;padding:10px}
+.progress-log li{padding:2px 0;line-height:1.45}
+.progress-log .ok{color:#2E7A3E}
+.progress-log .fail{color:#c00}
 </style>
 </head>
 <body>
@@ -144,6 +190,13 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
   <div id="error-banner"></div>
 
   <main>
+    <nav class="tabs">
+      <button class="tab on" id="tab-subs" onclick="showTab('subs')">Subscribers</button>
+      <button class="tab" id="tab-compose" onclick="showTab('compose')">Compose</button>
+      <button class="tab" id="tab-history" onclick="showTab('history')">Send history</button>
+    </nav>
+
+    <section id="view-subs" class="view show">
     <div class="cards">
       <div class="card"><div class="lbl">Subscribers</div><div class="val" id="s-total">—</div><div class="sub" id="s-total-sub">All-time</div></div>
       <div class="card"><div class="lbl">Active 7 days</div><div class="val" id="s-7d">—</div><div class="sub">Signed in within 7 days</div></div>
@@ -178,6 +231,94 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
         <tr><td colspan="4" class="empty">Loading subscribers…</td></tr>
       </tbody>
     </table>
+    </section>
+
+    <section id="view-compose" class="view">
+      <div class="compose-wrap">
+        <div class="compose-form">
+          <h2 class="compose-h">Compose email</h2>
+          <p class="compose-sub">Write once. Personalised footer with unsubscribe link is added automatically. Rate-limited to 1 send/sec, hard cap 400/day.</p>
+
+          <label class="lbl">Recipients</label>
+          <div class="radio-group">
+            <label class="radio">
+              <input type="radio" name="recip" value="me" checked>
+              <span>Just me (jc@) — test send</span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="recip" value="individual">
+              <span>One subscriber</span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="recip" value="all">
+              <span>All active subscribers <span class="recip-count" id="active-count">(loading…)</span></span>
+            </label>
+          </div>
+
+          <div id="one-sub-row" style="display:none">
+            <label class="lbl">Pick a subscriber</label>
+            <select id="one-sub-select" class="select"></select>
+          </div>
+
+          <label class="lbl">Template</label>
+          <div class="radio-group radio-group-inline">
+            <label class="radio">
+              <input type="radio" name="tpl" value="branded" checked>
+              <span>Branded (orange banner)</span>
+            </label>
+            <label class="radio">
+              <input type="radio" name="tpl" value="plain">
+              <span>Plain (no banner)</span>
+            </label>
+          </div>
+
+          <label class="lbl">Subject</label>
+          <input type="text" id="compose-subject" class="input" placeholder="A line that earns an open">
+
+          <label class="lbl">Body (HTML or plain text)</label>
+          <textarea id="compose-body" class="textarea" rows="14" placeholder="Write your message here. Plain text becomes paragraphs automatically. HTML is preserved as-is."></textarea>
+
+          <div class="compose-actions">
+            <button class="btn-primary" id="send-btn" onclick="doSend()">Send</button>
+            <button class="btn-secondary" onclick="previewCompose()">Preview</button>
+            <span class="compose-msg" id="compose-msg"></span>
+          </div>
+        </div>
+
+        <div class="compose-preview" id="compose-preview" style="display:none">
+          <div class="preview-bar">
+            <strong>Preview</strong>
+            <button class="btn-secondary" onclick="document.getElementById('compose-preview').style.display='none'">Close</button>
+          </div>
+          <iframe id="preview-frame" style="width:100%;height:600px;border:1px solid var(--b);background:#fff;border-radius:6px"></iframe>
+        </div>
+      </div>
+
+      <div id="send-progress" class="send-progress" style="display:none">
+        <h3>Sending…</h3>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">Preparing…</div>
+        <ul class="progress-log" id="progress-log"></ul>
+      </div>
+    </section>
+
+    <section id="view-history" class="view">
+      <h2 class="compose-h">Recent admin sends</h2>
+      <p class="compose-sub">Audit log of every email sent from this admin page.</p>
+      <table class="subs">
+        <thead>
+          <tr>
+            <th>Sent</th>
+            <th>Subject</th>
+            <th>Recipients</th>
+            <th style="text-align:right">Status</th>
+          </tr>
+        </thead>
+        <tbody id="history-rows">
+          <tr><td colspan="4" class="empty">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
   </main>
 </div>
 
@@ -290,7 +431,9 @@ function loadSubscribers() {
         likes: likes,
         likesCount: likes.length,
         notes: notes,
-        notesCount: Object.keys(notes).length
+        notesCount: Object.keys(notes).length,
+        unsubscribed: d.unsubscribed === true,
+        unsubscribedAt: d.unsubscribedAt || null
       });
     });
     renderCards();
@@ -486,6 +629,231 @@ function escapeHtml(s) {
   });
 }
 function escapeAttr(s) { return escapeHtml(s); }
+
+// --- Tabs ---
+window.showTab = function(name) {
+  ['subs','compose','history'].forEach(function(n) {
+    document.getElementById('tab-' + n).classList.toggle('on', n === name);
+    document.getElementById('view-' + n).classList.toggle('show', n === name);
+  });
+  if (name === 'history') loadHistory();
+  if (name === 'compose') refreshComposeRecipients();
+};
+
+// --- Compose recipients UI ---
+function refreshComposeRecipients() {
+  var sel = document.getElementById('one-sub-select');
+  var activeCount = document.getElementById('active-count');
+  if (!allSubs.length) {
+    activeCount.textContent = '(0 — load subscribers first)';
+    sel.innerHTML = '<option>Load subscribers first</option>';
+    return;
+  }
+  var active = allSubs.filter(function(s) { return !s.unsubscribed; });
+  activeCount.textContent = '(' + active.length + ' subscriber' + (active.length === 1 ? '' : 's') + ')';
+  sel.innerHTML = active.map(function(s) {
+    return '<option value="' + escapeAttr(s.uid) + '">' +
+      escapeHtml(s.name) + ' — ' + escapeHtml(s.email) +
+      '</option>';
+  }).join('');
+}
+
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.name === 'recip') {
+    document.getElementById('one-sub-row').style.display =
+      (e.target.value === 'individual') ? 'block' : 'none';
+  }
+});
+
+// --- Email template rendering ---
+// Wraps user-typed body in the branded shell. Plain text mode adds <p>
+// wrappers around blank-line-separated paragraphs.
+function renderEmail(subject, body, mode) {
+  var safeBody = body;
+  if (mode === 'plain' || !/<[a-z][^>]*>/i.test(body)) {
+    // Treat as plain text — wrap paragraphs
+    safeBody = body.split(/\n\n+/).map(function(p) {
+      return '<p style="font-size:14px;line-height:1.55;color:#1a1a1a;margin:0 0 16px;">' +
+        escapeHtml(p).replace(/\n/g, '<br>') +
+        '</p>';
+    }).join('\n');
+  }
+  if (mode === 'plain') {
+    return '<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;color:#1a1a1a;padding:24px;max-width:640px;margin:0 auto;">' +
+      safeBody + '</body></html>';
+  }
+  // Branded
+  return '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;">' +
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;padding:24px 0;"><tr><td align="center">' +
+    '<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:640px;border:1px solid #e8e4df;">' +
+    '<tr><td style="background:#ff6600;padding:28px 32px;color:#fff;">' +
+    '<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>' +
+    '<td valign="middle" width="72" style="padding-right:18px;color:#fff;">' +
+    '<img src="https://weeklybriefing.jezcartwright.com/favicon-512x512.png" width="56" height="56" alt="PI" style="display:block;width:56px;height:56px;border:0;"></td>' +
+    '<td valign="middle" style="color:#fff;">' +
+    '<div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;margin-bottom:4px;font-weight:700;">Performance Intelligence</div>' +
+    '<div style="font-family:Georgia,serif;font-size:28px;font-weight:600;line-height:1;color:#ffffff;">Weekly Briefing</div>' +
+    '</td></tr></table></td></tr>' +
+    '<tr><td style="padding:28px 32px 32px;">' +
+    safeBody +
+    '</td></tr></table></td></tr></table></body></html>';
+}
+
+window.previewCompose = function() {
+  var subject = document.getElementById('compose-subject').value.trim();
+  var body = document.getElementById('compose-body').value;
+  var mode = document.querySelector('input[name="tpl"]:checked').value;
+  if (!subject || !body) {
+    setComposeMsg('Subject and body both required to preview.', 'error');
+    return;
+  }
+  var html = renderEmail(subject, body, mode);
+  // Add a sample unsubscribe footer for preview accuracy
+  html = html.replace('</body>',
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:32px;border-top:1px solid #e8e4df;padding-top:16px;"><tr><td style="text-align:center;font-family:-apple-system,sans-serif;font-size:11px;color:#1a1a1a;line-height:1.6;">You\'re receiving this because you signed up for the Performance Intelligence Weekly Briefing.<br><a href="#" style="color:#1a1a1a;text-decoration:underline;">Unsubscribe immediately</a> &nbsp;·&nbsp; jc@jezcartwright.com</td></tr></table></body>'
+  );
+  var iframe = document.getElementById('preview-frame');
+  document.getElementById('compose-preview').style.display = 'block';
+  iframe.srcdoc = html;
+};
+
+function setComposeMsg(text, cls) {
+  var el = document.getElementById('compose-msg');
+  el.textContent = text;
+  el.className = 'compose-msg' + (cls ? ' ' + cls : '');
+}
+
+// --- Send ---
+// Client-side send mechanism: queues a job document in Firestore. A
+// GitHub Actions workflow polls for queued jobs and processes them via
+// senders.send_bulk(). This lets us keep secrets server-side and avoids
+// exposing the Gmail API to the browser.
+window.doSend = function() {
+  var subject = document.getElementById('compose-subject').value.trim();
+  var body = document.getElementById('compose-body').value;
+  var mode = document.querySelector('input[name="tpl"]:checked').value;
+  var recipMode = document.querySelector('input[name="recip"]:checked').value;
+
+  if (!subject) return setComposeMsg('Subject required.', 'error');
+  if (!body) return setComposeMsg('Body required.', 'error');
+
+  var recipients = [];
+  if (recipMode === 'me') {
+    // Find my own user record to get proper uid for unsubscribe token
+    var me = allSubs.find(function(s) { return s.email.toLowerCase() === 'jc@jezcartwright.com'; });
+    if (!me) return setComposeMsg('Cannot find your own user record. Reload subscribers.', 'error');
+    recipients = [{uid: me.uid, email: me.email, name: me.name}];
+  } else if (recipMode === 'individual') {
+    var uid = document.getElementById('one-sub-select').value;
+    var sub = allSubs.find(function(s) { return s.uid === uid; });
+    if (!sub) return setComposeMsg('Pick a subscriber.', 'error');
+    if (sub.unsubscribed) return setComposeMsg('That subscriber has unsubscribed.', 'error');
+    recipients = [{uid: sub.uid, email: sub.email, name: sub.name}];
+  } else if (recipMode === 'all') {
+    recipients = allSubs
+      .filter(function(s) { return !s.unsubscribed && s.email; })
+      .map(function(s) { return {uid: s.uid, email: s.email, name: s.name}; });
+    if (!recipients.length) return setComposeMsg('No active subscribers.', 'error');
+  }
+
+  var label = recipMode === 'me' ? 'a test to yourself'
+            : recipMode === 'individual' ? 'one subscriber'
+            : recipients.length + ' subscribers';
+  if (!confirm('Send "' + subject + '" to ' + label + '?')) return;
+
+  document.getElementById('send-btn').disabled = true;
+  setComposeMsg('Queueing send job…', '');
+
+  var bodyHtml = renderEmail(subject, body, mode);
+  var jobDoc = {
+    createdAt: new Date().toISOString(),
+    createdBy: auth.currentUser.email,
+    subject: subject,
+    bodyHtml: bodyHtml,
+    recipients: recipients,
+    status: 'queued',
+    recipientCount: recipients.length,
+    successCount: 0,
+    failureCount: 0,
+    log: []
+  };
+
+  db.collection('adminSends').add(jobDoc).then(function(ref) {
+    setComposeMsg('Queued — job id ' + ref.id.substring(0,8) + '. A workflow will process within ~60s. Watch progress below.', 'success');
+    watchSendJob(ref.id);
+  }).catch(function(err) {
+    setComposeMsg('Failed to queue: ' + err.message, 'error');
+    document.getElementById('send-btn').disabled = false;
+  });
+};
+
+function watchSendJob(jobId) {
+  document.getElementById('send-progress').style.display = 'block';
+  var fill = document.getElementById('progress-fill');
+  var text = document.getElementById('progress-text');
+  var log = document.getElementById('progress-log');
+  log.innerHTML = '';
+
+  var unsub = db.collection('adminSends').doc(jobId).onSnapshot(function(doc) {
+    if (!doc.exists) return;
+    var d = doc.data();
+    var done = (d.successCount || 0) + (d.failureCount || 0);
+    var pct = d.recipientCount ? Math.round(done / d.recipientCount * 100) : 0;
+    fill.style.width = pct + '%';
+    text.textContent = d.status === 'queued'
+      ? 'Queued — waiting for worker to pick up (≤60s)…'
+      : d.status === 'sending'
+        ? 'Sending ' + done + ' of ' + d.recipientCount + '…'
+        : d.status === 'done'
+          ? 'Done: ' + (d.successCount||0) + ' sent, ' + (d.failureCount||0) + ' failed'
+          : d.status === 'error'
+            ? 'Error: ' + (d.error||'unknown')
+            : d.status;
+    if (d.log && d.log.length) {
+      log.innerHTML = d.log.slice(-50).map(function(l) {
+        var cls = l.ok ? 'ok' : 'fail';
+        return '<li class="' + cls + '">' + (l.ok ? '✓' : '✗') + ' ' +
+          escapeHtml(l.email) + (l.error ? ' — ' + escapeHtml(l.error) : '') + '</li>';
+      }).join('');
+      log.scrollTop = log.scrollHeight;
+    }
+    if (d.status === 'done' || d.status === 'error') {
+      unsub();
+      document.getElementById('send-btn').disabled = false;
+    }
+  });
+}
+
+// --- History ---
+function loadHistory() {
+  var rows = document.getElementById('history-rows');
+  rows.innerHTML = '<tr><td colspan="4" class="empty">Loading…</td></tr>';
+  db.collection('adminSends').orderBy('createdAt','desc').limit(50).get().then(function(snap) {
+    if (snap.empty) {
+      rows.innerHTML = '<tr><td colspan="4" class="empty">No sends yet.</td></tr>';
+      return;
+    }
+    var html = '';
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      var status = d.status === 'done'
+        ? '<span style="color:#2E7A3E">' + (d.successCount||0) + ' sent</span>' +
+          (d.failureCount ? ', <span style="color:#c00">' + d.failureCount + ' failed</span>' : '')
+        : d.status === 'error'
+          ? '<span style="color:#c00">Error</span>'
+          : '<span style="opacity:.7">' + (d.status||'queued') + '</span>';
+      html += '<tr>' +
+        '<td class="when">' + fmtFull(d.createdAt) + '</td>' +
+        '<td>' + escapeHtml(d.subject || '(no subject)') + '</td>' +
+        '<td>' + (d.recipientCount || 0) + '</td>' +
+        '<td class="num">' + status + '</td>' +
+      '</tr>';
+    });
+    rows.innerHTML = html;
+  }).catch(function(err) {
+    rows.innerHTML = '<tr><td colspan="4" class="empty">Could not load: ' + escapeHtml(err.message) + '</td></tr>';
+  });
+}
 </script>
 </body>
 </html>

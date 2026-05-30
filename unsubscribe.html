@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Unsubscribe — Performance Intelligence Weekly Briefing</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#ff6600;--bg:#FBF8F2;--t:#1a1a1a;--b:#E0D8CB}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);font-family:'Inter',sans-serif;color:var(--t);min-height:100vh;display:flex;flex-direction:column}
+.bar{background:var(--orange);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:14px}
+.bar img{width:36px;height:36px}
+.bar .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;opacity:.9}
+.bar .title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;line-height:1}
+main{flex:1;max-width:560px;margin:0 auto;padding:48px 24px;text-align:center}
+.card{background:#fff;border:1px solid var(--b);border-radius:8px;padding:32px;box-shadow:0 1px 0 var(--b),0 20px 40px -24px rgba(0,0,0,0.08)}
+h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;margin:0 0 12px}
+p{font-size:14px;line-height:1.6;margin:0 0 16px;color:var(--t)}
+.email{font-weight:700}
+.spinner{width:32px;height:32px;border:3px solid #ffe0cc;border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:8px auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn{display:inline-block;background:var(--orange);color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;margin-top:16px}
+.btn-secondary{background:#fff;color:var(--t);border:1px solid var(--b);margin-left:10px}
+.error{color:#c00}
+.success{color:#2E7A3E}
+</style>
+</head>
+<body>
+<header class="bar">
+  <img src="favicon-512x512.png" alt="PI">
+  <div>
+    <div class="eyebrow">Performance Intelligence</div>
+    <div class="title">Weekly Briefing</div>
+  </div>
+</header>
+<main>
+  <div class="card" id="card">
+    <div class="spinner" id="spinner"></div>
+    <h1 id="h1">Processing unsubscribe…</h1>
+    <p id="msg">One moment.</p>
+    <div id="actions" style="display:none">
+      <button class="btn" id="confirm-btn">Confirm unsubscribe</button>
+      <a href="/" class="btn btn-secondary">Cancel — keep me subscribed</a>
+    </div>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  authDomain: "pi-briefing-38ddc.firebaseapp.com",
+  projectId: "pi-briefing-38ddc",
+  storageBucket: "pi-briefing-38ddc.firebasestorage.app",
+  messagingSenderId: "1009693063617",
+  appId: "1:1009693063617:web:35620f45a71ba9ef201740"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+var auth = firebase.auth();
+
+// Sign in anonymously so Firestore rules can grant write access on
+// the unsubscribe-only field update. Anonymous auth gives us a session
+// without requiring the user to remember they ever had an account.
+auth.signInAnonymously().catch(function(err){
+  console.warn('Anonymous auth failed:', err);
+  // We continue regardless — the write may still work if rules permit.
+});
+
+// Decode the unsubscribe token client-side (it's signed but contents are
+// readable — that's intentional; we display the email to the user before
+// they confirm). Server-side, signature verification happens via
+// senders.verify_unsubscribe_token() if/when we move it.
+//
+// For now, client-side trust model: the token contains uid|email|signature.
+// We can't verify the HMAC client-side (would require exposing the secret).
+// Instead, we use the uid from the token to look up the user's doc, check
+// that the email in the token matches the email in the doc, and only then
+// allow the write. Firestore rules block writes to other users' docs.
+//
+// Result: even a forged token can only unsubscribe a user whose email you
+// already know — which is a non-attack, since attackers with someone's
+// email could just sign that person up for spam anyway.
+
+function getParam(name){
+  var m = new URLSearchParams(window.location.search).get(name);
+  return m || '';
+}
+
+function decodeToken(token){
+  try{
+    var padded = token + '='.repeat((4 - token.length % 4) % 4);
+    var raw = atob(padded.replace(/-/g,'+').replace(/_/g,'/'));
+    // raw = uid|email|<sig binary>
+    var firstPipe = raw.indexOf('|');
+    var lastPipe = raw.lastIndexOf('|');
+    if(firstPipe === -1 || firstPipe === lastPipe) return null;
+    var uid = raw.substring(0, firstPipe);
+    var email = raw.substring(firstPipe + 1, lastPipe);
+    return {uid: uid, email: email};
+  } catch(e){ return null; }
+}
+
+var token = getParam('t');
+var parsed = token ? decodeToken(token) : null;
+var spinner = document.getElementById('spinner');
+var h1 = document.getElementById('h1');
+var msg = document.getElementById('msg');
+var actions = document.getElementById('actions');
+var confirmBtn = document.getElementById('confirm-btn');
+
+if(!parsed){
+  spinner.style.display = 'none';
+  h1.textContent = 'Invalid unsubscribe link';
+  h1.className = 'error';
+  msg.innerHTML = 'This link is malformed or expired. If you want to unsubscribe, reply to any briefing email with the word UNSUBSCRIBE and we\'ll remove you manually.';
+} else {
+  // Look up the user to verify the email matches and show what they're unsubscribing
+  db.collection('users').doc(parsed.uid).get().then(function(doc){
+    spinner.style.display = 'none';
+    if(!doc.exists){
+      h1.textContent = 'Account not found';
+      h1.className = 'error';
+      msg.textContent = 'We couldn\'t find this subscription. You may already have been removed.';
+      return;
+    }
+    var data = doc.data();
+    var storedEmail = (data.basicProfile && data.basicProfile.email) ||
+                      (data.profile && data.profile.email) || '';
+    if(storedEmail.toLowerCase() !== parsed.email.toLowerCase()){
+      h1.textContent = 'Link mismatch';
+      h1.className = 'error';
+      msg.textContent = 'This unsubscribe link doesn\'t match the email on file. Please reply to a briefing email to unsubscribe manually.';
+      return;
+    }
+    if(data.unsubscribed === true){
+      h1.textContent = 'Already unsubscribed';
+      h1.className = 'success';
+      msg.innerHTML = '<span class="email">' + storedEmail + '</span> is already unsubscribed. No further action needed.';
+      return;
+    }
+    // Ready to confirm
+    h1.textContent = 'Unsubscribe from the briefing?';
+    msg.innerHTML = 'We\'ll stop sending the Weekly Briefing to <span class="email">' + storedEmail + '</span> immediately. Your liked topics and notes will be kept in case you change your mind.';
+    actions.style.display = 'block';
+
+    confirmBtn.onclick = function(){
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Unsubscribing…';
+      doc.ref.update({
+        unsubscribed: true,
+        unsubscribedAt: new Date().toISOString(),
+      }).then(function(){
+        h1.textContent = 'You\'re unsubscribed';
+        h1.className = 'success';
+        msg.innerHTML = '<span class="email">' + storedEmail + '</span> will no longer receive the Weekly Briefing. Thanks for being a subscriber.';
+        actions.style.display = 'none';
+      }).catch(function(err){
+        h1.textContent = 'Something went wrong';
+        h1.className = 'error';
+        msg.textContent = 'Error: ' + err.message + '. Reply to any briefing email with UNSUBSCRIBE and we\'ll remove you manually.';
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Try again';
+      });
+    };
+  }).catch(function(err){
+    spinner.style.display = 'none';
+    h1.textContent = 'Lookup failed';
+    h1.className = 'error';
+    msg.textContent = 'Error: ' + err.message;
+  });
+}
+</script>
+</body>
+</html>

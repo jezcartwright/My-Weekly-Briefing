@@ -1,0 +1,57 @@
+name: Process Admin Send Jobs
+
+# Polls the adminSends Firestore collection for queued jobs and processes
+# them. Runs every 5 minutes (so admin UI shows "~5 min queue time") plus
+# on workflow_dispatch for instant trigger.
+#
+# Cron is COMMENTED OUT initially while we test. Enable after first
+# successful manual run.
+
+on:
+  # schedule:
+  #   - cron: '*/5 * * * *'   # every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: admin-sends   # only one runs at a time
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client google-cloud-firestore
+
+      - name: Process queued jobs
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+          UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
+        run: python process_admin_sends.py
+
+      - name: Notify on failure
+        if: ${{ failure() }}
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          pip install google-auth google-api-python-client --quiet || true
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          cat > fail.html <<EOF
+          <html><body style="font-family:system-ui,sans-serif;font-size:14px;">
+          <h2 style="color:#c00;">Admin send worker failed</h2>
+          <p>The process_admin_sends.py worker errored. Some sends may be stuck.</p>
+          <p><a href="$RUN_URL">View run</a></p>
+          </body></html>
+          EOF
+          python -m mailer send \
+            --to "jc@jezcartwright.com" \
+            --subject "[PI Briefing] ⚠️ Admin send worker failed" \
+            --body-file fail.html || echo "(could not send notification)"

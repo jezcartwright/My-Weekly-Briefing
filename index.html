@@ -335,6 +335,14 @@ body.text-xlarge .ne-quote{font-size:15px}
       <input class="login-input" id="login-lname" type="text" placeholder="Last name" autocomplete="family-name" style="margin-bottom:0">
     </div>
     <input class="login-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="email">
+    <!-- Honeypot: hidden via CSS, but bots fill it. Real users never see it. -->
+    <div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true">
+      <label>Leave this empty</label>
+      <input type="text" id="login-hp" name="website" tabindex="-1" autocomplete="off">
+    </div>
+    <!-- Cloudflare Turnstile widget. Site key set at runtime; if empty,
+         the widget is skipped (graceful degradation for local dev). -->
+    <div id="turnstile-widget" style="margin:10px 0;display:none"></div>
     <button class="login-btn" onclick="sendMagicLink()">Send sign-in link</button>
     <div class="login-divider">or</div>
     <button class="google-btn" onclick="signInGoogle()">
@@ -465,6 +473,42 @@ body.text-xlarge .ne-quote{font-size:15px}
 // ════════════════════════════════════════════
 // FIREBASE CONFIG
 // ════════════════════════════════════════════
+// Cloudflare Turnstile bot defence. Paste your site key here when you
+// create the Turnstile site at https://dash.cloudflare.com/?to=/:account/turnstile
+// Leave empty string during development; the widget is skipped gracefully.
+//
+// NOTE: Client-side Turnstile catches volume bot traffic (~95% of attacks)
+// but a determined attacker can bypass JS entirely and call Firebase Auth
+// direct. For belt-and-braces, a Cloud Function fronting sendSignInLink
+// would server-side verify the token via TURNSTILE_SECRET_KEY. We've kept
+// that secret as a GitHub secret already, ready for that step when needed.
+var TURNSTILE_SITE_KEY = "0x4AAAAAADaD-SD1_9Iq3_47";  // Cloudflare Turnstile site key (public)
+var turnstileToken = "";
+
+function initTurnstile() {
+  if (!TURNSTILE_SITE_KEY) return;
+  var div = document.getElementById('turnstile-widget');
+  if (!div) return;
+  div.style.display = 'block';
+  // Load Turnstile script if not already
+  if (!document.getElementById('cf-turnstile-script')) {
+    var s = document.createElement('script');
+    s.id = 'cf-turnstile-script';
+    s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad';
+    s.async = true; s.defer = true;
+    document.head.appendChild(s);
+  }
+  window.onTurnstileLoad = function() {
+    if (!window.turnstile) return;
+    window.turnstile.render('#turnstile-widget', {
+      sitekey: TURNSTILE_SITE_KEY,
+      callback: function(token) { turnstileToken = token; },
+      'error-callback': function() { turnstileToken = ''; },
+      'expired-callback': function() { turnstileToken = ''; },
+    });
+  };
+}
+
 var firebaseConfig = {
   apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
   authDomain: "pi-briefing-38ddc.firebaseapp.com",
@@ -516,9 +560,16 @@ window.sendMagicLink = function() {
   var fname = (document.getElementById('login-fname').value||'').trim();
   var lname = (document.getElementById('login-lname').value||'').trim();
   var email = document.getElementById('login-email').value.trim();
+  var hp = (document.getElementById('login-hp')||{}).value||'';
   var msg = document.getElementById('login-msg');
+  // Honeypot: real users never fill this field (it's CSS-hidden). Bots do.
+  if(hp){ msg.textContent = 'Something went wrong. Please reload and try again.'; return; }
   if(!fname){ msg.textContent = 'Please enter your first name.'; return; }
   if(!email || !email.includes('@')){ msg.textContent = 'Please enter a valid email.'; return; }
+  // Turnstile: require a valid token if site key is configured
+  if(TURNSTILE_SITE_KEY && !turnstileToken){
+    msg.textContent = 'Please complete the security check above.'; return;
+  }
   msg.textContent = 'Sending...';
   auth.sendSignInLinkToEmail(email, {
     url: ACTION_URL,
@@ -676,6 +727,7 @@ auth.onAuthStateChanged(function(user) {
     document.documentElement.classList.add('login-active');
     document.body.classList.add('login-active');
     document.getElementById('app').style.display = 'none';
+    initTurnstile();
   }
 });
 
