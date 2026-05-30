@@ -115,10 +115,12 @@ def process_one_job(db, job_ref) -> bool:
 
 def main():
     db = _build_firestore()
-    # Find queued jobs, oldest first (fair queue)
+    # Find queued jobs. We don't .order_by('createdAt') here because that
+    # would require a composite index on (status, createdAt). At our scale
+    # (small batches, occasional admin sends) FIFO fairness doesn't matter
+    # enough to justify the index management overhead.
     queued = db.collection("adminSends") \
         .where("status", "==", "queued") \
-        .order_by("createdAt") \
         .limit(5).stream()
 
     processed = 0
