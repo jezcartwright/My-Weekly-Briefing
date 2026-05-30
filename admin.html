@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>PI Briefing — Admin</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#ff6600;--orange-light:#fff4ee;--orange-mid:#ffe0cc;
+  --bg:#FBF8F2;--paper:#fff;--t:#1a1a1a;--b:#E0D8CB;
+  --shadow:0 1px 0 #E0D8CB,0 20px 40px -24px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);font-family:'Inter',sans-serif;color:var(--t)}
+body{min-height:100vh}
+
+/* Loading state — shown until auth resolves */
+#bootstrap{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:100}
+#bootstrap .spinner{width:32px;height:32px;border:3px solid var(--orange-mid);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+#bootstrap .label{font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--t)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Denied state */
+#denied{display:none;position:fixed;inset:0;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;text-align:center;z-index:90}
+#denied.show{display:flex}
+#denied h1{font-family:'Playfair Display',serif;font-size:28px;margin:0;color:var(--t)}
+#denied p{margin:0;font-size:14px;color:var(--t);max-width:420px;line-height:1.6}
+#denied .signed-as{font-size:12px;color:var(--t);background:#fff;padding:8px 14px;border:1px solid var(--b);border-radius:6px}
+#denied a{color:var(--orange);text-decoration:none;font-weight:600}
+
+/* Main shell */
+#app{display:none}
+#app.show{display:block}
+
+header.bar{background:var(--orange);color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+header.bar .brand{display:flex;align-items:center;gap:14px}
+header.bar .brand img{width:36px;height:36px;display:block}
+header.bar .eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:#fff;opacity:.9}
+header.bar .title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;line-height:1;color:#fff;margin-top:2px}
+header.bar .right{display:flex;align-items:center;gap:8px;font-size:12px;color:#fff}
+header.bar .right .who{opacity:.9}
+header.bar .right a{color:#fff;text-decoration:underline;text-underline-offset:2px}
+
+main{max-width:1100px;margin:0 auto;padding:24px}
+
+/* Summary cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--paper);border:1px solid var(--b);border-radius:8px;padding:16px;box-shadow:var(--shadow)}
+.card .lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--t);opacity:.7;margin-bottom:6px}
+.card .val{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;color:var(--t);line-height:1.1}
+.card .sub{font-size:11px;color:var(--t);opacity:.7;margin-top:4px}
+
+/* Toolbar */
+.toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.toolbar input[type="search"]{flex:1;min-width:220px;border:1px solid var(--b);border-radius:6px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;background:var(--paper);outline:none}
+.toolbar input[type="search"]:focus{border-color:var(--orange)}
+.toolbar .sort{font-size:12px;color:var(--t);display:flex;align-items:center;gap:6px}
+.toolbar select{border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:12px;background:var(--paper);color:var(--t);cursor:pointer}
+.toolbar .refresh{background:var(--paper);border:1px solid var(--b);border-radius:6px;padding:8px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--t)}
+.toolbar .refresh:hover{border-color:var(--orange);color:var(--orange)}
+
+/* Subscriber list */
+table.subs{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--b);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+table.subs th{text-align:left;padding:12px 14px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;background:#faf6ee;color:var(--t);border-bottom:1px solid var(--b)}
+table.subs td{padding:12px 14px;font-size:13px;border-bottom:1px solid #efe9dd;vertical-align:middle}
+table.subs tr:last-child td{border-bottom:none}
+table.subs tr:hover{background:var(--orange-light);cursor:pointer}
+table.subs .avatar{width:32px;height:32px;border-radius:50%;background:var(--orange-mid);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--orange);vertical-align:middle;margin-right:10px;overflow:hidden}
+table.subs .avatar img{width:100%;height:100%;object-fit:cover}
+table.subs .name{font-weight:600;color:var(--t)}
+table.subs .email{font-size:12px;color:var(--t);opacity:.75}
+table.subs .badge{display:inline-block;padding:2px 8px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border-radius:3px;background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-mid)}
+table.subs .badge.google{background:#eef4ff;color:#1a5fbf;border-color:#cfd9f3}
+table.subs .badge.email{background:#fef3e6;color:#a35a07;border-color:#f5d8ad}
+table.subs .num{font-variant-numeric:tabular-nums;text-align:right;color:var(--t)}
+table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:tabular-nums}
+
+.empty{padding:48px 24px;text-align:center;color:var(--t);opacity:.6;font-size:14px}
+
+/* Detail drawer */
+#detail{display:none;position:fixed;inset:0;background:rgba(20,20,20,0.55);z-index:80;align-items:flex-start;justify-content:flex-end}
+#detail.show{display:flex}
+#detail .panel{background:var(--paper);width:520px;max-width:100vw;height:100vh;overflow-y:auto;box-shadow:-12px 0 30px -10px rgba(0,0,0,0.2);display:flex;flex-direction:column}
+#detail .panel header{background:var(--orange);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+#detail .panel header .h-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:#fff;line-height:1.1}
+#detail .panel header .h-email{font-size:11px;opacity:.85;margin-top:3px;color:#fff}
+#detail .panel header button{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;flex-shrink:0}
+#detail .body{padding:22px;flex:1}
+#detail .meta-row{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px;margin-bottom:24px}
+#detail .meta-row dt{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--t);opacity:.7;align-self:center}
+#detail .meta-row dd{margin:0;color:var(--t)}
+#detail .section-h{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--orange);margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid var(--orange-mid)}
+#detail .liked-list{list-style:none;padding:0;margin:0 0 24px}
+#detail .liked-list li{padding:10px 0;border-bottom:1px solid #f0eadb;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+#detail .liked-list li:last-child{border-bottom:none}
+#detail .liked-list .lt{font-weight:600;font-size:13px;color:var(--t);line-height:1.35}
+#detail .liked-list .lcat{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--orange);margin-bottom:2px}
+#detail .liked-list .ldate{font-size:11px;color:var(--t);opacity:.7;flex-shrink:0;font-variant-numeric:tabular-nums}
+#detail .empty-section{font-size:12px;color:var(--t);opacity:.6;padding:8px 0 24px;font-style:normal}
+
+#error-banner{display:none;background:#fee;color:#900;padding:12px 24px;font-size:13px;text-align:center;border-bottom:1px solid #fcc}
+#error-banner.show{display:block}
+
+@media (max-width:640px){
+  main{padding:16px}
+  table.subs th:nth-child(4),table.subs td:nth-child(4){display:none}
+  #detail .panel{width:100%}
+}
+</style>
+</head>
+<body>
+
+<div id="bootstrap">
+  <div class="spinner"></div>
+  <div class="label">Checking access…</div>
+</div>
+
+<div id="denied">
+  <h1>Not authorised</h1>
+  <p>This page is only available to the briefing administrator. If you got here by mistake, head back to the main briefing.</p>
+  <div class="signed-as" id="signed-as-text"></div>
+  <p><a href="/">← Back to briefing</a> &nbsp;·&nbsp; <a href="#" onclick="signOutNow();return false">Sign out</a></p>
+</div>
+
+<div id="app">
+  <header class="bar">
+    <div class="brand">
+      <img src="favicon-512x512.png" alt="PI">
+      <div>
+        <div class="eyebrow">Performance Intelligence</div>
+        <div class="title">Admin</div>
+      </div>
+    </div>
+    <div class="right">
+      <span class="who" id="signed-as"></span>
+      <a href="/">View site</a>
+      <a href="#" onclick="signOutNow();return false">Sign out</a>
+    </div>
+  </header>
+
+  <div id="error-banner"></div>
+
+  <main>
+    <div class="cards">
+      <div class="card"><div class="lbl">Subscribers</div><div class="val" id="s-total">—</div><div class="sub" id="s-total-sub">All-time</div></div>
+      <div class="card"><div class="lbl">Active 7 days</div><div class="val" id="s-7d">—</div><div class="sub">Signed in within 7 days</div></div>
+      <div class="card"><div class="lbl">Active 30 days</div><div class="val" id="s-30d">—</div><div class="sub">Signed in within 30 days</div></div>
+      <div class="card"><div class="lbl">Likes recorded</div><div class="val" id="s-likes">—</div><div class="sub">Across all subscribers</div></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search by name or email…" autocomplete="off">
+      <div class="sort">Sort:
+        <select id="sort">
+          <option value="lastSeen">Most recently active</option>
+          <option value="joined">Newest signup first</option>
+          <option value="joinedAsc">Oldest signup first</option>
+          <option value="name">Name (A→Z)</option>
+          <option value="likes">Most likes</option>
+        </select>
+      </div>
+      <button class="refresh" onclick="loadSubscribers()">Refresh</button>
+    </div>
+
+    <table class="subs">
+      <thead>
+        <tr>
+          <th style="width:38%">Subscriber</th>
+          <th>Joined</th>
+          <th>Last active</th>
+          <th style="text-align:right">Likes</th>
+        </tr>
+      </thead>
+      <tbody id="rows">
+        <tr><td colspan="4" class="empty">Loading subscribers…</td></tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+
+<div id="detail" onclick="if(event.target.id==='detail')closeDetail()">
+  <div class="panel">
+    <header>
+      <div>
+        <div class="h-name" id="d-name">—</div>
+        <div class="h-email" id="d-email">—</div>
+      </div>
+      <button onclick="closeDetail()" aria-label="Close">✕</button>
+    </header>
+    <div class="body">
+      <dl class="meta-row">
+        <dt>UID</dt><dd id="d-uid" style="font-family:Menlo,monospace;font-size:11px;word-break:break-all;opacity:.8"></dd>
+        <dt>Method</dt><dd id="d-method"></dd>
+        <dt>Joined</dt><dd id="d-joined"></dd>
+        <dt>Last active</dt><dd id="d-lastseen"></dd>
+        <dt>Last sign-in</dt><dd id="d-lastsignin"></dd>
+      </dl>
+
+      <h3 class="section-h">Likes (<span id="d-likes-n">0</span>)</h3>
+      <ul class="liked-list" id="d-likes-list"></ul>
+
+      <h3 class="section-h">Notes saved</h3>
+      <div id="d-notes">
+        <p class="empty-section">No notes saved.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase 8.x (matches the main site's version) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyDvjs6k0SNgIt5HhVJuIoBJwahSYu4QEt4",
+  authDomain: "pi-briefing-38ddc.firebaseapp.com",
+  projectId: "pi-briefing-38ddc",
+  storageBucket: "pi-briefing-38ddc.firebasestorage.app",
+  messagingSenderId: "1009693063617",
+  appId: "1:1009693063617:web:35620f45a71ba9ef201740"
+};
+firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// Single source of truth for who's an admin.
+// To add another admin, add their email here AND update the Firestore rule.
+var ADMIN_EMAILS = ['jc@jezcartwright.com'];
+
+var allSubs = [];   // local cache of loaded subscriber docs
+var currentSort = 'lastSeen';
+var currentQuery = '';
+
+// --- Auth gate ---
+auth.onAuthStateChanged(function(user) {
+  if (!user) {
+    // Not signed in — bounce to main page where the login flow lives.
+    // Persist intent so user lands back here after signing in.
+    try { sessionStorage.setItem('postLoginRedirect', '/admin.html'); } catch(e) {}
+    window.location.href = '/?redirect=admin';
+    return;
+  }
+  var email = (user.email || '').toLowerCase();
+  if (ADMIN_EMAILS.indexOf(email) === -1) {
+    document.getElementById('bootstrap').style.display = 'none';
+    document.getElementById('signed-as-text').textContent = 'Signed in as ' + (user.email || '(no email)');
+    document.getElementById('denied').classList.add('show');
+    return;
+  }
+  // Authorised
+  document.getElementById('bootstrap').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('signed-as').textContent = user.email;
+  loadSubscribers();
+});
+
+window.signOutNow = function() {
+  auth.signOut().then(function() { window.location.href = '/'; });
+};
+
+// --- Load all subscribers ---
+function loadSubscribers() {
+  showError('');
+  document.getElementById('rows').innerHTML = '<tr><td colspan="4" class="empty">Loading subscribers…</td></tr>';
+  db.collection('users').get().then(function(snap) {
+    allSubs = [];
+    snap.forEach(function(doc) {
+      var d = doc.data() || {};
+      var bp = d.basicProfile || {};
+      var pp = d.profile || {};
+      var likes = Array.isArray(d.likes) ? d.likes : [];
+      var notes = d.notes || {};
+      var name = [pp.firstName, pp.lastName].filter(Boolean).join(' ').trim() || bp.displayName || '(no name)';
+      allSubs.push({
+        uid: doc.id,
+        email: bp.email || pp.email || '',
+        name: name,
+        firstName: pp.firstName || '',
+        lastName: pp.lastName || '',
+        displayName: bp.displayName || '',
+        photoURL: bp.photoURL || '',
+        signInMethod: bp.signInMethod || 'unknown',
+        joinedAt: pp.joinedAt || bp.lastSignedInAt || null,
+        lastSignedInAt: bp.lastSignedInAt || null,
+        lastSeen: d.lastSeen || bp.lastSignedInAt || null,
+        likes: likes,
+        likesCount: likes.length,
+        notes: notes,
+        notesCount: Object.keys(notes).length
+      });
+    });
+    renderCards();
+    renderRows();
+  }).catch(function(err) {
+    console.error('Load failed:', err);
+    var hint = '';
+    if (err.code === 'permission-denied') {
+      hint = ' Firestore security rules are blocking the read. Update them to allow reads when request.auth.token.email matches an admin address.';
+    }
+    showError('Could not load subscribers: ' + err.message + hint);
+    document.getElementById('rows').innerHTML = '<tr><td colspan="4" class="empty">Failed to load — see banner above.</td></tr>';
+  });
+}
+
+function showError(msg) {
+  var el = document.getElementById('error-banner');
+  if (!msg) { el.classList.remove('show'); el.textContent = ''; return; }
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// --- Summary cards ---
+function renderCards() {
+  document.getElementById('s-total').textContent = allSubs.length;
+  var now = Date.now();
+  var d7 = 0, d30 = 0, likes = 0;
+  allSubs.forEach(function(s) {
+    var t = s.lastSeen ? new Date(s.lastSeen).getTime() : 0;
+    if (t && now - t < 7 * 86400000) d7++;
+    if (t && now - t < 30 * 86400000) d30++;
+    likes += s.likesCount;
+  });
+  document.getElementById('s-7d').textContent = d7;
+  document.getElementById('s-30d').textContent = d30;
+  document.getElementById('s-likes').textContent = likes;
+}
+
+// --- Table rows ---
+function renderRows() {
+  var rows = document.getElementById('rows');
+  var filtered = allSubs.filter(function(s) {
+    if (!currentQuery) return true;
+    var q = currentQuery.toLowerCase();
+    return (s.name && s.name.toLowerCase().indexOf(q) !== -1) ||
+           (s.email && s.email.toLowerCase().indexOf(q) !== -1);
+  });
+  filtered.sort(getSorter(currentSort));
+  if (!filtered.length) {
+    rows.innerHTML = '<tr><td colspan="4" class="empty">' +
+      (allSubs.length ? 'No subscribers match your search.' : 'No subscribers yet.') +
+      '</td></tr>';
+    return;
+  }
+  rows.innerHTML = filtered.map(function(s) {
+    var initials = (s.firstName ? s.firstName[0] : (s.email ? s.email[0] : '?')).toUpperCase() +
+                   (s.lastName ? s.lastName[0].toUpperCase() : '');
+    var avatar = s.photoURL
+      ? '<span class="avatar"><img src="' + escapeAttr(s.photoURL) + '" alt=""></span>'
+      : '<span class="avatar">' + escapeHtml(initials) + '</span>';
+    var method = (s.signInMethod || '').toLowerCase();
+    var badgeClass = method.indexOf('google') !== -1 ? 'google'
+                   : method.indexOf('email') !== -1 ? 'email' : '';
+    var methodLabel = method.indexOf('google') !== -1 ? 'Google'
+                    : method.indexOf('email') !== -1 ? 'Email link'
+                    : method || '?';
+    return '<tr onclick="openDetail(\'' + s.uid + '\')">' +
+      '<td>' + avatar +
+        '<span class="name">' + escapeHtml(s.name) + '</span> ' +
+        '<span class="badge ' + badgeClass + '">' + escapeHtml(methodLabel) + '</span><br>' +
+        '<span style="margin-left:42px"><span class="email">' + escapeHtml(s.email) + '</span></span>' +
+      '</td>' +
+      '<td class="when">' + fmtDate(s.joinedAt) + '</td>' +
+      '<td class="when">' + fmtRel(s.lastSeen) + '</td>' +
+      '<td class="num">' + s.likesCount + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function getSorter(key) {
+  switch (key) {
+    case 'joined': return function(a, b) { return ts(b.joinedAt) - ts(a.joinedAt); };
+    case 'joinedAsc': return function(a, b) { return ts(a.joinedAt) - ts(b.joinedAt); };
+    case 'name': return function(a, b) { return (a.name || '').localeCompare(b.name || ''); };
+    case 'likes': return function(a, b) { return b.likesCount - a.likesCount; };
+    case 'lastSeen':
+    default: return function(a, b) { return ts(b.lastSeen) - ts(a.lastSeen); };
+  }
+}
+
+document.getElementById('q').addEventListener('input', function(e) {
+  currentQuery = e.target.value;
+  renderRows();
+});
+document.getElementById('sort').addEventListener('change', function(e) {
+  currentSort = e.target.value;
+  renderRows();
+});
+
+// --- Detail drawer ---
+window.openDetail = function(uid) {
+  var s = allSubs.find(function(x) { return x.uid === uid; });
+  if (!s) return;
+  document.getElementById('d-name').textContent = s.name;
+  document.getElementById('d-email').textContent = s.email || '(no email)';
+  document.getElementById('d-uid').textContent = s.uid;
+  document.getElementById('d-method').textContent =
+    s.signInMethod.indexOf('google') !== -1 ? 'Google sign-in'
+    : s.signInMethod.indexOf('email') !== -1 ? 'Email magic link'
+    : s.signInMethod || 'Unknown';
+  document.getElementById('d-joined').textContent = fmtDate(s.joinedAt) || '—';
+  document.getElementById('d-lastseen').textContent = fmtFull(s.lastSeen) || '—';
+  document.getElementById('d-lastsignin').textContent = fmtFull(s.lastSignedInAt) || '—';
+
+  document.getElementById('d-likes-n').textContent = s.likesCount;
+  var ll = document.getElementById('d-likes-list');
+  if (!s.likes.length) {
+    ll.innerHTML = '<li><span class="empty-section">No likes recorded.</span></li>';
+  } else {
+    var sorted = s.likes.slice().sort(function(a, b) { return ts(b.date) - ts(a.date); });
+    ll.innerHTML = sorted.map(function(l) {
+      var cat = (l.catLabel || l.catId || '').toUpperCase();
+      return '<li><div><div class="lcat">' + escapeHtml(cat) + '</div>' +
+        '<div class="lt">' + escapeHtml(l.title || '(untitled)') + '</div></div>' +
+        '<div class="ldate">' + fmtDate(l.date) + '</div></li>';
+    }).join('');
+  }
+
+  var notesEl = document.getElementById('d-notes');
+  if (!s.notesCount) {
+    notesEl.innerHTML = '<p class="empty-section">No notes saved.</p>';
+  } else {
+    var pairs = Object.keys(s.notes).map(function(k) {
+      var n = s.notes[k] || {};
+      return { topic: n.title || k, text: n.text || '', updatedAt: n.updatedAt || '' };
+    }).filter(function(n) { return n.text; });
+    if (!pairs.length) {
+      notesEl.innerHTML = '<p class="empty-section">' + s.notesCount + ' note record(s), all blank.</p>';
+    } else {
+      notesEl.innerHTML = pairs.map(function(n) {
+        return '<div style="margin-bottom:14px;padding:10px 12px;background:#fffdf9;border:1px solid #f0e8d0;border-radius:4px">' +
+          '<div style="font-size:11px;font-weight:700;color:var(--orange);margin-bottom:4px">' + escapeHtml(n.topic) + '</div>' +
+          '<div style="font-size:13px;line-height:1.55;white-space:pre-wrap;color:var(--t)">' + escapeHtml(n.text) + '</div>' +
+          (n.updatedAt ? '<div style="font-size:10px;opacity:.6;margin-top:4px">' + fmtFull(n.updatedAt) + '</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+  }
+
+  document.getElementById('detail').classList.add('show');
+};
+window.closeDetail = function() {
+  document.getElementById('detail').classList.remove('show');
+};
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDetail();
+});
+
+// --- Formatting helpers ---
+function ts(s) { return s ? new Date(s).getTime() : 0; }
+function fmtDate(s) {
+  if (!s) return '—';
+  try { return new Date(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  catch(e) { return s; }
+}
+function fmtFull(s) {
+  if (!s) return '';
+  try {
+    var d = new Date(s);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
+           ' at ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  } catch(e) { return s; }
+}
+function fmtRel(s) {
+  if (!s) return '—';
+  var t = new Date(s).getTime();
+  if (isNaN(t)) return '—';
+  var diff = Date.now() - t;
+  if (diff < 0) return 'in the future';
+  var m = Math.round(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + ' min ago';
+  var h = Math.round(m / 60);
+  if (h < 24) return h + ' hr ago';
+  var d = Math.round(h / 24);
+  if (d < 30) return d + 'd ago';
+  return fmtDate(s);
+}
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function escapeAttr(s) { return escapeHtml(s); }
+</script>
+</body>
+</html>
