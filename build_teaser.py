@@ -156,7 +156,9 @@ This block only appears in your draft. The Monday workflow will strip it automat
 </div>'''
 
     return f'''<!DOCTYPE html>
-<html><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<html><head>
+<style>@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap');</style>
+</head><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;padding:24px 0;">
 <tr><td align="center">
 <table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:640px;border:1px solid #e8e4df;">
@@ -166,7 +168,7 @@ This block only appears in your draft. The Monday workflow will strip it automat
     <img src="https://weeklybriefing.jezcartwright.com/favicon-512x512.png" width="56" height="56" alt="PI" style="display:block;width:56px;height:56px;border:0;">
   </td>
   <td valign="middle" style="color:#fff;">
-    <div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#ffffff;margin-bottom:4px;font-weight:700;">Performance Intelligence</div>
+    <div style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:13px;letter-spacing:0.35em;text-transform:uppercase;color:#ffffff;margin-bottom:4px;font-weight:600;">Performance Intelligence</div>
     <div style="font-family:Georgia,serif;font-size:28px;font-weight:600;line-height:1;color:#ffffff;">Weekly Briefing</div>
     <div style="font-size:13px;color:#ffffff;opacity:0.88;margin-top:4px;">Week {week} · {date_str}</div>
   </td>
