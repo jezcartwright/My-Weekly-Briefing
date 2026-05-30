@@ -1084,7 +1084,7 @@ function rt(){
 }
 function rto(){
   var tops=gt(ac.id);
-  var darkColor = ac.colorDark || ac.color;
+  var darkColor = ac.color;  // Unified: labels and numbers use banner colour, not colorDark
   document.getElementById('ts').innerHTML=
     '<div class="ci" style="--cat-color:'+ac.color+'">'+
     '<div class="ci-text"><div class="cl">'+ac.label+'</div>'+
@@ -1283,7 +1283,7 @@ function rl(){
     entries.forEach(function(entry){
       var catDef=CATS.find(function(c){return c.id===entry.catId;});
       var cColor=(catDef&&catDef.color)||entry.catColor||'#FF6600';
-      var cDark=(catDef&&catDef.colorDark)||cColor;
+      var cDark=cColor;  // Unified: labels use banner colour, not colorDark
       (entry.topics||[]).forEach(function(t,ti){
         var liked=isLiked(entry.catId,t.title);
         var lh=document.createElement('div');
@@ -1355,7 +1355,7 @@ function rk(){
   document.getElementById('ks').innerHTML=filtered.map(function(x,i){
     var catDef=CATS.find(function(c){return c.id===x.catId;})||{color:'#FF6600'};
     var cColor=catDef.color||'#FF6600';
-    var cDark=catDef.colorDark||cColor;
+    var cDark=cColor;  // Unified: labels use banner colour, not colorDark
     return'<div class="tc'+(ok===i?' op':'')+'" style="border-left-color:'+cColor+'">'+
       '<div class="th" onclick="tklike('+i+')">'+
       '<div class="th-left"><span class="tn" style="color:'+cDark+'">'+(i+1<10?'0':'')+(i+1)+'</span>'+
@@ -1466,7 +1466,7 @@ function generateCurrentPDF(){
   var content=document.getElementById('pdf-content');content.innerHTML='';
   CATS.forEach(function(cat){
     var tops=gt(cat.id);if(!tops.length)return;
-    var darkColor = cat.colorDark || cat.color;
+    var darkColor = cat.color;  // Unified: labels use banner colour, not colorDark
     var sec=document.createElement('div');sec.className='pdf-cat-section';
     sec.style.setProperty('--cat-color', cat.color);
     // Category banner — coloured band, white text
