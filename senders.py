@@ -83,19 +83,20 @@ def make_unsubscribe_url(uid: str, email: str) -> str:
 def append_footer(body_html: str, uid: str, email: str) -> str:
     """Inject the unsubscribe footer into an email body.
 
+    Footer is Option C — quiet, single-line, deferential. Treats the foot of
+    the email as an exit, not a marketing prompt. Used by both admin-send and
+    the Monday-publish per-recipient pipeline.
+
     Looks for </body> as the insertion point. If absent, appends to the end.
     """
     unsub = make_unsubscribe_url(uid, email)
     footer = (
         '<table width="100%" cellpadding="0" cellspacing="0" border="0" '
-        'style="margin-top:32px;border-top:1px solid #e8e4df;padding-top:16px;">'
+        'style="margin-top:32px;border-top:1px solid #f0ece5;padding-top:14px;">'
         '<tr><td style="text-align:center;font-family:-apple-system,BlinkMacSystemFont,'
-        '\'Segoe UI\',sans-serif;font-size:11px;color:#1a1a1a;line-height:1.6;">'
-        'You\'re receiving this because you signed up for the Performance Intelligence '
-        'Weekly Briefing.<br>'
-        f'<a href="{unsub}" style="color:#1a1a1a;text-decoration:underline;">'
-        'Unsubscribe immediately</a> &nbsp;·&nbsp; '
-        'jc@jezcartwright.com'
+        '\'Segoe UI\',sans-serif;font-size:10px;color:#888;line-height:1.6;">'
+        'Performance Intelligence Weekly Briefing &nbsp;·&nbsp; '
+        f'<a href="{unsub}" style="color:#888;text-decoration:underline;">unsubscribe</a>'
         '</td></tr></table>'
     )
     lower = body_html.lower()

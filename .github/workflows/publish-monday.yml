@@ -70,53 +70,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Gmail dependencies
-        run: pip install google-auth google-api-python-client
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client google-cloud-firestore
 
-      - name: Find the Friday-staged draft and send it
+      - name: Send teaser to each subscriber (per-recipient with unsubscribe)
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
         run: |
-          WEEK=$(date -u +%V)
-          # Find draft by subject. List recent drafts, fetch each, match subject.
-          python <<'PYEOF'
-          import os, sys, base64
-          from mailer import list_drafts, get_draft, strip_and_send_draft
-
-          import datetime
-          week = datetime.date.today().isocalendar()[1]
-          expected_subject = f"Performance Intelligence Weekly Briefing — Week {week}"
-
-          drafts = list_drafts(max_results=20)
-          if not drafts:
-              print("ERROR: no drafts found in jc@'s inbox.")
-              sys.exit(1)
-
-          match_id = None
-          for d in drafts:
-              full = get_draft(d['id'])
-              headers = full.get('message', {}).get('payload', {}).get('headers', [])
-              subj = next((h['value'] for h in headers if h.get('name') == 'Subject'), '')
-              if subj.strip() == expected_subject:
-                  match_id = d['id']
-                  print(f"Matched draft id={match_id} subject={subj!r}")
-                  break
-
-          if not match_id:
-              print(f"ERROR: no draft found with subject {expected_subject!r}")
-              print("Recent drafts seen:")
-              for d in drafts[:10]:
-                  full = get_draft(d['id'])
-                  headers = full.get('message', {}).get('payload', {}).get('headers', [])
-                  subj = next((h['value'] for h in headers if h.get('name') == 'Subject'), '(no subject)')
-                  print(f"  {d['id']}: {subj}")
-              sys.exit(1)
-
-          msg_id, stripped = strip_and_send_draft(match_id)
-          print(f"✅ Draft sent. Gmail message id: {msg_id}")
-          if stripped:
-              print(f"  (stripped {stripped} reviewer block(s) before send)")
-          PYEOF
+          python publish_to_subscribers.py
 
       - name: Delete staging branch (cleanup)
         if: ${{ success() }}
