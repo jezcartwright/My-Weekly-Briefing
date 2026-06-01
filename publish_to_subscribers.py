@@ -51,16 +51,31 @@ def _build_firestore():
 def fetch_active_subscribers(db) -> list[dict[str, str]]:
     """Pull active subscribers from Firestore users collection.
 
-    A user is considered active if they exist AND their `unsubscribed` field
-    is either missing or False. Returns a list of {uid, email} dicts.
+    A user is considered active if they exist AND their top-level
+    `unsubscribed` field is not True. Returns a list of {uid, email} dicts.
+
+    Email is read from (in priority order):
+      1. data["basicProfile"]["email"] — set on every Firebase Auth sign-in
+      2. data["profile"]["email"] — set by the (optional) completed-signup flow
+      3. data["email"] — top-level, future-proof fallback
+
+    basicProfile is the universal field — Firebase Auth populates it on first
+    sign-in regardless of whether the user completes the custom profile step.
     """
     out: list[dict[str, str]] = []
     for snap in db.collection("users").stream():
         data = snap.to_dict() or {}
         if data.get("unsubscribed") is True:
             continue
-        email = data.get("email", "").strip()
+        email = (
+            (data.get("basicProfile") or {}).get("email")
+            or (data.get("profile") or {}).get("email")
+            or data.get("email")
+            or ""
+        ).strip()
         if not email:
+            print(f"  WARNING: user {snap.id} has no resolvable email, skipping",
+                  file=sys.stderr)
             continue
         out.append({"uid": snap.id, "email": email})
     return out
