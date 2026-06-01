@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Footer options — A vs B</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.frame{max-width:640px;margin:0 auto 24px;background:#fff;border:1px solid #e8e4df}
+.fake-body{padding:24px 32px;font-size:14px;color:#222;line-height:1.55}
+.label{max-width:640px;margin:24px auto 8px;padding:0 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:#666}
+.label b{display:block;color:#1a1a1a;font-size:14px;letter-spacing:0;text-transform:none;font-weight:600;margin-bottom:3px}
+.label .note{font-weight:400;font-size:11px;color:#666;letter-spacing:0;text-transform:none;margin-top:4px;line-height:1.45}
+.banner{background:#ff6600;padding:22px 24px;color:#fff;display:flex;align-items:center;gap:14px}
+.banner img{width:44px;height:44px;display:block}
+.banner .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:11px;letter-spacing:0.28em;text-transform:uppercase}
+.banner .title{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:24px;line-height:1;letter-spacing:-.01em;margin-top:3px}
+</style></head>
+<body>
+
+<div class="label" style="padding-top:24px"><b>Option A — Reuse admin-send footer</b>
+<div class="note">Plain, functional. Top-of-text-link unsubscribe. Same as what bulk admin sends use.</div></div>
+
+<div class="frame">
+  <div class="banner">
+    <img src="/favicon-512x512.png" alt="PI">
+    <div>
+      <div class="eyebrow">Performance Intelligence</div>
+      <div class="title">Weekly Briefing</div>
+    </div>
+  </div>
+  <div class="fake-body">
+    <p style="margin:0 0 12px"><em>(...email body content here — topics, categories, etc...)</em></p>
+    <p style="margin:0 0 12px"><em>(...)</em></p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:32px;border-top:1px solid #e8e4df;padding-top:16px;">
+      <tr><td style="text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#1a1a1a;line-height:1.6;">
+        You're receiving this because you signed up for the Performance Intelligence Weekly Briefing.<br>
+        <a href="#" style="color:#1a1a1a;text-decoration:underline;">Unsubscribe immediately</a> &nbsp;·&nbsp; jc@jezcartwright.com
+      </td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="label" style="padding-top:24px"><b>Option B — Editorial footer for Monday teaser</b>
+<div class="note">More personal/editorial voice. Matches the briefing's deliberate, considered tone. Soft separator instead of hard rule.</div></div>
+
+<div class="frame">
+  <div class="banner">
+    <img src="/favicon-512x512.png" alt="PI">
+    <div>
+      <div class="eyebrow">Performance Intelligence</div>
+      <div class="title">Weekly Briefing</div>
+    </div>
+  </div>
+  <div class="fake-body">
+    <p style="margin:0 0 12px"><em>(...email body content here — topics, categories, etc...)</em></p>
+    <p style="margin:0 0 12px"><em>(...)</em></p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:36px;padding-top:24px;">
+      <tr><td style="text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:12px;color:#5a5a5a;line-height:1.7;">
+        <div style="width:32px;height:1px;background:#c8c8c8;margin:0 auto 18px;"></div>
+        Sent each Monday from jc@jezcartwright.com<br>
+        to those who asked to receive it.<br>
+        <div style="margin-top:10px">
+          <a href="#" style="color:#5a5a5a;text-decoration:underline;text-underline-offset:2px;">Step away</a>
+          &nbsp;·&nbsp;
+          <a href="https://weeklybriefing.jezcartwright.com" style="color:#5a5a5a;text-decoration:underline;text-underline-offset:2px;">weeklybriefing.jezcartwright.com</a>
+        </div>
+      </td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="label" style="padding-top:24px"><b>Option C — A variant: same as A but quieter</b>
+<div class="note">Same structure as admin-send footer but smaller, lighter, more deferential. Less visual weight at the foot of the briefing.</div></div>
+
+<div class="frame">
+  <div class="banner">
+    <img src="/favicon-512x512.png" alt="PI">
+    <div>
+      <div class="eyebrow">Performance Intelligence</div>
+      <div class="title">Weekly Briefing</div>
+    </div>
+  </div>
+  <div class="fake-body">
+    <p style="margin:0 0 12px"><em>(...email body content here — topics, categories, etc...)</em></p>
+    <p style="margin:0 0 12px"><em>(...)</em></p>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:32px;border-top:1px solid #f0ece5;padding-top:14px;">
+      <tr><td style="text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;color:#888;line-height:1.6;">
+        Performance Intelligence Weekly Briefing &nbsp;·&nbsp;
+        <a href="#" style="color:#888;text-decoration:underline;">unsubscribe</a>
+      </td></tr>
+    </table>
+  </div>
+</div>
+
+<div style="max-width:640px;margin:24px auto 60px;padding:0 8px;font-size:12px;color:#666;line-height:1.5">
+Reply with A, B, or C. I'll wire the chosen footer into the per-recipient send pipeline.
+</div>
+
+</body></html>
