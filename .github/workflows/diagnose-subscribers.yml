@@ -33,19 +33,35 @@ jobs:
           db = firestore.Client(project=info["project_id"], credentials=creds)
 
           print("=" * 70)
-          print("USERS collection dump")
+          print("USERS collection dump (full, no truncation)")
           print("=" * 70)
           count = 0
           for snap in db.collection("users").stream():
               count += 1
               data = snap.to_dict() or {}
-              print(f"\nUser #{count}: doc_id={snap.id}")
-              print(f"  fields ({len(data)} total):")
+              print(f"\n--- User #{count}: doc_id={snap.id} ---")
+              print(f"  Top-level fields: {sorted(data.keys())}")
               for key, value in data.items():
-                  # Truncate long values
-                  v = repr(value)
-                  if len(v) > 200: v = v[:200] + '...'
-                  print(f"    {key} = {v}")
+                  if isinstance(value, dict):
+                      print(f"  {key} (dict, {len(value)} keys):")
+                      for k2, v2 in value.items():
+                          # Truncate only the really long ones (photoURL, etc)
+                          s = repr(v2)
+                          if len(s) > 300:
+                              s = s[:300] + '...'
+                          print(f"      {k2} = {s}")
+                  elif isinstance(value, list):
+                      print(f"  {key} (list, {len(value)} items) — first item only:")
+                      if value:
+                          s = repr(value[0])
+                          if len(s) > 200:
+                              s = s[:200] + '...'
+                          print(f"      [0] = {s}")
+                  else:
+                      s = repr(value)
+                      if len(s) > 200:
+                          s = s[:200] + '...'
+                      print(f"  {key} = {s}")
           print()
           print("=" * 70)
           print(f"Total users in collection: {count}")
