@@ -16,6 +16,14 @@ on:
         description: 'Set to "true" to abort publish (skip merge + email)'
         required: false
         default: 'false'
+      skip_merge:
+        description: 'Set to "true" to skip the staging→main merge (useful for re-sends within a week, or when staging is already deleted)'
+        required: false
+        default: 'false'
+      recipient_override:
+        description: 'Override subscriber list with a single email (testing). Leave empty for normal subscriber-list send.'
+        required: false
+        default: ''
 
 jobs:
   publish-monday:
@@ -37,6 +45,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify staging branch exists and is ahead of main
+        if: ${{ github.event.inputs.skip_merge != 'true' }}
         id: verify_staging
         run: |
           git config user.name "github-actions[bot]"
@@ -58,6 +67,7 @@ jobs:
           fi
 
       - name: Fast-forward merge staging → main
+        if: ${{ github.event.inputs.skip_merge != 'true' }}
         run: |
           git checkout main
           git pull --ff-only origin main
@@ -78,11 +88,12 @@ jobs:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
+          RECIPIENT_OVERRIDE: ${{ github.event.inputs.recipient_override }}
         run: |
           python publish_to_subscribers.py
 
       - name: Delete staging branch (cleanup)
-        if: ${{ success() }}
+        if: ${{ success() && github.event.inputs.skip_merge != 'true' }}
         run: |
           git push origin --delete staging
           echo "✓ staging branch deleted; ready for next Friday."

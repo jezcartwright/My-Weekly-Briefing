@@ -111,14 +111,21 @@ def main():
     print(f"  Body extracted: {len(body_html)} bytes "
           f"({n_removed} reviewer block(s) stripped)")
 
-    # 3) Fetch live subscriber list from Firestore
-    db = _build_firestore()
-    recipients = fetch_active_subscribers(db)
-    print(f"  Active subscribers: {len(recipients)}")
+    # 3) Resolve subscriber list. By default: fetch live from Firestore.
+    #    If RECIPIENT_OVERRIDE is set, use just that email (single-recipient
+    #    testing path — skips Firestore entirely).
+    override_email = os.environ.get("RECIPIENT_OVERRIDE", "").strip()
+    db = _build_firestore()  # still needed for the publishLog write at the end
+    if override_email:
+        print(f"  RECIPIENT_OVERRIDE set — bypassing subscriber list")
+        recipients = [{"uid": "override-test", "email": override_email}]
+    else:
+        recipients = fetch_active_subscribers(db)
+    print(f"  Recipients: {len(recipients)}")
     for r in recipients:
         print(f"    - {r['email']}")
     if not recipients:
-        print("No active subscribers found. Aborting.", file=sys.stderr)
+        print("No recipients resolved. Aborting.", file=sys.stderr)
         sys.exit(2)
 
     # 4) Send per-recipient (throttled, footer injected by senders.append_footer)
@@ -141,17 +148,22 @@ def main():
 
     senders.send_bulk(recipients, subject, body_html, progress_cb=progress_cb)
 
-    # 5) Delete the original draft so it doesn't sit around stale
-    try:
-        from googleapiclient.discovery import build  # noqa: F401
-        gmail = mailer._build_service()
-        gmail.users().drafts().delete(
-            userId="me", id=draft["id"],
-        ).execute()
-        print(f"\n  Original draft {draft['id']} deleted.")
-    except Exception as e:  # noqa: BLE001
-        print(f"\n  WARNING: failed to delete original draft: {e}",
-              file=sys.stderr)
+    # 5) Delete the original draft so it doesn't sit around stale.
+    #    Skip when running in recipient-override mode — the draft will be
+    #    needed for the real send afterwards.
+    if override_email:
+        print(f"\n  Draft preserved (override mode — needed for the real send).")
+    else:
+        try:
+            from googleapiclient.discovery import build  # noqa: F401
+            gmail = mailer._build_service()
+            gmail.users().drafts().delete(
+                userId="me", id=draft["id"],
+            ).execute()
+            print(f"\n  Original draft {draft['id']} deleted.")
+        except Exception as e:  # noqa: BLE001
+            print(f"\n  WARNING: failed to delete original draft: {e}",
+                  file=sys.stderr)
 
     # 6) Log summary to Firestore for audit
     try:
