@@ -201,7 +201,7 @@ This week's briefing is live. Six categories, four topics each, twenty-four sign
 {"".join(sections)}
 <hr style="margin:32px 0 16px;border:none;border-top:1px solid #e8e4df;">
 <p style="font-size:11px;color:#1a1a1a;line-height:1.6;">
-Performance Intelligence Weekly Briefing · helping you win.<br>
+Performance Intelligence Weekly Briefing · Helping You Win.<br>
 Sent automatically Monday morning from jc@jezcartwright.com.
 </p>
 </td></tr>
