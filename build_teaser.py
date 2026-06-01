@@ -157,24 +157,40 @@ This block only appears in your draft. The Monday workflow will strip it automat
 
     return f'''<!DOCTYPE html>
 <html><head>
-<style>@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Serif:wght@600&display=swap');</style>
-</head><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="x-apple-disable-message-reformatting">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Serif:wght@600&display=swap');
+/* Mobile tweaks — tighten padding and shrink masthead at narrow widths */
+@media only screen and (max-width:600px) {{
+  .email-shell {{ width:100% !important; max-width:100% !important; }}
+  .email-banner {{ padding:22px 18px !important; }}
+  .email-body {{ padding:20px 18px 24px !important; }}
+  .email-pi {{ font-size:11px !important; letter-spacing:0.28em !important; }}
+  .email-wb {{ font-size:24px !important; }}
+  .email-meta {{ font-size:12px !important; }}
+  .email-logo {{ width:44px !important; height:44px !important; }}
+  .email-logo-cell {{ width:56px !important; padding-right:14px !important; }}
+}}
+</style>
+</head><body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-text-size-adjust:100%;">
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;padding:24px 0;">
 <tr><td align="center">
-<table width="640" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:640px;border:1px solid #e8e4df;">
-<tr><td style="background:#ff6600;padding:28px 32px;color:#fff;">
+<table class="email-shell" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:640px;border:1px solid #e8e4df;">
+<tr><td class="email-banner" style="background:#ff6600;padding:28px 32px;color:#fff;">
   <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-  <td valign="middle" width="72" style="padding-right:18px;color:#fff;">
-    <img src="https://weeklybriefing.jezcartwright.com/favicon-512x512.png" width="56" height="56" alt="PI" style="display:block;width:56px;height:56px;border:0;">
+  <td class="email-logo-cell" valign="middle" width="72" style="padding-right:18px;color:#fff;">
+    <img src="https://weeklybriefing.jezcartwright.com/favicon-512x512.png" width="56" height="56" alt="PI" class="email-logo" style="display:block;width:56px;height:56px;border:0;">
   </td>
   <td valign="middle" style="color:#fff;">
-    <div style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:13px;letter-spacing:0.35em;text-transform:uppercase;color:#ffffff;margin-bottom:4px;font-weight:600;">Performance Intelligence</div>
-    <div style="font-family:'IBM Plex Serif',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:-0.01em;line-height:1;color:#ffffff;">Weekly Briefing</div>
-    <div style="font-size:13px;color:#ffffff;opacity:0.88;margin-top:4px;">Week {week} · {date_str}</div>
+    <div class="email-pi" style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:13px;letter-spacing:0.35em;text-transform:uppercase;color:#ffffff;margin-bottom:4px;font-weight:600;">Performance Intelligence</div>
+    <div class="email-wb" style="font-family:'IBM Plex Serif',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:-0.01em;line-height:1;color:#ffffff;">Weekly Briefing</div>
+    <div class="email-meta" style="font-size:13px;color:#ffffff;opacity:0.88;margin-top:4px;">Week {week} · {date_str}</div>
   </td>
   </tr></table>
 </td></tr>
-<tr><td style="padding:24px 32px 32px;">
+<tr><td class="email-body" style="padding:24px 32px 32px;">
 {review_block}
 <p style="font-size:14px;color:#222;line-height:1.55;">
 This week's briefing is live. Six categories, four topics each, twenty-four signals worth your attention.
