@@ -1,81 +1,62 @@
-name: Rebuild Draft Only — from current staging
+name: Rebuild Teaser Draft (manual)
 
-# Lightweight workflow that rebuilds the Monday teaser draft from the
-# CURRENT contents of the staging branch, without re-generating content.
+# Re-renders the teaser email from the CURRENT main branch content and
+# creates a Gmail DRAFT (does not send). Useful for:
+#   - Testing email template changes against existing published content
+#   - Re-drafting today's email after a design fix so you can review
+#     and edit before sending
 #
-# Use cases:
-#   - You sent/deleted the existing draft and need a fresh one for editing
-#   - You manually edited index.html on staging and want the draft to match
-#   - You changed build_teaser.py and want to regenerate the draft
+# Does NOT regenerate content. Does NOT route through subscribers list.
+# Always drafts to jc@jezcartwright.com — you can edit the To: in Gmail
+# before sending, or pass the draft through publish-monday for auto-send.
 #
-# Does NOT run Claude (no API cost), does NOT touch main, does NOT redeploy
-# the preview channel.
+# Always manual — no cron.
 
 on:
   workflow_dispatch:
+    inputs:
+      subject_suffix:
+        description: 'Optional suffix added to the email subject (default empty)'
+        required: false
+        default: ''
 
 jobs:
   rebuild-draft:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
-      - name: "Checkout main (code — build_teaser.py + mailer.py)"
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
         with:
           ref: main
-          fetch-depth: 1
 
-      - name: Overlay staging's index.html and .preview-url
-        run: |
-          # Grab index.html and (if it exists) the persisted preview URL
-          # from staging, leaving build_teaser.py + mailer.py at the main
-          # version. The .preview-url file is only present from Friday
-          # workflows that ran after that feature was added; rebuild gracefully
-          # if it's not there.
-          git fetch origin staging --depth=1
-          git checkout origin/staging -- index.html
-          if git show origin/staging:.preview-url >/dev/null 2>&1; then
-            git checkout origin/staging -- .preview-url
-            echo "Preview URL found: $(cat .preview-url)"
-          else
-            echo "(no .preview-url on staging — the draft will not include a reviewer block this time)"
-            echo "" > .preview-url
-          fi
-          echo "Code from main:    $(git log -1 --pretty=format:'%h %s')"
-          echo "Content from staging: $(git log origin/staging -1 --pretty=format:'%h %s')"
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
-      - name: Install Gmail dependencies
+      - name: Install dependencies
         run: pip install google-auth google-api-python-client
 
-      - name: Compute ISO week
-        id: week
-        run: echo "n=$(date -u +%V)" >> "$GITHUB_OUTPUT"
-
-      - name: Build teaser email from staging index.html
+      - name: Render teaser HTML from current main
+        id: render
         run: |
-          # Read the actual preview URL that the Friday workflow saved to
-          # staging — no guessing at URL patterns.
-          PREVIEW_URL=$(cat .preview-url | tr -d '[:space:]')
-          if [ -z "$PREVIEW_URL" ]; then
-            echo "::error::.preview-url is empty. The reviewer block in the draft will be omitted."
-          fi
-          python build_teaser.py index.html "$PREVIEW_URL" > teaser.html
-          echo "✓ teaser.html built ($(wc -c < teaser.html) bytes)"
-          echo "  preview URL embedded: $PREVIEW_URL"
+          python build_teaser.py index.html > /tmp/teaser.html
+          echo "Rendered teaser HTML — $(wc -c < /tmp/teaser.html) bytes"
 
-      - name: Save as Gmail draft
+      - name: Compute subject
+        id: subj
+        run: |
+          WEEK=$(date -u +%V)
+          SUFFIX="${{ github.event.inputs.subject_suffix }}"
+          echo "subject=Performance Intelligence Weekly Briefing — Week ${WEEK}${SUFFIX}" >> $GITHUB_OUTPUT
+
+      - name: Create draft via mailer.py
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
         run: |
-          WEEK="${{ steps.week.outputs.n }}"
-          SUBJECT="Performance Intelligence Weekly Briefing — Week $WEEK"
           python -m mailer draft \
             --to "jc@jezcartwright.com" \
-            --subject "$SUBJECT" \
-            --body-file teaser.html
-          echo "✓ Draft saved in jc@jezcartwright.com Drafts folder."
-          echo "  Edit at your leisure; Monday workflow will send whatever's there."
+            --subject "${{ steps.subj.outputs.subject }}" \
+            --body-file /tmp/teaser.html
+          echo "Draft created. Open Gmail to review and edit."
