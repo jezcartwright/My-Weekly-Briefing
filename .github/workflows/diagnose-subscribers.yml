@@ -1,0 +1,59 @@
+name: Diagnose Subscriber List (one-off)
+
+# Dumps the schema of the Firestore users collection so we can see what's
+# actually there. No emails sent. Delete this workflow file once the
+# subscriber-lookup is understood.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - run: pip install google-cloud-firestore google-auth
+
+      - name: Dump users collection
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          python << 'PYEOF'
+          import json, os, sys
+          from google.cloud import firestore
+          from google.oauth2 import service_account
+
+          info = json.loads(os.environ["FIREBASE_SERVICE_ACCOUNT"])
+          creds = service_account.Credentials.from_service_account_info(info)
+          db = firestore.Client(project=info["project_id"], credentials=creds)
+
+          print("=" * 70)
+          print("USERS collection dump")
+          print("=" * 70)
+          count = 0
+          for snap in db.collection("users").stream():
+              count += 1
+              data = snap.to_dict() or {}
+              print(f"\nUser #{count}: doc_id={snap.id}")
+              print(f"  fields ({len(data)} total):")
+              for key, value in data.items():
+                  # Truncate long values
+                  v = repr(value)
+                  if len(v) > 200: v = v[:200] + '...'
+                  print(f"    {key} = {v}")
+          print()
+          print("=" * 70)
+          print(f"Total users in collection: {count}")
+          print("=" * 70)
+
+          # Also try to dump any other plausible collections
+          for coll_name in ["subscribers", "Users", "User"]:
+              docs = list(db.collection(coll_name).limit(1).stream())
+              if docs:
+                  print(f"\nNOTE: a collection named '{coll_name}' also exists with at least 1 doc.")
+          PYEOF
