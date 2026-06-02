@@ -91,19 +91,20 @@
 
   .eyebrow{
     grid-row:1;grid-column:2;
-    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-family:'Cormorant Garamond',serif;font-weight:700;
     font-size:15px;line-height:1.15;
     text-transform:uppercase;color:#fff;align-self:end;
+    text-align:center;
   }
   .ipad-portrait .eyebrow,.ipad-landscape .eyebrow,.desktop .eyebrow{font-size:19px}
   .eyebrow span{display:block}
-  /* PERFORMANCE: tighter spacing — narrower visual width */
-  .eyebrow .eb-performance{letter-spacing:.10em}
-  /* INTELLIGENCE: much looser spacing — clearly wider visual width */
+  /* PERFORMANCE: moderate spacing — narrower than INTELLIGENCE but not too tight */
+  .eyebrow .eb-performance{letter-spacing:.18em}
+  /* INTELLIGENCE: looser spacing — clearly the wider of the two */
   .eyebrow .eb-intelligence{letter-spacing:.28em}
   .ipad-portrait .eyebrow .eb-performance,
   .ipad-landscape .eyebrow .eb-performance,
-  .desktop .eyebrow .eb-performance{letter-spacing:.12em}
+  .desktop .eyebrow .eb-performance{letter-spacing:.2em}
   .ipad-portrait .eyebrow .eb-intelligence,
   .ipad-landscape .eyebrow .eb-intelligence,
   .desktop .eyebrow .eb-intelligence{letter-spacing:.32em}
@@ -112,6 +113,7 @@
     grid-row:2;grid-column:2;
     font-family:'IBM Plex Serif',serif;font-style:normal;font-weight:700;
     font-size:34px;line-height:1;margin-top:4px;
+    text-align:center;
   }
   .ipad-portrait .wordmark,.ipad-landscape .wordmark,.desktop .wordmark{font-size:44px;margin-top:6px}
 
