@@ -3,14 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Banner Mockups — Performance Intelligence Weekly Briefing</title>
+<title>Banner Option C — across all platforms</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --orange:#ff6600;
     --bg:#faf8f5;
     --t:#1a1a1a;
-    --muted:#888;
     --tab-leadership:#ff6600;
     --tab-markets:#1e3a8a;
     --tab-psychology:#c8102e;
@@ -21,442 +20,292 @@
   *{box-sizing:border-box}
   body{
     font-family:'IBM Plex Serif',Georgia,serif;
-    background:#e8e4dc;
-    color:var(--t);
-    margin:0;
-    padding:24px 16px 64px;
-    min-height:100vh;
+    background:#e8e4dc;color:var(--t);
+    margin:0;padding:24px 16px 64px;
     -webkit-font-smoothing:antialiased;
   }
+  .intro{max-width:1400px;margin:0 auto 24px;padding:0 8px}
+  .intro h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin:0 0 6px}
+  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0;line-height:1.5;max-width:760px}
 
-  /* Page header */
-  .page-head{max-width:1400px;margin:0 auto 32px;padding:0 8px}
-  .page-head h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;margin:0 0 6px}
-  .page-head p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0;line-height:1.5;max-width:720px}
-
-  /* Layout: four cards side-by-side */
-  .grid{
-    max-width:1400px;
-    margin:0 auto;
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:20px;
+  .device-section{max-width:1400px;margin:0 auto 40px}
+  .device-label{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:1.6px;text-transform:uppercase;color:var(--orange);
+    margin:0 0 4px;padding:0 8px;
   }
-  @media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media (max-width:640px){.grid{grid-template-columns:1fr}}
-
-  .card{background:#fff;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.06);overflow:hidden;display:flex;flex-direction:column}
-  .card-label{padding:14px 16px 0;font-family:'Inter',sans-serif}
-  .card-label .opt{font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--orange);text-transform:uppercase}
-  .card-label h2{font-size:16px;font-weight:600;margin:4px 0 4px;color:#111;font-family:'IBM Plex Serif',serif}
-  .card-label p{font-size:12px;color:#555;line-height:1.45;margin:0 0 14px;min-height:54px}
-
-  /* Phone frame */
-  .phone{
-    margin:0 auto;
-    width:100%;
-    max-width:380px;
-    background:#000;
-    border-radius:24px 24px 0 0;
-    padding:8px 6px 0;
-    box-shadow:0 12px 32px rgba(0,0,0,.18);
-    margin-top:auto;
+  .device-spec{
+    font-family:'Inter',sans-serif;font-size:12px;color:#666;
+    margin:0 0 14px;padding:0 8px;
   }
-  .phone-inner{
-    background:var(--bg);
-    border-radius:18px 18px 0 0;
-    overflow:hidden;
-    min-height:420px;
+  .device-frame{
+    background:#1a1a1a;border-radius:18px;padding:6px;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);margin:0 auto;
   }
+  .device-inner{background:var(--bg);border-radius:12px;overflow:hidden}
+  .iphone{width:390px}
+  .ipad-portrait{width:820px}
+  .ipad-landscape{width:1180px}
+  .desktop{width:1280px}
+  @media (max-width:1320px){.desktop,.ipad-landscape{width:100%;max-width:100%}}
+  @media (max-width:860px){.ipad-portrait{width:100%;max-width:100%}}
 
-  /* ── The new masthead ── */
-  .masthead{
-    background:var(--orange);
-    color:#fff;
-    padding:14px 14px 16px;
-    position:relative;
-  }
-  .mast-row{display:flex;justify-content:flex-end}
+  .masthead{background:var(--orange);color:#fff;position:relative}
+  .mast-content{max-width:1100px;margin:0 auto;padding:14px 18px 16px}
+  .ipad-portrait .mast-content,
+  .ipad-landscape .mast-content,
+  .desktop .mast-content{padding:18px 28px 20px}
+
+  .mast-row{display:flex;justify-content:flex-end;align-items:center;gap:10px}
   .date-pill{
-    display:inline-flex;
-    align-items:center;
-    background:#fff;
-    border-radius:999px;
-    padding:5px 5px 5px 12px;
-    gap:8px;
-    color:#1a1a1a;
-    font-family:'Inter',sans-serif;
-    font-size:11px;
-    font-weight:600;
-    line-height:1;
-    white-space:nowrap;
+    display:inline-flex;align-items:center;background:#fff;border-radius:999px;
+    padding:5px 5px 5px 12px;gap:8px;color:#1a1a1a;
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:600;line-height:1;white-space:nowrap;
   }
   .date-pill .avatar{
-    width:22px;height:22px;border-radius:50%;
-    background:#3a2818;
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:10px;font-weight:600;
+    width:22px;height:22px;border-radius:50%;background:#3a2818;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:600;
   }
-  .mast-body{
-    display:grid;
-    grid-template-columns:auto 1fr;
-    column-gap:14px;
-    align-items:end;
-    margin-top:8px;
+  .ipad-portrait .date-pill,.ipad-landscape .date-pill,.desktop .date-pill{
+    padding:6px 6px 6px 14px;font-size:12px;
   }
+  .ipad-portrait .date-pill .avatar,.ipad-landscape .date-pill .avatar,.desktop .date-pill .avatar{
+    width:26px;height:26px;font-size:11px;
+  }
+  .hamburger{
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(255,255,255,.18);color:#fff;border:none;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:18px;line-height:1;cursor:pointer;font-weight:300;
+  }
+  .ipad-portrait .hamburger,.ipad-landscape .hamburger,.desktop .hamburger{
+    width:36px;height:36px;font-size:20px;
+  }
+  .mast-body{display:grid;grid-template-columns:auto 1fr;column-gap:16px;align-items:end;margin-top:10px}
   .pi-logo{
-    font-family:'IBM Plex Serif',serif;
-    font-weight:500;
-    font-size:56px;
-    line-height:.85;
-    align-self:end;
-    /* Hand-tuned offset so π baseline aligns with wordmark baseline */
-    transform:translateY(2px);
+    font-family:'IBM Plex Serif',serif;font-weight:500;
+    font-size:56px;line-height:.85;align-self:end;transform:translateY(2px);
   }
+  .ipad-portrait .pi-logo,.ipad-landscape .pi-logo,.desktop .pi-logo{font-size:72px}
+  .ipad-portrait .mast-body,.ipad-landscape .mast-body,.desktop .mast-body{column-gap:22px}
+
   .mast-text{align-self:end;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
   .eyebrow{
-    font-family:'Cormorant Garamond',serif;
-    font-weight:600;
-    font-size:11px;
-    line-height:1.05;
-    letter-spacing:.32em;
-    text-transform:uppercase;
-    color:#fff;
-    opacity:.92;
+    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:11px;line-height:1.05;letter-spacing:.32em;
+    text-transform:uppercase;color:#fff;opacity:.92;
   }
+  .ipad-portrait .eyebrow,.ipad-landscape .eyebrow,.desktop .eyebrow{font-size:13px;letter-spacing:.36em}
   .eyebrow span{display:block}
   .wordmark{
-    font-family:'IBM Plex Serif',serif;
-    font-style:italic;
-    font-weight:500;
-    font-size:24px;
-    line-height:1.05;
-    margin-top:4px;
+    font-family:'IBM Plex Serif',serif;font-style:italic;font-weight:500;
+    font-size:24px;line-height:1.05;margin-top:4px;
   }
+  .ipad-portrait .wordmark,.ipad-landscape .wordmark,.desktop .wordmark{font-size:30px;margin-top:6px}
 
-  /* ── Toolbar variants ── */
-  .toolbar{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    padding:10px 14px;
-    background:#fff;
-    border-bottom:1px solid #eee;
-  }
-  .tbtn{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:38px;height:32px;
-    border:1px solid #e5e1d8;
-    border-radius:6px;
-    background:#fff;
-    font-size:15px;
-    cursor:pointer;
-  }
-  .tbtn.wide{width:auto;padding:0 10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:#444;gap:5px}
-  .tbtn.aa{font-family:'IBM Plex Serif',serif;font-weight:600;color:var(--orange);letter-spacing:-.5px;font-size:13px}
-
-  /* Option B variant: avatar stays in masthead pill, action buttons below */
-  /* Option C variant: hamburger in masthead, no toolbar below */
-  /* Option D variant: surfaced buttons + more menu */
-  .toolbar.compact{justify-content:space-between}
-  .toolbar.compact .group{display:flex;gap:6px}
-
-  /* For Option C: hamburger added inside the pill row */
-  .masthead.has-hamburger .mast-row{justify-content:space-between;align-items:center}
-  .hamburger{
-    width:32px;height:32px;
-    border-radius:50%;
-    background:rgba(255,255,255,.15);
-    color:#fff;
-    display:inline-flex;align-items:center;justify-content:center;
-    font-size:16px;
-  }
-
-  /* ── Category tabs (for context) ── */
-  .tabs{
-    display:flex;
-    gap:6px;
-    padding:10px 14px;
-    background:var(--bg);
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    border-bottom:1px solid #ece8e0;
+  .tabs{display:flex;gap:6px;padding:10px 14px;background:var(--bg);overflow-x:auto;border-bottom:1px solid #ece8e0}
+  .ipad-portrait .tabs,.ipad-landscape .tabs,.desktop .tabs{
+    padding:14px 28px;max-width:1156px;margin:0 auto;gap:8px;
   }
   .tab{
-    flex:0 0 auto;
-    padding:8px 14px;
-    border:1.5px solid;
-    border-radius:4px;
-    background:#fff;
-    font-family:'Inter',sans-serif;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:1.4px;
-    text-transform:uppercase;
-    color:var(--col);
-    border-color:var(--col);
+    flex:0 0 auto;padding:8px 14px;border:1.5px solid;border-radius:4px;background:#fff;
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;
+    text-transform:uppercase;color:var(--col);border-color:var(--col);
   }
   .tab.active{background:var(--col);color:#fff}
+  .ipad-portrait .tab,.ipad-landscape .tab,.desktop .tab{padding:10px 18px;font-size:12px}
 
-  /* Sample card peek */
-  .sample{padding:14px;background:var(--bg)}
+  .content{padding:14px;background:var(--bg)}
+  .ipad-portrait .content,.ipad-landscape .content,.desktop .content{
+    padding:18px 28px;max-width:1156px;margin:0 auto;
+  }
   .sample-card{
-    background:#fff;
-    border:1px solid #E0D8CB;
-    border-left:4px solid var(--orange);
-    border-radius:1px;
-    padding:14px 16px;
-    display:grid;
-    grid-template-columns:32px 1fr;
-    gap:10px;
+    background:#fff;border:1px solid #E0D8CB;border-left:4px solid var(--orange);
+    border-radius:1px;padding:14px 16px;
+    display:grid;grid-template-columns:32px 1fr;gap:10px;margin-bottom:10px;
   }
-  .sample-num{
-    font-family:'Inter',sans-serif;
-    font-size:11px;font-weight:700;
-    color:var(--orange);
-    padding-top:3px;
+  .ipad-portrait .sample-card,.ipad-landscape .sample-card,.desktop .sample-card{
+    padding:18px 22px;grid-template-columns:42px 1fr;
   }
-  .sample-title{
-    font-family:'IBM Plex Serif',serif;
-    font-size:16px;line-height:1.25;font-weight:600;
-    color:#1a1a1a;
-  }
+  .sample-num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--orange);padding-top:3px}
+  .ipad-portrait .sample-num,.ipad-landscape .sample-num,.desktop .sample-num{font-size:13px}
+  .sample-title{font-family:'IBM Plex Serif',serif;font-size:16px;line-height:1.25;font-weight:600;color:#1a1a1a}
+  .ipad-portrait .sample-title,.ipad-landscape .sample-title,.desktop .sample-title{font-size:21px}
+  .sample-summary{font-family:'IBM Plex Serif',serif;font-size:14px;line-height:1.4;color:#444;margin-top:6px}
+  .ipad-portrait .sample-summary,.ipad-landscape .sample-summary,.desktop .sample-summary{font-size:17px;line-height:1.45;margin-top:8px}
 
-  /* Differences callout */
-  .diff{font-family:'Inter',sans-serif;font-size:11.5px;color:#666;padding:12px 16px 16px;line-height:1.5;background:#fafaf8}
-  .diff strong{color:#222}
-
-  /* Notes section at bottom */
   .notes{
-    max-width:1400px;
-    margin:48px auto 0;
-    background:#fff;
-    border-radius:8px;
-    padding:24px 28px;
-    font-family:'Inter',sans-serif;
-    font-size:14px;
-    line-height:1.6;
-    color:#333;
+    max-width:1100px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
+    font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333;
   }
   .notes h3{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;margin:0 0 12px}
-  .notes ul{margin:0;padding-left:20px}
-  .notes li{margin-bottom:6px}
+  .notes p{margin:0 0 10px}
+  .notes strong{color:#222}
 </style>
 </head>
 <body>
 
-<div class="page-head">
-  <h1>Banner Mockup — four toolbar options</h1>
-  <p>Same masthead in all four (your new design — π bottom-left, stacked eyebrow, date+avatar pill top-right). What differs is where the existing toolbar buttons go: PDF · Notes · Liked · Library · Font-size.</p>
+<div class="intro">
+  <h1>Option C — across all screen sizes</h1>
+  <p>Same masthead at four widths. Type sizes scale up on bigger screens; content stays in a centred max-width column so the masthead doesn't stretch into emptiness on wide displays.</p>
 </div>
 
-<div class="grid">
-
-  <!-- ─────────── OPTION A: full toolbar below masthead ─────────── -->
-  <div class="card">
-    <div class="card-label">
-      <span class="opt">Option A</span>
-      <h2>Full toolbar below banner</h2>
-      <p>All five buttons stay together in a thin row directly below the masthead. Familiar — closest to today's layout.</p>
+<!-- iPhone portrait -->
+<section class="device-section">
+  <p class="device-label">iPhone portrait</p>
+  <p class="device-spec">390 × variable · the primary reading context</p>
+  <div class="device-frame iphone"><div class="device-inner">
+    <div class="masthead"><div class="mast-content">
+      <div class="mast-row">
+        <div class="date-pill"><span>Tue, 2 Jun 2026</span><div class="avatar">J</div></div>
+        <button class="hamburger">≡</button>
+      </div>
+      <div class="mast-body">
+        <div class="pi-logo">π</div>
+        <div class="mast-text">
+          <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="tabs">
+      <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
+      <span class="tab" style="--col:var(--tab-markets)">Markets</span>
+      <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
+      <span class="tab" style="--col:var(--tab-tech)">Tech</span>
     </div>
-    <div class="phone">
-      <div class="phone-inner">
-        <div class="masthead">
-          <div class="mast-row">
-            <div class="date-pill">
-              <span>Tue, 2 Jun 2026</span>
-              <div class="avatar">J</div>
-            </div>
-          </div>
-          <div class="mast-body">
-            <div class="pi-logo">π</div>
-            <div class="mast-text">
-              <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
-              <div class="wordmark">Weekly Briefing</div>
-            </div>
-          </div>
-        </div>
-        <div class="toolbar">
-          <button class="tbtn" title="PDF">📄</button>
-          <button class="tbtn" title="Notes">✏️</button>
-          <button class="tbtn" title="Liked">♡</button>
-          <button class="tbtn" title="Library">▤</button>
-          <button class="tbtn aa" title="Font size">Aa</button>
-        </div>
-        <div class="tabs">
-          <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
-          <span class="tab" style="--col:var(--tab-markets)">Markets</span>
-          <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
-        </div>
-        <div class="sample">
-          <div class="sample-card">
-            <div class="sample-num">01</div>
-            <div class="sample-title">The 50-Year Career Problem</div>
-          </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives.</div>
         </div>
       </div>
     </div>
-    <div class="diff">
-      <strong>Trade-off:</strong> nothing hidden; adds ~52px to total header height. Banner stays uncluttered.
-    </div>
-  </div>
+  </div></div>
+</section>
 
-  <!-- ─────────── OPTION B: action buttons below, account stays in pill ─────────── -->
-  <div class="card">
-    <div class="card-label">
-      <span class="opt">Option B</span>
-      <h2>Split: identity in banner, actions below</h2>
-      <p>Same as A but cleaner separation — the avatar pill is for "you" (identity, date), the toolbar below is for "actions" (PDF, Notes, etc).</p>
+<!-- iPad portrait -->
+<section class="device-section">
+  <p class="device-label">iPad portrait</p>
+  <p class="device-spec">820 × variable · type and spacing scale up; same density and layout</p>
+  <div class="device-frame ipad-portrait"><div class="device-inner">
+    <div class="masthead"><div class="mast-content">
+      <div class="mast-row">
+        <div class="date-pill"><span>Tuesday, 2 June 2026</span><div class="avatar">J</div></div>
+        <button class="hamburger">≡</button>
+      </div>
+      <div class="mast-body">
+        <div class="pi-logo">π</div>
+        <div class="mast-text">
+          <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="tabs">
+      <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
+      <span class="tab" style="--col:var(--tab-markets)">Markets</span>
+      <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
+      <span class="tab" style="--col:var(--tab-tech)">Technology</span>
+      <span class="tab" style="--col:var(--tab-geo)">Geopolitics</span>
+      <span class="tab" style="--col:var(--tab-philosophy)">Philosophy</span>
     </div>
-    <div class="phone">
-      <div class="phone-inner">
-        <div class="masthead">
-          <div class="mast-row">
-            <div class="date-pill">
-              <span>Tue, 2 Jun 2026</span>
-              <div class="avatar">J</div>
-            </div>
-          </div>
-          <div class="mast-body">
-            <div class="pi-logo">π</div>
-            <div class="mast-text">
-              <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
-              <div class="wordmark">Weekly Briefing</div>
-            </div>
-          </div>
-        </div>
-        <div class="toolbar">
-          <button class="tbtn" title="PDF">📄</button>
-          <button class="tbtn" title="Notes">✏️</button>
-          <button class="tbtn" title="Liked">♡</button>
-          <button class="tbtn" title="Library">▤</button>
-          <button class="tbtn aa" title="Font size">Aa</button>
-        </div>
-        <div class="tabs">
-          <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
-          <span class="tab" style="--col:var(--tab-markets)">Markets</span>
-          <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
-        </div>
-        <div class="sample">
-          <div class="sample-card">
-            <div class="sample-num">01</div>
-            <div class="sample-title">The 50-Year Career Problem</div>
-          </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
         </div>
       </div>
     </div>
-    <div class="diff">
-      <strong>Visually identical to A in this preview</strong> — the conceptual split only shows up in how we think about future additions. If buttons grow, this option treats them as actions (extendable) vs identity (fixed).
-    </div>
-  </div>
+  </div></div>
+</section>
 
-  <!-- ─────────── OPTION C: hamburger in banner, no toolbar ─────────── -->
-  <div class="card">
-    <div class="card-label">
-      <span class="opt">Option C</span>
-      <h2>Hamburger menu — minimal banner</h2>
-      <p>Everything hides behind a single menu icon next to the avatar pill. Cleanest banner; one extra tap to reach actions.</p>
+<!-- iPad landscape -->
+<section class="device-section">
+  <p class="device-label">iPad landscape</p>
+  <p class="device-spec">1180 × variable · max-width column keeps banner cluster centred and at the right density</p>
+  <div class="device-frame ipad-landscape"><div class="device-inner">
+    <div class="masthead"><div class="mast-content">
+      <div class="mast-row">
+        <div class="date-pill"><span>Tuesday, 2 June 2026</span><div class="avatar">J</div></div>
+        <button class="hamburger">≡</button>
+      </div>
+      <div class="mast-body">
+        <div class="pi-logo">π</div>
+        <div class="mast-text">
+          <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="tabs">
+      <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
+      <span class="tab" style="--col:var(--tab-markets)">Markets</span>
+      <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
+      <span class="tab" style="--col:var(--tab-tech)">Technology</span>
+      <span class="tab" style="--col:var(--tab-geo)">Geopolitics</span>
+      <span class="tab" style="--col:var(--tab-philosophy)">Philosophy</span>
     </div>
-    <div class="phone">
-      <div class="phone-inner">
-        <div class="masthead has-hamburger">
-          <div class="mast-row">
-            <div></div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <div class="date-pill">
-                <span>Tue, 2 Jun 2026</span>
-                <div class="avatar">J</div>
-              </div>
-              <button class="hamburger" title="Menu">≡</button>
-            </div>
-          </div>
-          <div class="mast-body">
-            <div class="pi-logo">π</div>
-            <div class="mast-text">
-              <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
-              <div class="wordmark">Weekly Briefing</div>
-            </div>
-          </div>
-        </div>
-        <div class="tabs">
-          <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
-          <span class="tab" style="--col:var(--tab-markets)">Markets</span>
-          <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
-        </div>
-        <div class="sample">
-          <div class="sample-card">
-            <div class="sample-num">01</div>
-            <div class="sample-title">The 50-Year Career Problem</div>
-          </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
         </div>
       </div>
     </div>
-    <div class="diff">
-      <strong>Trade-off:</strong> minimal real estate cost, refined editorial feel. Cost: one tap to reach Notes/Liked. Best if those features are used less than the reading itself.
-    </div>
-  </div>
+  </div></div>
+</section>
 
-  <!-- ─────────── OPTION D: selective surfacing ─────────── -->
-  <div class="card">
-    <div class="card-label">
-      <span class="opt">Option D</span>
-      <h2>Selective surface — top features visible</h2>
-      <p>Notes ✏️ and Liked ♡ stay in the toolbar (most-used while reading). PDF, Library, Font-size move into a 'more' menu (⋯).</p>
+<!-- Desktop -->
+<section class="device-section">
+  <p class="device-label">Desktop / large screen</p>
+  <p class="device-spec">1280+ · orange band edge-to-edge for full-bleed presence; masthead cluster centred</p>
+  <div class="device-frame desktop"><div class="device-inner">
+    <div class="masthead"><div class="mast-content">
+      <div class="mast-row">
+        <div class="date-pill"><span>Tuesday, 2 June 2026</span><div class="avatar">J</div></div>
+        <button class="hamburger">≡</button>
+      </div>
+      <div class="mast-body">
+        <div class="pi-logo">π</div>
+        <div class="mast-text">
+          <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+    </div></div>
+    <div class="tabs">
+      <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
+      <span class="tab" style="--col:var(--tab-markets)">Markets</span>
+      <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
+      <span class="tab" style="--col:var(--tab-tech)">Technology</span>
+      <span class="tab" style="--col:var(--tab-geo)">Geopolitics</span>
+      <span class="tab" style="--col:var(--tab-philosophy)">Philosophy</span>
     </div>
-    <div class="phone">
-      <div class="phone-inner">
-        <div class="masthead">
-          <div class="mast-row">
-            <div class="date-pill">
-              <span>Tue, 2 Jun 2026</span>
-              <div class="avatar">J</div>
-            </div>
-          </div>
-          <div class="mast-body">
-            <div class="pi-logo">π</div>
-            <div class="mast-text">
-              <div class="eyebrow"><span>Performance</span><span>Intelligence</span></div>
-              <div class="wordmark">Weekly Briefing</div>
-            </div>
-          </div>
-        </div>
-        <div class="toolbar compact">
-          <div class="group">
-            <button class="tbtn" title="Notes">✏️</button>
-            <button class="tbtn" title="Liked">♡</button>
-          </div>
-          <button class="tbtn wide" title="More">⋯ More</button>
-        </div>
-        <div class="tabs">
-          <span class="tab active" style="--col:var(--tab-leadership)">Leadership</span>
-          <span class="tab" style="--col:var(--tab-markets)">Markets</span>
-          <span class="tab" style="--col:var(--tab-psychology)">Psychology</span>
-        </div>
-        <div class="sample">
-          <div class="sample-card">
-            <div class="sample-num">01</div>
-            <div class="sample-title">The 50-Year Career Problem</div>
-          </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
         </div>
       </div>
     </div>
-    <div class="diff">
-      <strong>Trade-off:</strong> middle ground — your two most-used reader actions are one tap away; the meta features (PDF, Library, Font) are one tap deeper. Best if reading workflow is the priority.
-    </div>
-  </div>
-
-</div>
+  </div></div>
+</section>
 
 <div class="notes">
-  <h3>A few things worth knowing as you decide</h3>
-  <ul>
-    <li><strong>Mobile width.</strong> All four options are shown at iPhone width (~375px). On iPad/desktop the masthead gets wider and the toolbar fills less of the row — Option A's toolbar would feel less crowded there. Option C looks identical on every width.</li>
-    <li><strong>The π logo position.</strong> Set bottom-left, aligned with the wordmark baseline. The "Performance Intelligence" eyebrow stacks on two lines and sits above "Weekly Briefing", to the right of the π.</li>
-    <li><strong>The date-and-avatar pill.</strong> Now one unified white capsule containing both — date text + circular avatar inside. Replaces the old "Tuesday, 2 June 2026" + "Jez" floating elements. Tappable as a single unit; tap → account menu.</li>
-    <li><strong>What the toolbar buttons currently do</strong> (for reference when deciding): PDF = export current view; Notes = side panel of all your notes; Liked = saved/favourited topics; Library = full archive of past briefings; Font-size = reader text size.</li>
-    <li><strong>Mike will see the same banner.</strong> Whatever's chosen is global; we can't personalise per user without extra plumbing.</li>
-  </ul>
+  <h3>How it scales</h3>
+  <p><strong>Content stays in a max-1100px column on all screens.</strong> Orange band always edge-to-edge (no broken-up colour), but the cluster stays at editorial density. Avoids the "skinny banner with empty middle" problem on wide displays.</p>
+  <p><strong>Type sizes scale up at the iPad-and-above breakpoint.</strong> Eyebrow 11→13px, wordmark 24→30px, π logo 56→72px.</p>
+  <p><strong>Two interactive elements only.</strong> Date+avatar pill = account/identity. Hamburger = navigation menu (PDF, Notes, Liked, Library, Font-size). Clean separation by function.</p>
+  <p><strong>Email template inheritance.</strong> The Monday email banner will adopt the same π+eyebrow+wordmark layout but without the interactive pill/hamburger — they have no meaning in email. Keeps brand consistency between web and inbox.</p>
 </div>
 
 </body>
