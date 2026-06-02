@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Label centred under active pill</title>
+<title>Label position — two alignment options</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -11,19 +11,32 @@
     font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;
     margin:0;padding:24px 16px 64px;-webkit-font-smoothing:antialiased;
   }
-  .intro{max-width:900px;margin:0 auto 24px;padding:0 8px}
+  .intro{max-width:1100px;margin:0 auto 24px;padding:0 8px}
   .intro h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 6px}
-  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 6px;line-height:1.5;max-width:760px}
-  .intro .hint{font-family:'Inter',sans-serif;font-size:13px;color:#ff6600;font-weight:600;margin:8px 0 0;padding:8px 12px;background:rgba(255,102,0,.08);border-left:3px solid #ff6600}
+  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5;max-width:760px}
 
+  .compare-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+  @media (max-width:800px){.compare-grid{grid-template-columns:1fr}}
+
+  .variant{display:flex;flex-direction:column;gap:8px}
+  .variant-label{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;
+    margin:0;padding:0 6px;
+  }
+  .variant-name{font-family:'IBM Plex Serif',serif;font-size:16px;font-weight:600;margin:0;padding:0 6px}
+  .variant-spec{
+    font-family:'Inter',sans-serif;font-size:12px;color:#555;
+    margin:0 0 6px;padding:0 6px;line-height:1.4;
+  }
   .device-frame{
     background:#1a1a1a;border-radius:18px;padding:6px;
     box-shadow:0 12px 32px rgba(0,0,0,.18);
-    max-width:390px;margin:0 auto;
+    max-width:380px;margin:0 auto;width:100%;
   }
   .device-inner{background:#faf8f5;border-radius:12px;overflow:hidden}
 
-  /* Masthead */
+  /* Masthead replica */
   .masthead{background:#ff6600;color:#fff;padding:10px 14px 14px}
   .utility{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
   .util-date{font-family:'Inter',sans-serif;font-size:12px;font-weight:600}
@@ -38,159 +51,145 @@
   .eyebrow .intel{letter-spacing:.28em}
   .wordmark{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:26px;line-height:1}
 
-  /* Tab ribbon */
-  .ribbon{
-    padding:10px 14px;
-    background:var(--strip-c,#ff6600);
-    transition:background .35s ease;
-    border-top:1px solid rgba(255,255,255,.12);
-  }
-  .tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;text-align:left}
-  .tabs{display:inline-flex;gap:6px;position:relative}
-  .tab{
-    flex:0 0 auto;padding:7px 12px;border-radius:4px;cursor:pointer;
-    font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1.4px;
-    text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col);
-    transition:background .25s, color .25s, border-color .25s;
-  }
-  .tab.on{
-    background:var(--strip-c,#ff6600);
-    border-color:rgba(255,255,255,.9);color:#fff;
+  /* Tab ribbon — Leadership active */
+  .ribbon{background:#ff6600;padding:12px 16px;border-top:1px solid rgba(255,255,255,.12)}
+  .tabs-wrap{overflow-x:auto;text-align:left}
+  .tabs{display:inline-flex;gap:8px}
+  .tab{flex:0 0 auto;padding:9px 16px;border-radius:3px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col)}
+  .tab.on{background:#ff6600;color:#fff;border-color:rgba(255,255,255,.9)}
+
+  /* Category band — Leadership active, orange band */
+  .ci{background:#ff6600;color:#fff;padding-top:14px;padding-bottom:14px}
+  .ci .label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff}
+
+  /* Option A: label left aligned to pill BOX left edge.
+     #tabs has padding-left:16px, so pill box starts at x=16px from band edge.
+     => .ci padding-left:16px */
+  .opt-a .ci{padding-left:16px}
+
+  /* Option B: label left aligned to pill TEXT left edge.
+     Pill text starts at 16px (#tabs padding) + 1.5px (border) + 16px (tab padding) = 33.5px
+     => .ci padding-left:34px */
+  .opt-b .ci{padding-left:34px}
+
+  /* Vertical guide line that visualises the alignment for clarity */
+  .guide{position:relative}
+  .guide::before{
+    content:'';position:absolute;left:var(--guide-x,16px);top:0;bottom:0;
+    width:1px;background:rgba(0,0,0,.18);
+    pointer-events:none;z-index:5;
   }
 
-  /* Category banner — label position set dynamically via --label-x */
-  .ci{
-    background:var(--strip-c,#ff6600);
-    padding:14px 0 14px 0;
-    position:relative;
-    overflow:hidden;
-  }
-  .ci .label{
-    font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;
-    text-transform:uppercase;color:#fff;
-    display:inline-block;
-    padding:0 18px;
-    transform:translateX(var(--label-x, 0));
-    transition:transform .35s ease;
-    white-space:nowrap;
-  }
-
-  /* Content peek */
+  /* Topic peek */
   .content{padding:14px;background:#faf8f5}
-  .card{background:#fff;border:1px solid #E0D8CB;border-left:4px solid var(--strip-c,#ff6600);padding:12px 14px;display:grid;grid-template-columns:30px 1fr;gap:10px}
-  .card .num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--strip-c,#ff6600);padding-top:2px}
+  .card{background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;padding:12px 14px;display:grid;grid-template-columns:30px 1fr;gap:10px}
+  .card .num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#ff6600;padding-top:2px}
   .card .title{font-family:'IBM Plex Serif',serif;font-size:15px;line-height:1.25;font-weight:600}
   .card .summary{font-family:'IBM Plex Serif',serif;font-size:13px;line-height:1.4;color:#444;margin-top:4px}
 
   .notes{
-    max-width:900px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
+    max-width:1100px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
     font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333;
   }
   .notes h3{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;margin:0 0 12px}
   .notes p{margin:0 0 10px}
+  .notes code{background:#f5f1eb;padding:1px 5px;border-radius:3px;font-size:12px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Label aligned to active tab pill</h1>
-  <p>The category label below the ribbon sits horizontally aligned to the centre of the active tab pill. Tap each tab to see the label shift.</p>
-  <p class="hint">↑ Tap any tab in the mockup — watch the label slide to sit under that pill.</p>
+  <h1>Two alignment options — pick which one</h1>
+  <p>Label stays in a fixed left-aligned position. The two options differ in where exactly that position is. Faint vertical guide line shows the alignment in each.</p>
 </div>
 
-<div class="device-frame"><div class="device-inner" id="device">
-  <div class="masthead">
-    <div class="utility">
-      <div class="util-date">Tuesday, 2 June 2026</div>
-      <div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div>
-    </div>
-    <div class="identity">
-      <div class="pi-logo">π</div>
-      <div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div>
-      <div class="wordmark">Weekly Briefing</div>
-    </div>
-  </div>
-  <div class="ribbon" id="ribbon" style="--strip-c:#ff6600">
-    <div class="tabs-wrap" id="tabs-wrap"><div class="tabs" id="tabs">
-      <span class="tab on" data-color="#ff6600" data-label="Leadership" style="--col:#ff6600">Leadership</span>
-      <span class="tab"     data-color="#1e3a8a" data-label="Markets"    style="--col:#1e3a8a">Markets</span>
-      <span class="tab"     data-color="#c8102e" data-label="Psychology" style="--col:#c8102e">Psychology</span>
-      <span class="tab"     data-color="#0891b2" data-label="Technology" style="--col:#0891b2">Tech</span>
-      <span class="tab"     data-color="#7c3aed" data-label="Geopolitics" style="--col:#7c3aed">Geo</span>
-      <span class="tab"     data-color="#15803d" data-label="Philosophy" style="--col:#15803d">Phil</span>
+<div class="compare-grid">
+
+  <!-- Option A -->
+  <div class="variant">
+    <p class="variant-label">A · Box-to-box</p>
+    <p class="variant-name">Label's left edge = pill's left edge</p>
+    <p class="variant-spec">Label box starts exactly where the Leadership pill box starts. About 2px shift from current. Mechanical, structural alignment.</p>
+    <div class="device-frame opt-a"><div class="device-inner guide" style="--guide-x:16px">
+      <div class="masthead">
+        <div class="utility">
+          <div class="util-date">Tuesday, 2 June 2026</div>
+          <div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div>
+        </div>
+        <div class="identity">
+          <div class="pi-logo">π</div>
+          <div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+      <div class="ribbon">
+        <div class="tabs-wrap"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2">Tech</span>
+        </div></div>
+      </div>
+      <div class="ci"><div class="label">Leadership</div></div>
+      <div class="content">
+        <div class="card">
+          <div class="num">01</div>
+          <div>
+            <div class="title">The 50-Year Career Problem</div>
+            <div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div>
+          </div>
+        </div>
+      </div>
     </div></div>
   </div>
-  <div class="ci" id="ci" style="--strip-c:#ff6600">
-    <div class="label" id="label">Leadership</div>
-  </div>
-  <div class="content">
-    <div class="card">
-      <div class="num">01</div>
-      <div>
-        <div class="title">The 50-Year Career Problem</div>
-        <div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div>
-      </div>
-    </div>
-  </div>
-</div></div>
 
-<div class="notes">
-  <h3>How the alignment works</h3>
-  <p>JS measures the active tab's centre point, then translates the label so its centre matches. The label's natural starting position is the left edge of the band, so the shift amount is the distance from "left edge of band + label width/2" to "tab centre".</p>
-  <p>Clamped so the label never overflows the right edge of the band — if a tab is near the right of the strip, the label stops at the right edge rather than going off-screen.</p>
-  <p>Smooth 0.35s transition matches the ribbon's colour-change timing so they animate together.</p>
-  <p>On the live iPhone where six tabs scroll, the active tab's position is measured relative to the visible viewport when activated. The label aligns to where the user just tapped.</p>
+  <!-- Option B -->
+  <div class="variant">
+    <p class="variant-label">B · Text-to-text</p>
+    <p class="variant-name">Label's "L" sits directly under the pill's "L"</p>
+    <p class="variant-spec">The letter "L" of LEADERSHIP below aligns vertically with the letter "L" of LEADERSHIP in the pill above. About 16px shift from current. Strong visual rhyme.</p>
+    <div class="device-frame opt-b"><div class="device-inner guide" style="--guide-x:34px">
+      <div class="masthead">
+        <div class="utility">
+          <div class="util-date">Tuesday, 2 June 2026</div>
+          <div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div>
+        </div>
+        <div class="identity">
+          <div class="pi-logo">π</div>
+          <div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+      <div class="ribbon">
+        <div class="tabs-wrap"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2">Tech</span>
+        </div></div>
+      </div>
+      <div class="ci"><div class="label">Leadership</div></div>
+      <div class="content">
+        <div class="card">
+          <div class="num">01</div>
+          <div>
+            <div class="title">The 50-Year Career Problem</div>
+            <div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
 </div>
 
-<script>
-  function updateLabel(){
-    var ribbon = document.getElementById('ribbon');
-    var ci = document.getElementById('ci');
-    var label = document.getElementById('label');
-    var activeTab = document.querySelector('.tab.on');
-    if(!activeTab) return;
-
-    // Tab centre relative to the ci band
-    var tabRect = activeTab.getBoundingClientRect();
-    var ciRect = ci.getBoundingClientRect();
-    var tabCentreInBand = (tabRect.left + tabRect.width / 2) - ciRect.left;
-
-    // Label's natural position (left edge + half its own width)
-    var labelWidth = label.offsetWidth;
-    var labelNaturalCentre = labelWidth / 2;
-
-    // How much to translate the label
-    var shift = tabCentreInBand - labelNaturalCentre;
-
-    // Clamp so label doesn't go off the right edge
-    var maxShift = ciRect.width - labelWidth;
-    if(shift > maxShift) shift = maxShift;
-    if(shift < 0) shift = 0;
-
-    label.style.setProperty('--label-x', shift + 'px');
-  }
-
-  document.querySelectorAll('.tab').forEach(function(tab){
-    tab.addEventListener('click', function(){
-      var color = tab.dataset.color;
-      var labelText = tab.dataset.label;
-      // Recolour ribbon, ci band, card edges
-      document.getElementById('ribbon').style.setProperty('--strip-c', color);
-      document.getElementById('ci').style.setProperty('--strip-c', color);
-      document.querySelectorAll('.card').forEach(function(c){c.style.setProperty('--strip-c', color);});
-      // Toggle active state
-      document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-      tab.classList.add('on');
-      // Update label
-      document.getElementById('label').textContent = labelText;
-      // Position label after layout settles (allow text change to apply width)
-      requestAnimationFrame(updateLabel);
-    });
-  });
-
-  // Initial position
-  window.addEventListener('load', updateLabel);
-</script>
+<div class="notes">
+  <h3>How they differ</h3>
+  <p><strong>A · Box-to-box:</strong> The container of the label aligns with the container of the pill. Mechanically tidy but the alignment isn't visually obvious — the pill text is inset 13.5px inside its own box, so the words "LEADERSHIP" in the pill and "LEADERSHIP" in the band still don't sit under each other.</p>
+  <p><strong>B · Text-to-text:</strong> The actual letters line up. Looking down the column you see L–L, E–E, A–A. This is the alignment relationship that the eye naturally reads as "the same position".</p>
+  <p>Both are static — once set, the label never moves when you switch tabs. Only the band recolours and the label text changes (LEADERSHIP → MARKETS → PSYCHOLOGY → etc.) but the horizontal position stays put.</p>
+  <p>Implementation is identical effort — single CSS value change to <code>.ci</code> padding-left.</p>
+</div>
 
 </body>
 </html>
