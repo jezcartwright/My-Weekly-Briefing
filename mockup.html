@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Two masthead philosophies — side by side</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Final spec — Design A, all platforms, interactive tabs</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
   body{
@@ -13,53 +13,59 @@
   }
   .intro{max-width:1400px;margin:0 auto 24px;padding:0 8px}
   .intro h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin:0 0 6px}
-  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5;max-width:760px}
+  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 6px;line-height:1.5;max-width:760px}
+  .intro .hint{font-family:'Inter',sans-serif;font-size:13px;color:#ff6600;font-weight:600;margin:8px 0 0;padding:8px 12px;background:rgba(255,102,0,.08);border-left:3px solid #ff6600}
 
-  .section{max-width:1400px;margin:32px auto 0}
-  .section-title{
-    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
-    letter-spacing:1.6px;text-transform:uppercase;color:#666;
-    margin:0 0 16px;padding:0 8px;
-  }
-
-  .compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
-  @media (max-width:900px){.compare-grid{grid-template-columns:1fr}}
-
-  .variant{display:flex;flex-direction:column;gap:8px}
-  .variant-label{
+  .device-section{max-width:1400px;margin:0 auto 40px}
+  .device-label{
     font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
     letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;
-    margin:0;padding:0 8px;
+    margin:0 0 4px;padding:0 8px;
   }
-  .variant-name{
-    font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;
-    margin:0;padding:0 8px;color:#1a1a1a;
-  }
-  .variant-spec{
-    font-family:'Inter',sans-serif;font-size:12px;color:#555;
-    margin:0 0 8px;padding:0 8px;line-height:1.45;
-  }
+  .device-spec{font-family:'Inter',sans-serif;font-size:12px;color:#666;margin:0 0 14px;padding:0 8px}
   .device-frame{
     background:#1a1a1a;border-radius:18px;padding:6px;
-    box-shadow:0 12px 32px rgba(0,0,0,.18);
-    max-width:420px;margin:0 auto;width:100%;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);margin:0 auto;
   }
   .device-inner{background:#faf8f5;border-radius:12px;overflow:hidden}
+  .iphone{width:390px}
+  .ipad-portrait{width:820px}
+  .ipad-landscape{width:1180px}
+  .desktop{width:1280px}
+  @media (max-width:1320px){.desktop,.ipad-landscape{width:100%;max-width:100%}}
+  @media (max-width:860px){.ipad-portrait{width:100%;max-width:100%}}
 
-  /* ───────── Shared atoms ───────── */
-  .masthead{background:#ff6600;color:#fff}
-  .avatar{
-    width:30px;height:30px;border-radius:50%;background:#3a2818;
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:12px;font-weight:600;
+  /* ───────── Masthead ───────── */
+  .masthead{background:#ff6600;color:#fff;position:relative}
+  .utility{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 16px 0;
   }
+  .ipad-portrait .utility,.ipad-landscape .utility,.desktop .utility{padding:16px 28px 0}
+  .util-date{
+    color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;line-height:1;
+  }
+  .ipad-portrait .util-date,.ipad-landscape .util-date,.desktop .util-date{font-size:14px}
+  .util-right{display:flex;align-items:center;gap:8px}
   .hamburger{
     width:32px;height:32px;border-radius:50%;
     background:rgba(255,255,255,.18);color:#fff;border:none;
     display:inline-flex;align-items:center;justify-content:center;
     font-size:18px;line-height:1;font-weight:300;cursor:pointer;
   }
+  .avatar{
+    width:30px;height:30px;border-radius:50%;background:#3a2818;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:12px;font-weight:600;
+  }
+  .ipad-portrait .hamburger,.ipad-landscape .hamburger,.desktop .hamburger{width:36px;height:36px;font-size:20px}
+  .ipad-portrait .avatar,.ipad-landscape .avatar,.desktop .avatar{width:34px;height:34px;font-size:13px}
+
+  .identity{display:flex;flex-direction:column;align-items:center;padding:8px 16px 18px}
+  .ipad-portrait .identity,.ipad-landscape .identity,.desktop .identity{padding:14px 28px 24px}
+  .pi-logo{margin-bottom:8px}
   .pi-logo img{display:block;width:auto;height:36px}
+  .ipad-portrait .pi-logo img,.ipad-landscape .pi-logo img,.desktop .pi-logo img{height:48px}
 
   .eyebrow{
     font-family:'Cormorant Garamond',serif;font-weight:700;
@@ -67,215 +73,283 @@
     text-transform:uppercase;color:#fff;
     margin-bottom:4px;text-align:center;
   }
+  .ipad-portrait .eyebrow,.ipad-landscape .eyebrow,.desktop .eyebrow{font-size:21px}
   .eyebrow span{display:block}
   .eyebrow .eb-performance{letter-spacing:.18em}
   .eyebrow .eb-intelligence{letter-spacing:.28em}
+  .ipad-portrait .eyebrow .eb-performance,
+  .ipad-landscape .eyebrow .eb-performance,
+  .desktop .eyebrow .eb-performance{letter-spacing:.2em}
+  .ipad-portrait .eyebrow .eb-intelligence,
+  .ipad-landscape .eyebrow .eb-intelligence,
+  .desktop .eyebrow .eb-intelligence{letter-spacing:.32em}
+
   .wordmark{
     font-family:'IBM Plex Serif',serif;font-style:normal;font-weight:500;
     font-size:34px;line-height:1;margin-top:4px;text-align:center;
   }
+  .ipad-portrait .wordmark,.ipad-landscape .wordmark,.desktop .wordmark{font-size:44px;margin-top:6px}
 
-  /* ───────── DESIGN A: User's picks (U2, D3, L2) ───────── */
-  .design-a .utility{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:12px 16px 0;
+  /* ───────── Tab ribbon ───────── */
+  /* Default: ribbon matches masthead orange (initial load — one continuous band).
+     On tab change, --active-col updates and the ribbon recolours. */
+  .ribbon{
+    padding:12px 14px;
+    background:var(--active-col,#ff6600);
+    transition:background .35s ease;
   }
-  .design-a .util-date{
-    color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;line-height:1;
-  }
-  .design-a .util-right{display:flex;align-items:center;gap:8px}
-  .design-a .identity{
-    display:flex;flex-direction:column;align-items:center;
-    padding:8px 16px 22px;
-  }
-  .design-a .pi-logo{margin-bottom:10px}
+  .ipad-portrait .ribbon,.ipad-landscape .ribbon,.desktop .ribbon{padding:14px 28px}
+  .tabs{display:flex;gap:6px;max-width:1100px;margin:0 auto;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ipad-portrait .tabs,.ipad-landscape .tabs,.desktop .tabs{gap:8px}
 
-  /* ───────── DESIGN B: FT-style (three strips) ───────── */
-  /* Strip 1: utility, very thin, muted */
-  .design-b .utility-strip{
-    background:rgba(0,0,0,.06);
-    display:flex;justify-content:space-between;align-items:center;
-    padding:6px 14px;
-    font-family:'Inter',sans-serif;font-size:11px;color:rgba(255,255,255,.85);
-    font-weight:500;letter-spacing:.04em;
+  .tab{
+    flex:0 0 auto;padding:8px 14px;border-radius:4px;cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;
+    text-transform:uppercase;
+    transition:background .25s, color .25s, border-color .25s;
   }
-  .design-b .utility-strip .util-right{display:flex;align-items:center;gap:6px}
-  .design-b .utility-strip .avatar{
-    width:24px;height:24px;font-size:10px;
-  }
-  .design-b .utility-strip .hamburger{
-    width:24px;height:24px;font-size:14px;
-    background:transparent;color:#fff;
-  }
-  /* Strip 2: masthead, the actual identity */
-  .design-b .identity{
-    display:flex;flex-direction:column;align-items:center;
-    padding:18px 16px 12px;
-    position:relative;
-  }
-  .design-b .pi-logo{margin-bottom:10px}
-  .design-b .edition-date{
-    font-family:'IBM Plex Serif',serif;font-style:italic;font-weight:400;
-    font-size:13px;color:rgba(255,255,255,.82);
-    margin-top:8px;letter-spacing:.04em;
-  }
-  /* Subtle horizontal rule under masthead, signalling end of identity strip */
-  .design-b .identity::after{
-    content:'';position:absolute;left:24px;right:24px;bottom:0;
-    height:1px;background:rgba(255,255,255,.18);
-  }
-  /* Strip 3: navigation (placeholder — tabs would go here) */
-  .design-b .nav-strip{
-    background:#fff;
-    padding:10px 14px;
-    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
-    letter-spacing:1.4px;text-transform:uppercase;color:#666;
-    text-align:center;
-  }
+  .ipad-portrait .tab,.ipad-landscape .tab,.desktop .tab{padding:10px 18px;font-size:12px}
+  .tab.inactive{background:#fff;border:1.5px solid var(--col);color:var(--col)}
+  .tab.active{background:var(--active-col,#ff6600);border:1.5px solid rgba(255,255,255,.9);color:#fff}
 
-  /* ───────── Analysis notes ───────── */
+  /* ───────── Content peek ───────── */
+  .content{padding:16px 14px;background:#faf8f5}
+  .ipad-portrait .content,.ipad-landscape .content,.desktop .content{padding:20px 28px;max-width:1156px;margin:0 auto}
+  .sample-card{
+    background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;
+    border-radius:1px;padding:14px 16px;
+    display:grid;grid-template-columns:32px 1fr;gap:10px;
+  }
+  .ipad-portrait .sample-card,.ipad-landscape .sample-card,.desktop .sample-card{padding:18px 22px;grid-template-columns:42px 1fr}
+  .sample-num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#ff6600;padding-top:3px}
+  .ipad-portrait .sample-num,.ipad-landscape .sample-num,.desktop .sample-num{font-size:13px}
+  .sample-title{font-family:'IBM Plex Serif',serif;font-size:16px;line-height:1.25;font-weight:600;color:#1a1a1a}
+  .ipad-portrait .sample-title,.ipad-landscape .sample-title,.desktop .sample-title{font-size:21px}
+  .sample-summary{font-family:'IBM Plex Serif',serif;font-size:14px;line-height:1.4;color:#444;margin-top:6px}
+  .ipad-portrait .sample-summary,.ipad-landscape .sample-summary,.desktop .sample-summary{font-size:17px;line-height:1.45;margin-top:8px}
+
   .notes{
     max-width:1100px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
     font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333;
   }
   .notes h3{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;margin:0 0 12px}
-  .notes h4{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:600;margin:18px 0 6px;color:#ff6600}
   .notes p{margin:0 0 10px}
-  .notes ul{margin:0 0 14px;padding-left:18px}
-  .notes li{margin-bottom:4px}
   .notes strong{color:#222}
+  .notes ul{margin:0 0 12px;padding-left:20px}
+  .notes li{margin-bottom:4px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Two masthead philosophies, side by side</h1>
-  <p>Left column: <strong>Design A</strong> — your picks. Right column: <strong>Design B</strong> — editorial three-strip approach inspired by FT, Economist, NYT.</p>
+  <h1>Final spec — Design A across all platforms</h1>
+  <p>Single masthead, centred identity stack, ribbon defaults to orange (matching masthead) and shifts to the active category colour on tap.</p>
+  <p class="hint">↑ Tap the tabs in each mockup to see the ribbon colour transition.</p>
 </div>
 
-<!-- ─────── iPhone width comparison ─────── -->
-<div class="section">
-  <p class="section-title">iPhone portrait · 390 px</p>
-  <div class="compare-grid">
-
-    <div class="variant">
-      <p class="variant-label">Design A · App-feel</p>
-      <p class="variant-name">Single masthead, utility row at top</p>
-      <p class="variant-spec">Date plain top-left, hamburger + avatar top-right, identity stack centred below. Reads like a modern app.</p>
-      <div class="device-frame"><div class="device-inner">
-        <div class="masthead design-a">
-          <div class="utility">
-            <div class="util-date">Tue, 2 Jun 2026</div>
-            <div class="util-right"><button class="hamburger">≡</button><div class="avatar">J</div></div>
-          </div>
-          <div class="identity">
-            <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
-            <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-            <div class="wordmark">Weekly Briefing</div>
-          </div>
+<!-- ─── iPhone ─── -->
+<section class="device-section">
+  <p class="device-label">iPhone portrait · 390 px</p>
+  <p class="device-spec">Tap any tab to change category — watch the ribbon shift colour</p>
+  <div class="device-frame iphone"><div class="device-inner" data-device="iphone">
+    <div class="masthead">
+      <div class="utility">
+        <div class="util-date">Tue, 2 Jun 2026</div>
+        <div class="util-right">
+          <button class="hamburger">≡</button>
+          <div class="avatar">J</div>
         </div>
-      </div></div>
+      </div>
+      <div class="identity">
+        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+        <div class="wordmark">Weekly Briefing</div>
+      </div>
     </div>
-
-    <div class="variant">
-      <p class="variant-label">Design B · Editorial-feel</p>
-      <p class="variant-name">Three strips: utility / masthead / nav</p>
-      <p class="variant-spec">Thin muted utility strip at top (date left, controls right). Below it the masthead is identity only — π, eyebrow, wordmark, edition date in italic. Below that the navigation strip.</p>
-      <div class="device-frame"><div class="device-inner">
-        <div class="masthead design-b">
-          <div class="utility-strip">
-            <div>Edition · Tuesday 2 June 2026</div>
-            <div class="util-right">
-              <div class="avatar">J</div>
-              <button class="hamburger">≡</button>
-            </div>
-          </div>
-          <div class="identity">
-            <div class="pi-logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAIrUlEQVR42u1c3Y9dVRX/rXvvdPphPyBhxGiBjj5UhTodSmkRlFKjEiMEgi+EBx7klRdN/BOIoA8kiuHjQV8p0CBppC880BgrGEqBppAgaZma0qJYUvvBzL3n58OspWs2++x77p1zzv3I7GRybs7ZZ6+1fvu3PvY+5wyw0pbVhGQTwCYAGYALIjJPUgA0rM8A9OqICP0J1ak5AF1Mj0xESHIVgHWKz7kWgBaAbwH4CYDbSH4JQAfABQALCmCjZqXvA3BEJxci0gEwA+C5mvXIFMAJAOtUn9MADgHYB+DPLRH5DMArAF4h+XUAPwJwL4DdA/SM1Tnnpgeo018AvADggIgct5MtdY+GiGR64TiAX5H8GoAfA7gHwC6dBZuVtrKyUYG7iI4ftrZjhFTAtEzxMJsWABwGsB/ASyLyfhBSFjELT+oAS2IQyW8CuEvBvCliWFlgGjg3icjfvAuT3AHg9RIB9KD59rqC9kcRORaJwZmIZEsY+L+Msnghi4B5DMAxAI+Q3A7gbv2bcWNQY2cZYLLguX5BawZ6vgngRQAvisiRBGjt/qwhGyRbkfM7ST5C8h0ubR2SC3rspWV6nHVyG/p7NuhTtOXp8o7qvjNiV8vklp/TI2CSbJK8leSvSb6XY0DWA4DbIwBu7wHALAe091THWy081AJaj2CuInkHyd+Q/ID9tZkIgDN9jvWB6nKH1nCDBS0HSFEWhmCuJflDkk+RnFNmFGHQtgiA2woyL1NZT6nstRHQmhrfhq8lwFzv3LtbbLwhAuANBWKduen6ukBrlb42XCx/Oi6LNRZPy3mS5wpm1H6ysF0/p7Jaei4TkXZVhGlVyUYDU5kkWpxWXcYsqKwl9VpVrbYAqmAWZUK2DADb4UbEWABouywFWMccsLKgTz8yRh5AKQjyfOT8fEFwZJwBLLKfNw/gUoSNl3KA7UfGyAFoIEwU6HtR9yLDdkGvdWsTJa6dh46Bkwk3M4M/zQHqol7LA0cCGePDQN0KFwBrCrD0ExFpkxQRod2rtdwnBdi11u4dCwBd9W/PErq1MxHdGsG1VFurslDHcq1OF17jAEy58D8ifSS4lnLhL3Rh+sgBaIatV+O6tbnEtQ8L3L8OwIa6Spo6GXhFlyRi7UTi2skCEzWpssaOgV9MLNO8LicjbsrgWqPLEnBqnBhoRny5yzq3oYXyqQSAp7RPI7Hc87LGyoWvLVDCnAXwUQLAj7RPt1Lm2nFcyk0XAPCEiFzWZ64M6siGiFx2MTIF4FfHCcBOYFSqhHk3oVcj6JMqZabr2pmpFEBbEZBcDeC6AnHp7QLDvl0g3l5Hco1bAY0sA035zQCuTgBoehxNsItBn0ZC3tUAvlJHIqkLwK1Y3GbqRAyyDPwfLL6Xk5ep7dxx7RvLxKIymipzbACcSTDLgHlXRM7mbQS4TYWzLg6mtv63jwOAZsyOAgnkr3pMbYg2g76pRHJjgWw9vAAqWzokJx0DJWHwqz0M/2qB8WZITqoOw/kQvQuA/oF4J+eNBDt3ieRmf1+XMTfrPUyMm/kH9KPowjb2bv3dScS/oyIyp6zNfZYrIpn2mXPZOMupPQX/f8t2JAG02HN7gT4HC8S/MA4eLBDj9tQRByuJf3pcTfLDxPsw5n47tX+zwNhNPe5MuLDJmtMiHiMVB52RuxPg+ZeBWr0YqC8wtbq8rGTnbik6OcPkwgbGnQUK4/36wKgXA5t6z/4C499Z19ZWqS6sf28oC9qJTDnTK0Mcw2cS7xwaA98wfUatfPmGAhczzs4f7rfMcHIO61h5k9TWrwwqKWcaFYaFe936N8/Nn1mGHnbPMwn3tHXxPTVu35Xivg2SR3MCvLncWZIb+82QLtNv1LFirmyy33LvKI5E9r05kR0X9Pio9m0tQ559afVoMHYMxJurzMZlAWgGPZFjkLHkIslrjK3Libc6xjU6ZoyFpsPvljthdRXPG0l+nFPkmjFPlsUGx/onE5NG1WnT0BbVjn0/zSldMnWnSyS3LJd9ERZu0bFjGxemy0NDy0JnSF7tZ8x4vOxY5Fj4eA4L264mbAzFxzU5BuxNZN4OyX+RnCqLfZHJm1IZnURG3jt0ycQB+Kcu7Hu4KuWdDg93YeHLVe8R9qy4zv6NOsudHMWPVPnFkP9CSmXFJtKYucP6DxP7XojMfOaWbbuqdh2ny65AdugJ+4fCjR37ZnPYV1rRXGJxbXrODpyFbsYPRFym7ZZRk3V9IelceVJl5+l1YKAsdOB9N5J5zX0u+09XB7AjtE11CF3ZQLx9YCA6930tMsvzgy5cnSs/FOjkdX1tIG7s2PdgBDyLOU8Puup3ID4diYem84O1stBtV20ieTpIHqbgoWH4MjwobQ4FOprep0leUdt2l5vV3wYzace/k7xqWIpVFw+vIvl+js5P1OItznVvCbbRjYH/JLl12JZKTu+tbqeoEzxe+Halejt3WOX+T4x33/N1FMslbfaej+h/rNJyy7nuL93MmfCLJPcM9YblUhv2qM4GYrvSgj+o+cx1TegFt8MxtOBFQNyrujOwp9za0PbPNOueCGqqf5P8zqiAFwHxNrXB23RSbS1n39AJe04FXNbjKfc/rkYGvIhds2qLt+35UuxyQn7mYh31keWWUQUvYt8W9xjWbPz5suwLYkWH5Gc68EvueW4TI95cfN+otlFt7ZD8Xl8gukGnSZ5xy5/HwgJ1HJq3heRjzt4zJKd7Iot7vrCB5Js60KckH/DXMWbNP6ch+YDaTMVgQ6HnOK5YFpIv6wCHSV5vVB5H8AL7LXRdr7aT5EElTn6R7bd1SO4zl9W37Ec6WSwj/k86l97nt/E+B577/ay+rPODcYx3fcbF7ysmz34OM/dKxiTJ35N83r0CMdYu26NLb9Ja+A/OK8U6XUnyFyTvDzPxSluKBcn7FasrDcAJ/RhmKtfHV1qYI6YUs4kw/q2wrjc2ikd3hXW9sVEA4L9j1b/+fJ6lQQAAAABJRU5ErkJggg==" alt="π"></div>
-            <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-            <div class="wordmark">Weekly Briefing</div>
-            <div class="edition-date">No. 23 · Tuesday, 2 June 2026</div>
-          </div>
-          <div class="nav-strip">Leadership · Markets · Psychology · Tech · Geo · Phil</div>
+    <div class="ribbon" data-ribbon>
+      <div class="tabs" data-tabs>
+        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
+        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
+        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
+        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Tech</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div>
         </div>
-      </div></div>
+      </div>
     </div>
+  </div></div>
+</section>
 
-  </div>
-</div>
-
-<!-- ─────── iPad width comparison ─────── -->
-<div class="section">
-  <p class="section-title">iPad portrait · 820 px (same designs, more breathing room)</p>
-  <div class="compare-grid">
-
-    <div class="variant">
-      <p class="variant-label">Design A · App-feel</p>
-      <div class="device-frame" style="max-width:none"><div class="device-inner">
-        <div class="masthead design-a">
-          <div class="utility" style="padding:16px 28px 0">
-            <div class="util-date" style="font-size:14px">Tuesday, 2 June 2026</div>
-            <div class="util-right"><button class="hamburger">≡</button><div class="avatar">J</div></div>
-          </div>
-          <div class="identity" style="padding:16px 28px 28px">
-            <div class="pi-logo" style="margin-bottom:14px"><img src="data:image/png;base64,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" alt="π" style="height:44px"></div>
-            <div class="eyebrow" style="font-size:21px"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-            <div class="wordmark" style="font-size:44px;margin-top:6px">Weekly Briefing</div>
-          </div>
+<!-- ─── iPad portrait ─── -->
+<section class="device-section">
+  <p class="device-label">iPad portrait · 820 px</p>
+  <p class="device-spec">Type scales up, layout density unchanged</p>
+  <div class="device-frame ipad-portrait"><div class="device-inner" data-device="ipad-p">
+    <div class="masthead">
+      <div class="utility">
+        <div class="util-date">Tuesday, 2 June 2026</div>
+        <div class="util-right">
+          <button class="hamburger">≡</button>
+          <div class="avatar">J</div>
         </div>
-      </div></div>
+      </div>
+      <div class="identity">
+        <div class="pi-logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAIrUlEQVR42u1c3Y9dVRX/rXvvdPphPyBhxGiBjj5UhTodSmkRlFKjEiMEgi+EBx7klRdN/BOIoA8kiuHjQV8p0CBppC880BgrGEqBppAgaZma0qJYUvvBzL3n58OspWs2++x77p1zzv3I7GRybs7ZZ6+1fvu3PvY+5wyw0pbVhGQTwCYAGYALIjJPUgA0rM8A9OqICP0J1ak5AF1Mj0xESHIVgHWKz7kWgBaAbwH4CYDbSH4JQAfABQALCmCjZqXvA3BEJxci0gEwA+C5mvXIFMAJAOtUn9MADgHYB+DPLRH5DMArAF4h+XUAPwJwL4DdA/SM1Tnnpgeo018AvADggIgct5MtdY+GiGR64TiAX5H8GoAfA7gHwC6dBZuVtrKyUYG7iI4ftrZjhFTAtEzxMJsWABwGsB/ASyLyfhBSFjELT+oAS2IQyW8CuEvBvCliWFlgGjg3icjfvAuT3AHg9RIB9KD59rqC9kcRORaJwZmIZEsY+L+Msnghi4B5DMAxAI+Q3A7gbv2bcWNQY2cZYLLguX5BawZ6vgngRQAvisiRBGjt/qwhGyRbkfM7ST5C8h0ubR2SC3rspWV6nHVyG/p7NuhTtOXp8o7qvjNiV8vklp/TI2CSbJK8leSvSb6XY0DWA4DbIwBu7wHALAe091THWy081AJaj2CuInkHyd+Q/ID9tZkIgDN9jvWB6nKH1nCDBS0HSFEWhmCuJflDkk+RnFNmFGHQtgiA2woyL1NZT6nstRHQmhrfhq8lwFzv3LtbbLwhAuANBWKduen6ukBrlb42XCx/Oi6LNRZPy3mS5wpm1H6ysF0/p7Jaei4TkXZVhGlVyUYDU5kkWpxWXcYsqKwl9VpVrbYAqmAWZUK2DADb4UbEWABouywFWMccsLKgTz8yRh5AKQjyfOT8fEFwZJwBLLKfNw/gUoSNl3KA7UfGyAFoIEwU6HtR9yLDdkGvdWsTJa6dh46Bkwk3M4M/zQHqol7LA0cCGePDQN0KFwBrCrD0ExFpkxQRod2rtdwnBdi11u4dCwBd9W/PErq1MxHdGsG1VFurslDHcq1OF17jAEy58D8ifSS4lnLhL3Rh+sgBaIatV+O6tbnEtQ8L3L8OwIa6Spo6GXhFlyRi7UTi2skCEzWpssaOgV9MLNO8LicjbsrgWqPLEnBqnBhoRny5yzq3oYXyqQSAp7RPI7Hc87LGyoWvLVDCnAXwUQLAj7RPt1Lm2nFcyk0XAPCEiFzWZ64M6siGiFx2MTIF4FfHCcBOYFSqhHk3oVcj6JMqZabr2pmpFEBbEZBcDeC6AnHp7QLDvl0g3l5Hco1bAY0sA035zQCuTgBoehxNsItBn0ZC3tUAvlJHIqkLwK1Y3GbqRAyyDPwfLL6Xk5ep7dxx7RvLxKIymipzbACcSTDLgHlXRM7mbQS4TYWzLg6mtv63jwOAZsyOAgnkr3pMbYg2g76pRHJjgWw9vAAqWzokJx0DJWHwqz0M/2qB8WZITqoOw/kQvQuA/oF4J+eNBDt3ieRmf1+XMTfrPUyMm/kH9KPowjb2bv3dScS/oyIyp6zNfZYrIpn2mXPZOMupPQX/f8t2JAG02HN7gT4HC8S/MA4eLBDj9tQRByuJf3pcTfLDxPsw5n47tX+zwNhNPe5MuLDJmtMiHiMVB52RuxPg+ZeBWr0YqC8wtbq8rGTnbik6OcPkwgbGnQUK4/36wKgXA5t6z/4C499Z19ZWqS6sf28oC9qJTDnTK0Mcw2cS7xwaA98wfUatfPmGAhczzs4f7rfMcHIO61h5k9TWrwwqKWcaFYaFe936N8/Nn1mGHnbPMwn3tHXxPTVu35Xivg2SR3MCvLncWZIb+82QLtNv1LFirmyy33LvKI5E9r05kR0X9Pio9m0tQ559afVoMHYMxJurzMZlAWgGPZFjkLHkIslrjK3Libc6xjU6ZoyFpsPvljthdRXPG0l+nFPkmjFPlsUGx/onE5NG1WnT0BbVjn0/zSldMnWnSyS3LJd9ERZu0bFjGxemy0NDy0JnSF7tZ8x4vOxY5Fj4eA4L264mbAzFxzU5BuxNZN4OyX+RnCqLfZHJm1IZnURG3jt0ycQB+Kcu7Hu4KuWdDg93YeHLVe8R9qy4zv6NOsudHMWPVPnFkP9CSmXFJtKYucP6DxP7XojMfOaWbbuqdh2ny65AdugJ+4fCjR37ZnPYV1rRXGJxbXrODpyFbsYPRFym7ZZRk3V9IelceVJl5+l1YKAsdOB9N5J5zX0u+09XB7AjtE11CF3ZQLx9YCA6930tMsvzgy5cnSs/FOjkdX1tIG7s2PdgBDyLOU8Puup3ID4diYem84O1stBtV20ieTpIHqbgoWH4MjwobQ4FOprep0leUdt2l5vV3wYzace/k7xqWIpVFw+vIvl+js5P1OItznVvCbbRjYH/JLl12JZKTu+tbqeoEzxe+Halejt3WOX+T4x33/N1FMslbfaej+h/rNJyy7nuL93MmfCLJPcM9YblUhv2qM4GYrvSgj+o+cx1TegFt8MxtOBFQNyrujOwp9za0PbPNOueCGqqf5P8zqiAFwHxNrXB23RSbS1n39AJe04FXNbjKfc/rkYGvIhds2qLt+35UuxyQn7mYh31keWWUQUvYt8W9xjWbPz5suwLYkWH5Gc68EvueW4TI95cfN+otlFt7ZD8Xl8gukGnSZ5xy5/HwgJ1HJq3heRjzt4zJKd7Iot7vrCB5Js60KckH/DXMWbNP6ch+YDaTMVgQ6HnOK5YFpIv6wCHSV5vVB5H8AL7LXRdr7aT5EElTn6R7bd1SO4zl9W37Ec6WSwj/k86l97nt/E+B577/ay+rPODcYx3fcbF7ysmz34OM/dKxiTJ35N83r0CMdYu26NLb9Ja+A/OK8U6XUnyFyTvDzPxSluKBcn7FasrDcAJ/RhmKtfHV1qYI6YUs4kw/q2wrjc2ikd3hXW9sVEA4L9j1b/+fJ6lQQAAAABJRU5ErkJggg==" alt="π"></div>
+        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+        <div class="wordmark">Weekly Briefing</div>
+      </div>
     </div>
-
-    <div class="variant">
-      <p class="variant-label">Design B · Editorial-feel</p>
-      <div class="device-frame" style="max-width:none"><div class="device-inner">
-        <div class="masthead design-b">
-          <div class="utility-strip" style="padding:8px 28px;font-size:12px">
-            <div>Edition · Tuesday 2 June 2026</div>
-            <div class="util-right">
-              <div class="avatar" style="width:28px;height:28px;font-size:11px">J</div>
-              <button class="hamburger" style="width:28px;height:28px;font-size:16px">≡</button>
-            </div>
-          </div>
-          <div class="identity" style="padding:24px 28px 18px">
-            <div class="pi-logo" style="margin-bottom:14px"><img src="data:image/png;base64,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" alt="π" style="height:48px"></div>
-            <div class="eyebrow" style="font-size:21px"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-            <div class="wordmark" style="font-size:44px;margin-top:6px">Weekly Briefing</div>
-            <div class="edition-date" style="font-size:15px;margin-top:12px">No. 23 · Tuesday, 2 June 2026</div>
-          </div>
-          <div class="nav-strip" style="padding:12px 28px;font-size:12px">Leadership · Markets · Psychology · Technology · Geopolitics · Philosophy</div>
+    <div class="ribbon" data-ribbon>
+      <div class="tabs" data-tabs>
+        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
+        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
+        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
+        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Technology</span>
+        <span class="tab inactive" data-color="#7c3aed" style="--col:#7c3aed">Geopolitics</span>
+        <span class="tab inactive" data-color="#15803d" style="--col:#15803d">Philosophy</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
         </div>
-      </div></div>
+      </div>
     </div>
+  </div></div>
+</section>
 
-  </div>
-</div>
+<!-- ─── iPad landscape ─── -->
+<section class="device-section">
+  <p class="device-label">iPad landscape · 1180 px</p>
+  <p class="device-spec">More breathing room, content max-width 1100px keeps editorial density</p>
+  <div class="device-frame ipad-landscape"><div class="device-inner" data-device="ipad-l">
+    <div class="masthead">
+      <div class="utility">
+        <div class="util-date">Tuesday, 2 June 2026</div>
+        <div class="util-right">
+          <button class="hamburger">≡</button>
+          <div class="avatar">J</div>
+        </div>
+      </div>
+      <div class="identity">
+        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+        <div class="wordmark">Weekly Briefing</div>
+      </div>
+    </div>
+    <div class="ribbon" data-ribbon>
+      <div class="tabs" data-tabs>
+        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
+        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
+        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
+        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Technology</span>
+        <span class="tab inactive" data-color="#7c3aed" style="--col:#7c3aed">Geopolitics</span>
+        <span class="tab inactive" data-color="#15803d" style="--col:#15803d">Philosophy</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ─── Desktop ─── -->
+<section class="device-section">
+  <p class="device-label">Desktop · 1280+ px</p>
+  <p class="device-spec">Orange band edge-to-edge; cluster centred</p>
+  <div class="device-frame desktop"><div class="device-inner" data-device="desktop">
+    <div class="masthead">
+      <div class="utility">
+        <div class="util-date">Tuesday, 2 June 2026</div>
+        <div class="util-right">
+          <button class="hamburger">≡</button>
+          <div class="avatar">J</div>
+        </div>
+      </div>
+      <div class="identity">
+        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+        <div class="wordmark">Weekly Briefing</div>
+      </div>
+    </div>
+    <div class="ribbon" data-ribbon>
+      <div class="tabs" data-tabs>
+        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
+        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
+        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
+        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Technology</span>
+        <span class="tab inactive" data-color="#7c3aed" style="--col:#7c3aed">Geopolitics</span>
+        <span class="tab inactive" data-color="#15803d" style="--col:#15803d">Philosophy</span>
+      </div>
+    </div>
+    <div class="content">
+      <div class="sample-card">
+        <div class="sample-num">01</div>
+        <div>
+          <div class="sample-title">The 50-Year Career Problem</div>
+          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
 
 <div class="notes">
-  <h3>Where the two designs differ</h3>
-
-  <h4>Design A · single masthead</h4>
+  <h3>The final spec, applied uniformly</h3>
+  <p><strong>Masthead</strong></p>
   <ul>
-    <li>One unified orange strip with controls and identity sharing the space</li>
-    <li>Feels like an app — Stratechery, Substack, modern web products</li>
-    <li>Compact: fewer pixels vertically</li>
-    <li>Date sits in the utility row as a working element, not as part of the masthead identity</li>
+    <li>Date top-left (plain text, white, no pill)</li>
+    <li>Hamburger then Avatar, top-right (avatar at the absolute right edge)</li>
+    <li>π logo centred, 36px (iPhone) up to 48px (larger screens)</li>
+    <li>PERFORMANCE / INTELLIGENCE eyebrow, weight 700, centred, +10% size from earlier mocks, INTELLIGENCE noticeably wider than PERFORMANCE via per-word letter-spacing</li>
+    <li>"Weekly Briefing" wordmark, IBM Plex Serif weight 500 (25% lighter than the earlier 700), upright (not italic), centred</li>
   </ul>
-
-  <h4>Design B · three strips (FT-style)</h4>
+  <p><strong>Ribbon under tabs</strong></p>
   <ul>
-    <li>Utility strip (thin, muted), masthead strip (identity only), nav strip (categories)</li>
-    <li>Feels like a publication — FT, Economist, NYT</li>
-    <li>The edition date becomes <em>part of the identity</em> — like "No. 23 · Tuesday, 2 June 2026" sitting under the wordmark, in italic, smaller</li>
-    <li>More vertical space (~30-40px taller on mobile), but feels more considered</li>
-    <li>The "No. 23" edition number is a nice editorial flourish — gives each weekly issue a sense of permanence and collectability</li>
+    <li>Defaults to orange (matches masthead) — initial load is one continuous orange band</li>
+    <li>Recolours to active category on tab change, with a 350ms transition</li>
+    <li>Active tab: matches ribbon colour, white outline</li>
+    <li>Inactive tabs: white pill with category-coloured text and border</li>
   </ul>
-
-  <h4>What to weigh</h4>
-  <p><strong>Pick Design A if:</strong> you want the product to feel like a modern tool — quick, app-like, efficient. Users get to content faster. Best if reading time is the main metric.</p>
-  <p><strong>Pick Design B if:</strong> you want the product to feel like a serious publication — considered, weighty, collectible. Users feel like subscribers to something prestigious. Best if perception of quality is the main lever (relevant before a LinkedIn launch — first impressions matter).</p>
-  <p><strong>A hybrid:</strong> Design A's single-masthead with Design B's edition date treatment ("No. 23 · Tuesday, 2 June 2026" in small italic below the wordmark, replacing the utility-strip date). Tell me if you want that variant built.</p>
+  <p><strong>Content area</strong></p>
+  <ul>
+    <li>Topic cards, accent bar, "01" number all stay orange — unchanged from current site</li>
+  </ul>
 </div>
+
+<script>
+  // Click tab → recolour ribbon and update active tab in that device only
+  document.querySelectorAll('[data-tabs]').forEach(function(tabsEl){
+    var ribbon = tabsEl.closest('[data-ribbon]');
+    tabsEl.querySelectorAll('.tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        var color = tab.dataset.color;
+        ribbon.style.setProperty('--active-col', color);
+        tabsEl.querySelectorAll('.tab').forEach(function(t){
+          t.classList.remove('active');
+          t.classList.add('inactive');
+        });
+        tab.classList.remove('inactive');
+        tab.classList.add('active');
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
