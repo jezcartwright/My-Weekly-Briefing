@@ -300,8 +300,7 @@ html.login-active{background:var(--orange)}
 }
 /* Category banner — coloured band per category (set via --cat-color inline) */
 .pdf-cat-section{margin-bottom:0}
-.pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:16px 40px;background:var(--cat-color,#EFE9DD);border-bottom:1px solid rgba(0,0,0,0.06);margin:0;display:flex;align-items:baseline;justify-content:space-between;gap:16px}
-.pdf-cat-title::after{content:"Four high-signal topics for this week";font-family:'IBM Plex Serif',Georgia,'Times New Roman',serif;font-size:13px;font-weight:500;letter-spacing:0;color:rgba(255,255,255,0.88);text-transform:none}
+.pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:16px 40px;background:var(--cat-color,#EFE9DD);border-bottom:1px solid rgba(0,0,0,0.06);margin:0}
 .pdf-cat-body{padding:24px 40px 28px;display:flex;flex-direction:column;gap:18px}
 /* Topic cards — white with coloured left edge */
 .pdf-topic{background:#fff;border:1px solid #E0D8CB;border-left:4px solid var(--orange);border-radius:1px;padding:20px 24px 18px;margin-bottom:0}
@@ -1151,8 +1150,7 @@ function rto(){
   var darkColor = ac.color;  // Unified: labels and numbers use banner colour, not colorDark
   document.getElementById('ts').innerHTML=
     '<div class="ci" style="--cat-color:'+ac.color+'">'+
-    '<div class="ci-text"><div class="cl">'+ac.label+'</div>'+
-    '<div class="cd">Four high-signal topics for this week</div></div></div>'+
+    '<div class="ci-text"><div class="cl">'+ac.label+'</div></div></div>'+
     '<div class="tl">'+tops.map(function(t,i){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
