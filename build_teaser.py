@@ -161,13 +161,13 @@ This block only appears in your draft. The Monday workflow will strip it automat
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="x-apple-disable-message-reformatting">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Serif:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:wght@500;600;700&display=swap');
 /* Mobile tweaks — tighten padding and shrink masthead at narrow widths */
 @media only screen and (max-width:600px) {{
   .email-shell {{ width:100% !important; max-width:100% !important; }}
   .email-banner {{ padding:22px 18px !important; }}
   .email-body {{ padding:20px 18px 24px !important; }}
-  .email-pi {{ font-size:11px !important; letter-spacing:0.28em !important; }}
+  .email-pi {{ font-size:12px !important; }}
   .email-wb {{ font-size:24px !important; }}
   .email-meta {{ font-size:12px !important; }}
   .email-logo {{ width:44px !important; height:44px !important; }}
@@ -184,8 +184,11 @@ This block only appears in your draft. The Monday workflow will strip it automat
     <img src="https://weeklybriefing.jezcartwright.com/favicon-512x512.png" width="56" height="56" alt="PI" class="email-logo" style="display:block;width:56px;height:56px;border:0;">
   </td>
   <td valign="middle" style="color:#fff;">
-    <div class="email-pi" style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:13px;letter-spacing:0.35em;text-transform:uppercase;color:#ffffff;margin-bottom:4px;font-weight:600;">Performance Intelligence</div>
-    <div class="email-wb" style="font-family:'IBM Plex Serif',Georgia,serif;font-size:28px;font-weight:600;letter-spacing:-0.01em;line-height:1;color:#ffffff;">Weekly Briefing</div>
+    <div class="email-pi" style="font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:14px;text-transform:uppercase;color:#ffffff;margin-bottom:6px;font-weight:700;line-height:1.15;">
+      <span style="display:block;letter-spacing:0.2em;">Performance</span>
+      <span style="display:block;letter-spacing:0.32em;">Intelligence</span>
+    </div>
+    <div class="email-wb" style="font-family:'IBM Plex Serif',Georgia,serif;font-size:28px;font-weight:500;letter-spacing:-0.01em;line-height:1;color:#ffffff;">Weekly Briefing</div>
     <div class="email-meta" style="font-size:13px;color:#ffffff;opacity:0.88;margin-top:4px;">Week {week} · {date_str}</div>
   </td>
   </tr></table>
