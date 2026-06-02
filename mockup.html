@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category label — left vs centred</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{
+    font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;
+    margin:0;padding:24px 16px 64px;-webkit-font-smoothing:antialiased;
+  }
+  .intro{max-width:1100px;margin:0 auto 24px;padding:0 8px}
+  .intro h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 6px}
+  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5;max-width:760px}
+
+  .compare-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+  @media (max-width:800px){.compare-grid{grid-template-columns:1fr}}
+
+  .variant{display:flex;flex-direction:column;gap:8px}
+  .variant-label{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;
+    margin:0;padding:0 6px;
+  }
+  .variant-name{font-family:'IBM Plex Serif',serif;font-size:16px;font-weight:600;margin:0;padding:0 6px}
+  .variant-spec{
+    font-family:'Inter',sans-serif;font-size:12px;color:#555;
+    margin:0 0 6px;padding:0 6px;line-height:1.4;
+  }
+  .device-frame{
+    background:#1a1a1a;border-radius:18px;padding:6px;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);
+    max-width:380px;margin:0 auto;width:100%;
+  }
+  .device-inner{background:#faf8f5;border-radius:12px;overflow:hidden}
+
+  /* Masthead replica */
+  .masthead{background:#ff6600;color:#fff;padding:10px 14px 14px}
+  .utility{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .util-date{font-family:'Inter',sans-serif;font-size:12px;font-weight:600}
+  .util-right{display:flex;gap:6px;align-items:center}
+  .avatar{width:26px;height:26px;border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#fff}
+  .ham{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#fff;border:0;font-weight:300}
+  .identity{display:flex;flex-direction:column;align-items:center}
+  .pi-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:5px}
+  .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;text-transform:uppercase;text-align:center;line-height:1.15;margin-bottom:2px}
+  .eyebrow span{display:block}
+  .eyebrow .perf{letter-spacing:.18em}
+  .eyebrow .intel{letter-spacing:.28em}
+  .wordmark{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:26px;line-height:1}
+
+  /* Tab ribbon — Technology is active, so band is teal/cyan */
+  .ribbon{background:#0891b2;padding:10px 14px}
+  .tabs-wrap{overflow-x:auto;text-align:left}
+  .tabs{display:inline-flex;gap:6px}
+  .tab{flex:0 0 auto;padding:7px 12px;border-radius:4px;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col)}
+  .tab.on{background:#0891b2;color:#fff;border-color:rgba(255,255,255,.9)}
+
+  /* The category banner — the "TECHNOLOGY" label band */
+  .ci{background:#0891b2;color:#fff;padding:14px 18px}
+  .ci .label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff}
+
+  /* Variant alignments */
+  .ci-left .label{text-align:left}
+  .ci-center .label{text-align:center}
+  .ci-right .label{text-align:right}
+
+  /* Topic card peek */
+  .content{padding:14px;background:#faf8f5}
+  .card{background:#fff;border:1px solid #E0D8CB;border-left:4px solid #0891b2;padding:12px 14px;display:grid;grid-template-columns:30px 1fr;gap:10px}
+  .card .num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#0891b2;padding-top:2px}
+  .card .title{font-family:'IBM Plex Serif',serif;font-size:15px;line-height:1.25;font-weight:600}
+  .card .summary{font-family:'IBM Plex Serif',serif;font-size:13px;line-height:1.4;color:#444;margin-top:4px}
+
+  .notes{
+    max-width:1100px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
+    font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333;
+  }
+  .notes h3{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;margin:0 0 12px}
+  .notes p{margin:0 0 10px}
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>Category label position — left vs centred</h1>
+  <p>The "TECHNOLOGY" label sits in its own coloured band directly under the tab ribbon. Currently it's left-aligned. Below: before/after comparison so you can see how centring reads.</p>
+</div>
+
+<div class="compare-grid">
+
+  <!-- BEFORE -->
+  <div class="variant">
+    <p class="variant-label">A · Current (left-aligned)</p>
+    <p class="variant-name">As it is now</p>
+    <p class="variant-spec">Label sits flush against the left edge of the band. Carries over from the older design that had a subtitle on the right.</p>
+    <div class="device-frame"><div class="device-inner">
+      <div class="masthead">
+        <div class="utility">
+          <div class="util-date">Tuesday, 2 June 2026</div>
+          <div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div>
+        </div>
+        <div class="identity">
+          <div class="pi-logo">π</div>
+          <div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+      <div class="ribbon">
+        <div class="tabs-wrap"><div class="tabs">
+          <span class="tab" style="--col:#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e">Psychology</span>
+          <span class="tab on" style="--col:#0891b2">Tech</span>
+        </div></div>
+      </div>
+      <div class="ci ci-left"><div class="label">Technology</div></div>
+      <div class="content">
+        <div class="card">
+          <div class="num">01</div>
+          <div>
+            <div class="title">AI's Measurement Crisis In Finance</div>
+            <div class="summary">Eighty-one per cent of financial firms have deployed AI, yet most cannot prove it is making them any money.</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- AFTER -->
+  <div class="variant">
+    <p class="variant-label">B · Centred</p>
+    <p class="variant-name">The proposed change</p>
+    <p class="variant-spec">Label centred horizontally within the band. Feels more like a chapter title or section heading.</p>
+    <div class="device-frame"><div class="device-inner">
+      <div class="masthead">
+        <div class="utility">
+          <div class="util-date">Tuesday, 2 June 2026</div>
+          <div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div>
+        </div>
+        <div class="identity">
+          <div class="pi-logo">π</div>
+          <div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div>
+          <div class="wordmark">Weekly Briefing</div>
+        </div>
+      </div>
+      <div class="ribbon">
+        <div class="tabs-wrap"><div class="tabs">
+          <span class="tab" style="--col:#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e">Psychology</span>
+          <span class="tab on" style="--col:#0891b2">Tech</span>
+        </div></div>
+      </div>
+      <div class="ci ci-center"><div class="label">Technology</div></div>
+      <div class="content">
+        <div class="card">
+          <div class="num">01</div>
+          <div>
+            <div class="title">AI's Measurement Crisis In Finance</div>
+            <div class="summary">Eighty-one per cent of financial firms have deployed AI, yet most cannot prove it is making them any money.</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+
+<div class="notes">
+  <h3>What I see in the comparison</h3>
+  <p><strong>Left (A — current):</strong> the label is anchored to the edge, which made sense when there was a subtitle on the right balancing it. Now that the subtitle's gone, the label sits alone on the left and the right half of the band is empty.</p>
+  <p><strong>Centred (B — proposed):</strong> the label becomes a section heading. It announces the category like a chapter title in a book. Reads more deliberately. The full-width band frames the title rather than just hosting it at an edge.</p>
+  <p>This is a one-line CSS change — <code>justify-content:center</code> on <code>.ci-text</code> — so it's low-risk and easy to revert if you change your mind.</p>
+  <p>If you want, I can also <strong>increase the font size</strong> a bit (currently 12px, could go to 14-16px) since centring it gives the label more presence. Or keep the size and just centre.</p>
+</div>
+
+</body>
+</html>
