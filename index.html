@@ -100,7 +100,7 @@ html.login-active{background:var(--orange)}
 .ci-text .cd{font-family:'IBM Plex Serif',Georgia,'Times New Roman',serif;font-size:13px;color:rgba(255,255,255,0.88);text-align:right;font-weight:500;letter-spacing:0}
 .tl{display:flex;flex-direction:column;gap:14px}
 /* Topic cards — editorial white cards with category-coloured left edge */
-.tc{background:var(--white);border:1px solid #E0D8CB;border-left:4px solid var(--orange);border-radius:1px;overflow:hidden;transition:box-shadow .2s}
+.tc{background:var(--white);border:1px solid #E0D8CB;border-left:4px solid var(--orange);border-radius:1px;overflow:hidden;transition:box-shadow .2s;scroll-margin-top:8px}
 .op{box-shadow:0 4px 20px rgba(0,0,0,0.06)}
 .th{padding:16px 18px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;-webkit-user-select:none;user-select:none}
 .th-left{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0}
@@ -1148,7 +1148,12 @@ function wireTopicListHandlers(){
         var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
         var wasOpen=card.classList.contains('op');
         tcs.forEach(function(tc){tc.classList.remove('op');});
-        if(!wasOpen){ card.classList.add('op'); oc=idx; }
+        if(!wasOpen){
+          card.classList.add('op'); oc=idx;
+          // Scroll card title to top so user reads downward through expanded content.
+          // Native scrollIntoView; CSS scroll-margin-top:8px on .tc provides the offset.
+          card.scrollIntoView({block:'start', behavior:'smooth'});
+        }
         else { oc=null; }
       });
     })(headers[j]);
