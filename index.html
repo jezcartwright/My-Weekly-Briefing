@@ -100,7 +100,7 @@ html.login-active{background:var(--orange)}
 .ci-text .cd{font-family:'IBM Plex Serif',Georgia,'Times New Roman',serif;font-size:13px;color:rgba(255,255,255,0.88);text-align:right;font-weight:500;letter-spacing:0}
 .tl{display:flex;flex-direction:column;gap:14px}
 /* Topic cards — editorial white cards with category-coloured left edge */
-.tc{background:var(--white);border:1px solid #E0D8CB;border-left:4px solid var(--orange);border-radius:1px;overflow:hidden;transition:box-shadow .2s}
+.tc{background:var(--white);border:1px solid #E0D8CB;border-left:4px solid var(--orange);border-radius:1px;overflow:hidden;transition:box-shadow .2s;scroll-margin-top:8px}
 .op{box-shadow:0 4px 20px rgba(0,0,0,0.06)}
 .th{padding:16px 18px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;-webkit-user-select:none;user-select:none}
 .th-left{display:flex;align-items:flex-start;gap:12px;flex:1;min-width:0}
@@ -1177,39 +1177,20 @@ function wireTopicListHandlers(){
           //
           // Double rAF: first lets the .op class apply (CSS expansion
           // starts), second lets the reflow settle so getBoundingClientRect
-          // returns correct positions for the new layout.
-          var scroller=card.closest('.sa');
-          if(scroller){
+          // Use native scrollIntoView; CSS scroll-margin-top on .tc
+          // handles the offset. Native impl is the most reliable path
+          // on iOS WebKit (programmatic scrollTop writes are unreliable).
+          // Double-rAF lets the .op class apply and layout settle first.
+          requestAnimationFrame(function(){
             requestAnimationFrame(function(){
-              requestAnimationFrame(function(){
-                var sRect=scroller.getBoundingClientRect();
-                var cRect=card.getBoundingClientRect();
-                var delta=cRect.top - sRect.top - 8; // 8px buffer above card
-                // ── TEMP DEBUG: visible badge with measured values ──
-                var dbg=document.getElementById('__scrolldbg');
-                if(!dbg){
-                  dbg=document.createElement('div');
-                  dbg.id='__scrolldbg';
-                  dbg.style.cssText='position:fixed;top:env(safe-area-inset-top,8px);left:50%;transform:translateX(-50%);background:#000;color:#0f0;font:11px Menlo,monospace;padding:4px 8px;border-radius:4px;z-index:9999;pointer-events:none;white-space:nowrap;max-width:90vw;overflow:hidden';
-                  document.body.appendChild(dbg);
-                }
-                var startTop=scroller.scrollTop;
-                var tgt=startTop + delta;
-                dbg.textContent='sTop='+Math.round(sRect.top)+' cTop='+Math.round(cRect.top)+' Δ='+Math.round(delta)+' scrollTop:'+Math.round(startTop)+'→'+Math.round(tgt);
-                dbg.style.display='block';
-                setTimeout(function(){dbg.style.display='none';},4000);
-                // ── END DEBUG ──
-                smoothScrollTo(scroller, tgt, 320);
-                // Verify after animation: did the scroll actually move?
-                setTimeout(function(){
-                  var actual=scroller.scrollTop;
-                  if(dbg) dbg.textContent += ' | actual:'+Math.round(actual);
-                  if(dbg) dbg.style.display='block';
-                  setTimeout(function(){if(dbg)dbg.style.display='none';},3000);
-                },400);
-              });
+              try {
+                card.scrollIntoView({behavior:'smooth', block:'start'});
+              } catch(e) {
+                // Older Safari may reject options object — fallback
+                card.scrollIntoView(true);
+              }
             });
-          }
+          });
         }
         else { oc=null; }
       });
@@ -1460,15 +1441,15 @@ function tklike(i){
   rk();
   if(!wasOpen){
     var ks=document.getElementById('ks'); if(!ks) return;
-    var scroller=ks.closest('.sa') || ks;
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         var tcs=ks.querySelectorAll('.tc');
         if(!tcs[i]) return;
-        var sRect=scroller.getBoundingClientRect();
-        var cRect=tcs[i].getBoundingClientRect();
-        var delta=cRect.top - sRect.top - 8;
-        smoothScrollTo(scroller, scroller.scrollTop + delta, 320);
+        try {
+          tcs[i].scrollIntoView({behavior:'smooth', block:'start'});
+        } catch(e) {
+          tcs[i].scrollIntoView(true);
+        }
       });
     });
   }
