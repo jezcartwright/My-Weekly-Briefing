@@ -137,8 +137,9 @@ html.login-active{background:var(--orange)}
 #vl,#vk,#vn{display:none}
 
 /* Tabs — solid pills, category colour fills when active */
-#tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:var(--strip-c,var(--white));scrollbar-width:none;padding:12px 16px;transition:background .2s}
+#tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:var(--strip-c,var(--white));scrollbar-width:none;padding:12px 16px;transition:background .35s ease;justify-content:flex-start}
 #tabs::-webkit-scrollbar{display:none}
+@media(min-width:720px){#tabs{justify-content:center}}
 .tab{padding:9px 16px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--tab-c,#888);background:#fff;border:1.5px solid var(--tab-c,#ccc);border-radius:3px;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0;line-height:1}
 .tab:hover{filter:brightness(0.97)}
 .tab.on{background:var(--strip-c);color:#fff;border-color:rgba(255,255,255,0.9)}
