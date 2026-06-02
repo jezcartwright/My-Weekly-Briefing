@@ -1150,14 +1150,23 @@ function wireTopicListHandlers(){
         tcs.forEach(function(tc){tc.classList.remove('op');});
         if(!wasOpen){
           card.classList.add('op'); oc=idx;
-          // Scroll the card header to the top of the scroll area so the
-          // user reads naturally downward through the expanded content,
-          // rather than having to scroll up to find the title.
-          // requestAnimationFrame waits one paint so the layout settles
-          // (other cards just closed) before measuring scroll target.
-          requestAnimationFrame(function(){
-            card.scrollIntoView({behavior:'smooth', block:'start'});
-          });
+          // Scroll the card title to the top of the scroll area. We do
+          // this explicitly via the .sa scroll container's scrollTop
+          // rather than relying on scrollIntoView, which on iOS Safari
+          // can target the wrong ancestor or land mid-viewport.
+          //
+          // Two requestAnimationFrames: the first lets the .op class
+          // apply, the second lets the resulting reflow settle so
+          // offsetTop measurements are correct after sibling cards
+          // collapsed.
+          var scroller=card.closest('.sa');
+          if(scroller){
+            requestAnimationFrame(function(){
+              requestAnimationFrame(function(){
+                scroller.scrollTo({top:card.offsetTop - 8, behavior:'smooth'});
+              });
+            });
+          }
         }
         else { oc=null; }
       });
@@ -1407,11 +1416,13 @@ function tklike(i){
   ok=wasOpen?null:i;
   rk();
   if(!wasOpen){
-    // After re-render, find the now-open card and scroll its title to top.
+    var ks=document.getElementById('ks'); if(!ks) return;
+    var scroller=ks.closest('.sa') || ks;
     requestAnimationFrame(function(){
-      var ks=document.getElementById('ks'); if(!ks) return;
-      var tcs=ks.querySelectorAll('.tc');
-      if(tcs[i]) tcs[i].scrollIntoView({behavior:'smooth', block:'start'});
+      requestAnimationFrame(function(){
+        var tcs=ks.querySelectorAll('.tc');
+        if(tcs[i]) scroller.scrollTo({top:tcs[i].offsetTop - 8, behavior:'smooth'});
+      });
     });
   }
 }
