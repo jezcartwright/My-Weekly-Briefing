@@ -273,8 +273,8 @@ html.login-active{background:var(--orange)}
 .pdf-page{max-width:820px;margin:24px auto 40px;padding:0;background:#FBF8F2;box-shadow:0 1px 0 #E0D8CB,0 20px 40px -24px rgba(0,0,0,0.08);border-radius:2px;overflow:hidden}
 /* Orange editorial header — matches PDF mockup top */
 /* Orange editorial header — matches PDF mockup top */
-.pdf-header{background:var(--orange);color:#fff;padding:30px 40px 26px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border:none;margin:0}
-.pdf-logo{width:80px;height:80px;object-fit:contain;flex-shrink:0;display:block}
+.pdf-header{background:var(--orange);color:#fff;padding:30px 40px 26px;display:flex;align-items:center;justify-content:space-between;gap:24px;border:none;margin:0}
+.pdf-logo{width:56px;height:56px;object-fit:contain;flex-shrink:0;display:block}
 .pdf-title-block .pdf-pi{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:14px;text-transform:uppercase;color:#fff;font-weight:700;margin-bottom:8px;opacity:.98;line-height:1.15}
 .pdf-title-block .pdf-pi span{display:block}
 .pdf-title-block .pdf-pi .pdf-pi-perf{letter-spacing:.2em}
@@ -283,6 +283,21 @@ html.login-active{background:var(--orange)}
 .pdf-meta{margin-left:auto;text-align:right;font-family:'Inter',sans-serif;color:#fff}
 .pdf-meta #pdf-date{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;letter-spacing:.01em;margin-bottom:4px;color:#fff}
 .pdf-meta #pdf-week{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;opacity:.88;letter-spacing:.02em;color:#fff}
+/* Mobile: stack the header centred (same pattern as on-screen masthead) */
+@media(max-width:640px){
+  .pdf-header{flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px 20px 20px;gap:10px}
+  .pdf-logo{width:36px;height:36px}
+  .pdf-title-block{text-align:center}
+  .pdf-title-block .pdf-pi{font-size:12px;margin-bottom:6px}
+  .pdf-title-block .pdf-wb{font-size:28px}
+  .pdf-meta{margin-left:0;text-align:center;display:flex;gap:8px;align-items:baseline;justify-content:center;margin-top:6px}
+  .pdf-meta #pdf-date{margin-bottom:0;font-size:12px}
+  .pdf-meta #pdf-week{font-size:12px}
+  .pdf-meta #pdf-week::before{content:'·\00a0'}
+  .pdf-cat-title{padding:14px 20px;font-size:12px}
+  .pdf-cat-title::after{font-size:12px}
+  .pdf-cat-body{padding:18px 16px 22px}
+}
 /* Category banner — coloured band per category (set via --cat-color inline) */
 .pdf-cat-section{margin-bottom:0}
 .pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:16px 40px;background:var(--cat-color,#EFE9DD);border-bottom:1px solid rgba(0,0,0,0.06);margin:0;display:flex;align-items:baseline;justify-content:space-between;gap:16px}
