@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Final spec — Design A, all platforms, interactive tabs</title>
+<title>Banner compression options + menu font + tab centring fix</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -14,426 +14,539 @@
   .intro{max-width:1400px;margin:0 auto 24px;padding:0 8px}
   .intro h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin:0 0 6px}
   .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 6px;line-height:1.5;max-width:760px}
-  .intro .hint{font-family:'Inter',sans-serif;font-size:13px;color:#ff6600;font-weight:600;margin:8px 0 0;padding:8px 12px;background:rgba(255,102,0,.08);border-left:3px solid #ff6600}
 
-  .device-section{max-width:1400px;margin:0 auto 40px}
-  .device-label{
-    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
-    letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;
+  .section{max-width:1400px;margin:36px auto 0}
+  .section-title{
+    font-family:'IBM Plex Serif',serif;font-size:20px;font-weight:600;
     margin:0 0 4px;padding:0 8px;
   }
-  .device-spec{font-family:'Inter',sans-serif;font-size:12px;color:#666;margin:0 0 14px;padding:0 8px}
+  .section-sub{
+    font-family:'Inter',sans-serif;font-size:13px;color:#666;
+    margin:0 0 18px;padding:0 8px;line-height:1.45;
+  }
+
+  .grid{display:grid;gap:20px}
+  .cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width:1000px){.cols-3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:700px){.grid{grid-template-columns:1fr}}
+
+  .variant{display:flex;flex-direction:column;gap:8px}
+  .variant-label{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;
+    letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;
+    margin:0;padding:0 6px;
+  }
+  .variant-name{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:600;margin:0;padding:0 6px}
+  .variant-spec{
+    font-family:'Inter',sans-serif;font-size:12px;color:#555;
+    margin:0 0 6px;padding:0 6px;line-height:1.4;
+  }
+  .variant-height{
+    font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;
+    letter-spacing:1.2px;text-transform:uppercase;color:#15803d;
+    margin:0 0 6px;padding:0 6px;
+  }
   .device-frame{
     background:#1a1a1a;border-radius:18px;padding:6px;
-    box-shadow:0 12px 32px rgba(0,0,0,.18);margin:0 auto;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);
   }
   .device-inner{background:#faf8f5;border-radius:12px;overflow:hidden}
-  .iphone{width:390px}
-  .ipad-portrait{width:820px}
-  .ipad-landscape{width:1180px}
-  .desktop{width:1280px}
-  @media (max-width:1320px){.desktop,.ipad-landscape{width:100%;max-width:100%}}
-  @media (max-width:860px){.ipad-portrait{width:100%;max-width:100%}}
+  .phone{max-width:380px;margin:0 auto;width:100%}
 
-  /* ───────── Masthead ───────── */
+  /* ───────── Shared masthead atoms ───────── */
   .masthead{background:#ff6600;color:#fff;position:relative}
-  .utility{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:12px 16px 0;
+  .pi-logo img{display:block;width:auto}
+
+  .eyebrow{
+    font-family:'Cormorant Garamond',serif;font-weight:700;
+    line-height:1.15;text-transform:uppercase;color:#fff;
+    text-align:center;
   }
-  .ipad-portrait .utility,.ipad-landscape .utility,.desktop .utility{padding:16px 28px 0}
-  .util-date{
-    color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;line-height:1;
+  .eyebrow span{display:block}
+  .eyebrow .eb-performance{letter-spacing:.18em}
+  .eyebrow .eb-intelligence{letter-spacing:.28em}
+
+  .wordmark{
+    font-family:'IBM Plex Serif',serif;font-style:normal;font-weight:500;
+    line-height:1;text-align:center;
   }
-  .ipad-portrait .util-date,.ipad-landscape .util-date,.desktop .util-date{font-size:14px}
-  .util-right{display:flex;align-items:center;gap:8px}
+
+  .avatar{
+    width:30px;height:30px;border-radius:50%;background:#3a2818;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:12px;font-weight:600;
+  }
   .hamburger{
     width:32px;height:32px;border-radius:50%;
     background:rgba(255,255,255,.18);color:#fff;border:none;
     display:inline-flex;align-items:center;justify-content:center;
     font-size:18px;line-height:1;font-weight:300;cursor:pointer;
   }
-  .avatar{
-    width:30px;height:30px;border-radius:50%;background:#3a2818;
-    display:flex;align-items:center;justify-content:center;
-    color:#fff;font-size:12px;font-weight:600;
-  }
-  .ipad-portrait .hamburger,.ipad-landscape .hamburger,.desktop .hamburger{width:36px;height:36px;font-size:20px}
-  .ipad-portrait .avatar,.ipad-landscape .avatar,.desktop .avatar{width:34px;height:34px;font-size:13px}
+  .util-date{color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;line-height:1}
 
-  .identity{display:flex;flex-direction:column;align-items:center;padding:8px 16px 18px}
-  .ipad-portrait .identity,.ipad-landscape .identity,.desktop .identity{padding:14px 28px 24px}
-  .pi-logo{margin-bottom:8px}
-  .pi-logo img{display:block;width:auto;height:36px}
-  .ipad-portrait .pi-logo img,.ipad-landscape .pi-logo img,.desktop .pi-logo img{height:48px}
+  /* ───────── COMPRESSION VARIANTS ───────── */
 
-  .eyebrow{
-    font-family:'Cormorant Garamond',serif;font-weight:700;
-    font-size:17px;line-height:1.15;
-    text-transform:uppercase;color:#fff;
-    margin-bottom:4px;text-align:center;
-  }
-  .ipad-portrait .eyebrow,.ipad-landscape .eyebrow,.desktop .eyebrow{font-size:21px}
-  .eyebrow span{display:block}
-  .eyebrow .eb-performance{letter-spacing:.18em}
-  .eyebrow .eb-intelligence{letter-spacing:.28em}
-  .ipad-portrait .eyebrow .eb-performance,
-  .ipad-landscape .eyebrow .eb-performance,
-  .desktop .eyebrow .eb-performance{letter-spacing:.2em}
-  .ipad-portrait .eyebrow .eb-intelligence,
-  .ipad-landscape .eyebrow .eb-intelligence,
-  .desktop .eyebrow .eb-intelligence{letter-spacing:.32em}
+  /* C0: current (baseline reference) — ~200px */
+  .c0 .utility{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0}
+  .c0 .util-right{display:flex;align-items:center;gap:8px}
+  .c0 .identity{display:flex;flex-direction:column;align-items:center;padding:8px 16px 18px}
+  .c0 .pi-logo{margin-bottom:8px}
+  .c0 .pi-logo img{height:36px}
+  .c0 .eyebrow{font-size:17px;margin-bottom:4px}
+  .c0 .wordmark{font-size:34px;margin-top:4px}
 
-  .wordmark{
-    font-family:'IBM Plex Serif',serif;font-style:normal;font-weight:500;
-    font-size:34px;line-height:1;margin-top:4px;text-align:center;
-  }
-  .ipad-portrait .wordmark,.ipad-landscape .wordmark,.desktop .wordmark{font-size:44px;margin-top:6px}
+  /* C1: proportional shrink — ~155px */
+  .c1 .utility{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0}
+  .c1 .util-right{display:flex;align-items:center;gap:6px}
+  .c1 .avatar{width:26px;height:26px;font-size:11px}
+  .c1 .hamburger{width:28px;height:28px;font-size:16px}
+  .c1 .identity{display:flex;flex-direction:column;align-items:center;padding:6px 14px 14px}
+  .c1 .pi-logo{margin-bottom:5px}
+  .c1 .pi-logo img{height:28px}
+  .c1 .eyebrow{font-size:13px;margin-bottom:2px}
+  .c1 .wordmark{font-size:26px;margin-top:2px}
 
-  /* ───────── Hamburger menu dropdown ───────── */
-  .utility{position:relative}
-  .ham-menu{
-    position:absolute;top:100%;right:16px;margin-top:6px;
-    background:#fff;border-radius:8px;
-    box-shadow:0 12px 32px rgba(0,0,0,.22), 0 2px 6px rgba(0,0,0,.08);
-    min-width:200px;
-    padding:6px;
-    z-index:100;
-    opacity:0;visibility:hidden;transform:translateY(-4px);
-    transition:opacity .15s ease, transform .15s ease, visibility .15s;
-  }
-  .ham-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
-  .ham-menu-item{
-    display:flex;align-items:center;gap:10px;
-    padding:9px 12px;border-radius:5px;
-    font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
-    color:#1a1a1a;cursor:pointer;
-    transition:background .12s;
-  }
-  .ham-menu-item:hover{background:#f5f1eb}
-  .ham-menu-item .ico{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:22px;height:22px;font-size:14px;
-  }
-  .ham-menu-divider{height:1px;background:#ece8e0;margin:4px 6px}
-  .ham-menu-item.danger{color:#c8102e}
+  /* C2: inline logo to left of eyebrow+wordmark — ~155px */
+  .c2 .utility{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0}
+  .c2 .util-right{display:flex;align-items:center;gap:8px}
+  .c2 .identity{display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 16px 14px}
+  .c2 .pi-logo img{height:48px}
+  .c2 .id-text{display:flex;flex-direction:column;align-items:flex-start}
+  .c2 .eyebrow{font-size:13px;margin-bottom:2px;text-align:left}
+  .c2 .wordmark{font-size:26px;margin-top:2px;text-align:left}
 
-  /* ───────── Tab ribbon ───────── */
-  /* Default: ribbon matches masthead orange (initial load — one continuous band).
-     On tab change, --active-col updates and the ribbon recolours. */
-  .ribbon{
-    padding:12px 14px;
-    background:var(--active-col,#ff6600);
-    transition:background .35s ease;
+  /* C3: drop eyebrow entirely, edition date under wordmark — ~140px */
+  .c3 .utility{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0}
+  .c3 .util-right{display:flex;align-items:center;gap:8px}
+  .c3 .identity{display:flex;flex-direction:column;align-items:center;padding:8px 16px 14px}
+  .c3 .pi-logo{margin-bottom:4px}
+  .c3 .pi-logo img{height:32px}
+  .c3 .wordmark{font-size:30px}
+  .c3 .edition-date{
+    font-family:'IBM Plex Serif',serif;font-style:italic;font-weight:400;
+    font-size:12px;color:rgba(255,255,255,.85);margin-top:6px;
   }
-  .ipad-portrait .ribbon,.ipad-landscape .ribbon,.desktop .ribbon{padding:14px 28px}
-  .tabs{display:flex;gap:6px;max-width:1100px;margin:0 auto;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .ipad-portrait .tabs,.ipad-landscape .tabs,.desktop .tabs{gap:8px;justify-content:center}
 
+  /* C4: sticky shrinking — shown in two states side by side */
+  .c4-full .utility{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0}
+  .c4-full .util-right{display:flex;align-items:center;gap:8px}
+  .c4-full .identity{display:flex;flex-direction:column;align-items:center;padding:8px 16px 16px}
+  .c4-full .pi-logo{margin-bottom:6px}
+  .c4-full .pi-logo img{height:32px}
+  .c4-full .eyebrow{font-size:15px;margin-bottom:3px}
+  .c4-full .wordmark{font-size:30px;margin-top:3px}
+
+  .c4-mini{display:flex;align-items:center;justify-content:space-between;padding:8px 14px}
+  .c4-mini .mini-left{display:flex;align-items:center;gap:10px}
+  .c4-mini .mini-left img{height:22px;display:block}
+  .c4-mini .mini-wordmark{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:16px;color:#fff}
+  .c4-mini .util-right{display:flex;align-items:center;gap:6px}
+  .c4-mini .avatar{width:24px;height:24px;font-size:10px}
+  .c4-mini .hamburger{width:26px;height:26px;font-size:14px}
+
+  /* C5: combine utility row INTO masthead — date/π/eyebrow+wordmark/avatar+ham on one row — ~135px */
+  .c5 .row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:14px 14px 14px}
+  .c5 .row1 .util-date{font-size:12px}
+  .c5 .row1 .id-stack{display:flex;flex-direction:column;align-items:center;justify-self:center}
+  .c5 .row1 .util-right{justify-self:end;display:flex;align-items:center;gap:6px}
+  .c5 .row1 .avatar{width:26px;height:26px;font-size:11px}
+  .c5 .row1 .hamburger{width:28px;height:28px;font-size:16px}
+  .c5 .row1 .id-stack img{height:22px;display:block;margin-bottom:3px}
+  .c5 .row1 .eyebrow{font-size:9px;letter-spacing:.18em;margin-bottom:1px}
+  .c5 .row1 .eyebrow .eb-performance{letter-spacing:.12em}
+  .c5 .row1 .eyebrow .eb-intelligence{letter-spacing:.22em}
+  .c5 .row1 .wordmark{font-size:20px}
+
+  /* ───────── Tab ribbon (shared, fixed) ───────── */
+  .ribbon{padding:10px 14px;background:#ff6600;border-top:1px solid rgba(255,255,255,.12)}
+  /* The fix: use inline-flex + auto margins on a wrapper so cluster is centred
+     when fits, but scrolls naturally when overflowing. */
+  .tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;text-align:center}
+  .tabs{display:inline-flex;gap:6px;padding:0}
   .tab{
-    flex:0 0 auto;padding:8px 14px;border-radius:4px;cursor:pointer;
-    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;
+    flex:0 0 auto;padding:7px 12px;border-radius:4px;cursor:pointer;
+    font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:1.4px;
     text-transform:uppercase;
-    transition:background .25s, color .25s, border-color .25s;
   }
-  .ipad-portrait .tab,.ipad-landscape .tab,.desktop .tab{padding:10px 18px;font-size:12px}
   .tab.inactive{background:#fff;border:1.5px solid var(--col);color:var(--col)}
-  .tab.active{background:var(--active-col,#ff6600);border:1.5px solid rgba(255,255,255,.9);color:#fff}
+  .tab.active{background:#ff6600;border:1.5px solid rgba(255,255,255,.9);color:#fff}
 
   /* ───────── Content peek ───────── */
-  .content{padding:16px 14px;background:#faf8f5}
-  .ipad-portrait .content,.ipad-landscape .content,.desktop .content{padding:20px 28px;max-width:1156px;margin:0 auto}
+  .content{padding:14px;background:#faf8f5}
   .sample-card{
     background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;
-    border-radius:1px;padding:14px 16px;
-    display:grid;grid-template-columns:32px 1fr;gap:10px;
+    border-radius:1px;padding:12px 14px;
+    display:grid;grid-template-columns:30px 1fr;gap:10px;
   }
-  .ipad-portrait .sample-card,.ipad-landscape .sample-card,.desktop .sample-card{padding:18px 22px;grid-template-columns:42px 1fr}
-  .sample-num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#ff6600;padding-top:3px}
-  .ipad-portrait .sample-num,.ipad-landscape .sample-num,.desktop .sample-num{font-size:13px}
-  .sample-title{font-family:'IBM Plex Serif',serif;font-size:16px;line-height:1.25;font-weight:600;color:#1a1a1a}
-  .ipad-portrait .sample-title,.ipad-landscape .sample-title,.desktop .sample-title{font-size:21px}
-  .sample-summary{font-family:'IBM Plex Serif',serif;font-size:14px;line-height:1.4;color:#444;margin-top:6px}
-  .ipad-portrait .sample-summary,.ipad-landscape .sample-summary,.desktop .sample-summary{font-size:17px;line-height:1.45;margin-top:8px}
+  .sample-num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#ff6600;padding-top:2px}
+  .sample-title{font-family:'IBM Plex Serif',serif;font-size:15px;line-height:1.25;font-weight:600;color:#1a1a1a}
+  .sample-summary{font-family:'IBM Plex Serif',serif;font-size:13px;line-height:1.4;color:#444;margin-top:4px}
+
+  /* ───────── Menu font variants ───────── */
+  .menu-demo{
+    background:#fff;border-radius:8px;
+    box-shadow:0 12px 32px rgba(0,0,0,.18);
+    padding:6px;width:220px;margin:0 auto;
+  }
+  .mi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:5px;color:#1a1a1a}
+  .mi .ico{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;font-size:14px}
+
+  /* Variant M1: Inter (current) */
+  .m1 .mi{font-family:'Inter',sans-serif;font-size:13px;font-weight:500}
+
+  /* Variant M2: IBM Plex Serif (editorial) */
+  .m2 .mi{font-family:'IBM Plex Serif',serif;font-size:14px;font-weight:500}
+
+  /* Variant M3: Inter, smaller, uppercase letter-spaced (utility) */
+  .m3 .mi{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}
 
   .notes{
     max-width:1100px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
     font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333;
   }
   .notes h3{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;margin:0 0 12px}
+  .notes h4{font-family:'IBM Plex Serif',serif;font-size:14px;font-weight:600;margin:18px 0 6px;color:#ff6600}
   .notes p{margin:0 0 10px}
-  .notes strong{color:#222}
-  .notes ul{margin:0 0 12px;padding-left:20px}
-  .notes li{margin-bottom:4px}
+  .notes ul{margin:0 0 12px;padding-left:18px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Final spec — Design A across all platforms</h1>
-  <p>Single masthead, centred identity stack, ribbon defaults to orange (matching masthead) and shifts to the active category colour on tap.</p>
-  <p class="hint">↑ Tap the tabs to see the ribbon shift colour. Tap the hamburger (≡) to see the menu layout.</p>
+  <h1>Decision page — banner compression, menu font, tab centring fix</h1>
+  <p>Three sections below. <strong>Section A</strong>: compression options for the top banner. <strong>Section B</strong>: tab centring fix demoed (Leadership now fully visible). <strong>Section C</strong>: hamburger menu font options.</p>
 </div>
 
-<!-- ─── iPhone ─── -->
-<section class="device-section">
-  <p class="device-label">iPhone portrait · 390 px</p>
-  <p class="device-spec">Tap any tab to change category — watch the ribbon shift colour</p>
-  <div class="device-frame iphone"><div class="device-inner" data-device="iphone">
-    <div class="masthead">
-      <div class="utility">
-        <div class="util-date">Tue, 2 Jun 2026</div>
-        <div class="util-right">
-          <div class="avatar">J</div>
-          <button class="hamburger" data-hamburger>≡</button>
-        </div>
-        <div class="ham-menu" data-ham-menu>
-          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
-          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
-          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
-          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
-          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
-          <div class="ham-menu-divider"></div>
-          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
-        </div>
-      </div>
-      <div class="identity">
-        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
-        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-        <div class="wordmark">Weekly Briefing</div>
-      </div>
-    </div>
-    <div class="ribbon" data-ribbon>
-      <div class="tabs" data-tabs>
-        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
-        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
-        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
-        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Tech</span>
-      </div>
-    </div>
-    <div class="content">
-      <div class="sample-card">
-        <div class="sample-num">01</div>
-        <div>
-          <div class="sample-title">The 50-Year Career Problem</div>
-          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</section>
+<!-- ============ SECTION A: COMPRESSION ============ -->
+<div class="section">
+  <h2 class="section-title">A · Banner compression — five options</h2>
+  <p class="section-sub">Same content, five vertical-space treatments. The green height labels show approximate masthead height in pixels.</p>
 
-<!-- ─── iPad portrait ─── -->
-<section class="device-section">
-  <p class="device-label">iPad portrait · 820 px</p>
-  <p class="device-spec">Type scales up, layout density unchanged</p>
-  <div class="device-frame ipad-portrait"><div class="device-inner" data-device="ipad-p">
-    <div class="masthead">
-      <div class="utility">
-        <div class="util-date">Tuesday, 2 June 2026</div>
-        <div class="util-right">
-          <div class="avatar">J</div>
-          <button class="hamburger" data-hamburger>≡</button>
-        </div>
-        <div class="ham-menu" data-ham-menu>
-          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
-          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
-          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
-          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
-          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
-          <div class="ham-menu-divider"></div>
-          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
-        </div>
-      </div>
-      <div class="identity">
-        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
-        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-        <div class="wordmark">Weekly Briefing</div>
-      </div>
-    </div>
-    <div class="ribbon" data-ribbon>
-      <div class="tabs" data-tabs>
-        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
-        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
-        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
-        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Technology</span>
-        <span class="tab inactive" data-color="#7c3aed" style="--col:#7c3aed">Geopolitics</span>
-        <span class="tab inactive" data-color="#15803d" style="--col:#15803d">Philosophy</span>
-      </div>
-    </div>
-    <div class="content">
-      <div class="sample-card">
-        <div class="sample-num">01</div>
-        <div>
-          <div class="sample-title">The 50-Year Career Problem</div>
-          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</section>
+  <div class="grid cols-3">
 
-<!-- ─── iPad landscape ─── -->
-<section class="device-section">
-  <p class="device-label">iPad landscape · 1180 px</p>
-  <p class="device-spec">More breathing room, content max-width 1100px keeps editorial density</p>
-  <div class="device-frame ipad-landscape"><div class="device-inner" data-device="ipad-l">
-    <div class="masthead">
-      <div class="utility">
-        <div class="util-date">Tuesday, 2 June 2026</div>
-        <div class="util-right">
-          <div class="avatar">J</div>
-          <button class="hamburger" data-hamburger>≡</button>
+    <!-- C0 baseline -->
+    <div class="variant">
+      <p class="variant-label">C0 · current (baseline)</p>
+      <p class="variant-name">No compression — what we have now</p>
+      <p class="variant-height">~200 px tall</p>
+      <p class="variant-spec">Reference point. Two-row layout, generous spacing, centred stack.</p>
+      <div class="device-frame phone"><div class="device-inner">
+        <div class="masthead c0">
+          <div class="utility">
+            <div class="util-date">Tue, 2 Jun 2026</div>
+            <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+          </div>
+          <div class="identity">
+            <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+            <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+            <div class="wordmark">Weekly Briefing</div>
+          </div>
         </div>
-        <div class="ham-menu" data-ham-menu>
-          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
-          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
-          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
-          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
-          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
-          <div class="ham-menu-divider"></div>
-          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
+        <div class="ribbon">
+          <div class="tabs-wrap"><div class="tabs">
+            <span class="tab active" style="--col:#ff6600">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2">Tech</span>
+          </div></div>
         </div>
-      </div>
-      <div class="identity">
-        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
-        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-        <div class="wordmark">Weekly Briefing</div>
-      </div>
+        <div class="content"><div class="sample-card">
+          <div class="sample-num">01</div>
+          <div><div class="sample-title">The 50-Year Career Problem</div></div>
+        </div></div>
+      </div></div>
     </div>
-    <div class="ribbon" data-ribbon>
-      <div class="tabs" data-tabs>
-        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
-        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
-        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
-        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Technology</span>
-        <span class="tab inactive" data-color="#7c3aed" style="--col:#7c3aed">Geopolitics</span>
-        <span class="tab inactive" data-color="#15803d" style="--col:#15803d">Philosophy</span>
-      </div>
-    </div>
-    <div class="content">
-      <div class="sample-card">
-        <div class="sample-num">01</div>
-        <div>
-          <div class="sample-title">The 50-Year Career Problem</div>
-          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
-        </div>
-      </div>
-    </div>
-  </div></div>
-</section>
 
-<!-- ─── Desktop ─── -->
-<section class="device-section">
-  <p class="device-label">Desktop · 1280+ px</p>
-  <p class="device-spec">Orange band edge-to-edge; cluster centred</p>
-  <div class="device-frame desktop"><div class="device-inner" data-device="desktop">
-    <div class="masthead">
-      <div class="utility">
-        <div class="util-date">Tuesday, 2 June 2026</div>
-        <div class="util-right">
-          <div class="avatar">J</div>
-          <button class="hamburger" data-hamburger>≡</button>
+    <!-- C1 -->
+    <div class="variant">
+      <p class="variant-label">C1 · proportional shrink</p>
+      <p class="variant-name">Everything ~25% smaller</p>
+      <p class="variant-height">~155 px tall — saves 45 px</p>
+      <p class="variant-spec">Same layout, just smaller. Tightest spacing, smaller type. Lowest risk, easiest to revert.</p>
+      <div class="device-frame phone"><div class="device-inner">
+        <div class="masthead c1">
+          <div class="utility">
+            <div class="util-date">Tue, 2 Jun 2026</div>
+            <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+          </div>
+          <div class="identity">
+            <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+            <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+            <div class="wordmark">Weekly Briefing</div>
+          </div>
         </div>
-        <div class="ham-menu" data-ham-menu>
-          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
-          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
-          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
-          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
-          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
-          <div class="ham-menu-divider"></div>
-          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
+        <div class="ribbon">
+          <div class="tabs-wrap"><div class="tabs">
+            <span class="tab active" style="--col:#ff6600">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2">Tech</span>
+          </div></div>
         </div>
-      </div>
-      <div class="identity">
-        <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
-        <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
-        <div class="wordmark">Weekly Briefing</div>
+        <div class="content"><div class="sample-card">
+          <div class="sample-num">01</div>
+          <div><div class="sample-title">The 50-Year Career Problem</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <!-- C2 -->
+    <div class="variant">
+      <p class="variant-label">C2 · inline logo</p>
+      <p class="variant-name">Logo left of text, not above</p>
+      <p class="variant-height">~155 px tall — saves 45 px</p>
+      <p class="variant-spec">Asymmetric, similar to FT mastheads. Loses some "centred ceremony" but is dense and editorial.</p>
+      <div class="device-frame phone"><div class="device-inner">
+        <div class="masthead c2">
+          <div class="utility">
+            <div class="util-date">Tue, 2 Jun 2026</div>
+            <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+          </div>
+          <div class="identity">
+            <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+            <div class="id-text">
+              <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+              <div class="wordmark">Weekly Briefing</div>
+            </div>
+          </div>
+        </div>
+        <div class="ribbon">
+          <div class="tabs-wrap"><div class="tabs">
+            <span class="tab active" style="--col:#ff6600">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2">Tech</span>
+          </div></div>
+        </div>
+        <div class="content"><div class="sample-card">
+          <div class="sample-num">01</div>
+          <div><div class="sample-title">The 50-Year Career Problem</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <!-- C3 -->
+    <div class="variant">
+      <p class="variant-label">C3 · drop eyebrow</p>
+      <p class="variant-name">No "Performance Intelligence" text — just logo + wordmark + date</p>
+      <p class="variant-height">~140 px tall — saves 60 px</p>
+      <p class="variant-spec">Boldest move. "Performance Intelligence" becomes brand-implicit. Edition date sits below wordmark in italic.</p>
+      <div class="device-frame phone"><div class="device-inner">
+        <div class="masthead c3">
+          <div class="utility">
+            <div class="util-date">Tue, 2 Jun 2026</div>
+            <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+          </div>
+          <div class="identity">
+            <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+            <div class="wordmark">Weekly Briefing</div>
+            <div class="edition-date">No. 23 · Tuesday 2 June 2026</div>
+          </div>
+        </div>
+        <div class="ribbon">
+          <div class="tabs-wrap"><div class="tabs">
+            <span class="tab active" style="--col:#ff6600">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2">Tech</span>
+          </div></div>
+        </div>
+        <div class="content"><div class="sample-card">
+          <div class="sample-num">01</div>
+          <div><div class="sample-title">The 50-Year Career Problem</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <!-- C4 -->
+    <div class="variant">
+      <p class="variant-label">C4 · sticky shrinking</p>
+      <p class="variant-name">Full at top of page, shrinks to thin bar on scroll</p>
+      <p class="variant-height">170 px (top) → 40 px (scrolled)</p>
+      <p class="variant-spec">Full masthead when reader lands; collapses to compact bar once they scroll. Most engineering work but best UX trade-off. Two states shown:</p>
+      <div class="device-frame phone"><div class="device-inner">
+        <!-- Full state -->
+        <div class="masthead c4-full">
+          <div class="utility">
+            <div class="util-date">Tue, 2 Jun 2026</div>
+            <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+          </div>
+          <div class="identity">
+            <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
+            <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+            <div class="wordmark">Weekly Briefing</div>
+          </div>
+        </div>
+        <div style="background:#444;color:#fff;text-align:center;padding:4px;font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1.4px">↓ AS USER SCROLLS, BANNER TRANSFORMS ↓</div>
+        <!-- Mini state -->
+        <div class="masthead c4-mini">
+          <div class="mini-left">
+            <img src="data:image/png;base64,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" alt="π">
+            <div class="mini-wordmark">Weekly Briefing</div>
+          </div>
+          <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+        </div>
+        <div class="ribbon">
+          <div class="tabs-wrap"><div class="tabs">
+            <span class="tab active" style="--col:#ff6600">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2">Tech</span>
+          </div></div>
+        </div>
+        <div class="content"><div class="sample-card">
+          <div class="sample-num">01</div>
+          <div><div class="sample-title">The 50-Year Career Problem</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <!-- C5 -->
+    <div class="variant">
+      <p class="variant-label">C5 · single-row banner</p>
+      <p class="variant-name">Date + logo/text + controls all on ONE row</p>
+      <p class="variant-height">~135 px tall — saves 65 px</p>
+      <p class="variant-spec">Most aggressive flat layout. Everything horizontal. Risk: feels cramped, loses ceremony of the wordmark.</p>
+      <div class="device-frame phone"><div class="device-inner">
+        <div class="masthead c5">
+          <div class="row1">
+            <div class="util-date">Tue, 2 Jun 2026</div>
+            <div class="id-stack">
+              <img src="data:image/png;base64,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" alt="π">
+              <div class="eyebrow"><span class="eb-performance">Performance</span><span class="eb-intelligence">Intelligence</span></div>
+              <div class="wordmark">Weekly Briefing</div>
+            </div>
+            <div class="util-right"><div class="avatar">J</div><button class="hamburger">≡</button></div>
+          </div>
+        </div>
+        <div class="ribbon">
+          <div class="tabs-wrap"><div class="tabs">
+            <span class="tab active" style="--col:#ff6600">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2">Tech</span>
+          </div></div>
+        </div>
+        <div class="content"><div class="sample-card">
+          <div class="sample-num">01</div>
+          <div><div class="sample-title">The 50-Year Career Problem</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ SECTION B: TAB CENTRING FIX ============ -->
+<div class="section">
+  <h2 class="section-title">B · Tab centring fix — Leadership pill fully visible</h2>
+  <p class="section-sub">The fix: tabs use a centred wrapper but no flex justify-content, so when six pills fit they centre naturally; when they don't, they scroll left-aligned without clipping the first one.</p>
+
+  <div class="grid cols-2">
+
+    <div class="variant">
+      <p class="variant-label">Before · clips Leadership</p>
+      <p class="variant-spec">With justify-content:center, when row overflows, both first and last tabs get clipped.</p>
+      <div class="device-frame" style="max-width:560px;margin:0 auto"><div class="device-inner">
+        <div style="background:#ff6600;padding:14px 28px;border-top:1px solid rgba(255,255,255,.12)">
+          <div style="display:flex;gap:8px;max-width:1100px;margin:0 auto;justify-content:center;overflow-x:auto">
+            <span class="tab active" style="--col:#ff6600;padding:10px 18px;font-size:12px;flex:0 0 auto">Leadership</span>
+            <span class="tab inactive" style="--col:#1e3a8a;padding:10px 18px;font-size:12px;flex:0 0 auto">Markets</span>
+            <span class="tab inactive" style="--col:#c8102e;padding:10px 18px;font-size:12px;flex:0 0 auto">Psychology</span>
+            <span class="tab inactive" style="--col:#0891b2;padding:10px 18px;font-size:12px;flex:0 0 auto">Technology</span>
+            <span class="tab inactive" style="--col:#7c3aed;padding:10px 18px;font-size:12px;flex:0 0 auto">Geopolitics</span>
+            <span class="tab inactive" style="--col:#15803d;padding:10px 18px;font-size:12px;flex:0 0 auto">Philosophy</span>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="variant">
+      <p class="variant-label">After · all six visible</p>
+      <p class="variant-spec">Tabs wrapper centres with text-align, but inline-flex content scrolls naturally if needed. No clipping.</p>
+      <div class="device-frame" style="max-width:560px;margin:0 auto"><div class="device-inner">
+        <div style="background:#ff6600;padding:14px 28px;border-top:1px solid rgba(255,255,255,.12)">
+          <div style="text-align:center;overflow-x:auto">
+            <div style="display:inline-flex;gap:8px">
+              <span class="tab active" style="--col:#ff6600;padding:10px 18px;font-size:12px;flex:0 0 auto">Leadership</span>
+              <span class="tab inactive" style="--col:#1e3a8a;padding:10px 18px;font-size:12px;flex:0 0 auto">Markets</span>
+              <span class="tab inactive" style="--col:#c8102e;padding:10px 18px;font-size:12px;flex:0 0 auto">Psychology</span>
+              <span class="tab inactive" style="--col:#0891b2;padding:10px 18px;font-size:12px;flex:0 0 auto">Technology</span>
+              <span class="tab inactive" style="--col:#7c3aed;padding:10px 18px;font-size:12px;flex:0 0 auto">Geopolitics</span>
+              <span class="tab inactive" style="--col:#15803d;padding:10px 18px;font-size:12px;flex:0 0 auto">Philosophy</span>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ SECTION C: MENU FONT ============ -->
+<div class="section">
+  <h2 class="section-title">C · Hamburger menu — three font options</h2>
+  <p class="section-sub">Same items, three typography treatments. Inter is the current default; the others give different feels.</p>
+
+  <div class="grid cols-3">
+
+    <div class="variant">
+      <p class="variant-label">M1 · Inter (current)</p>
+      <p class="variant-spec">Clean, functional sans-serif. Matches buttons/UI labels elsewhere. Default web app feel.</p>
+      <div class="menu-demo m1">
+        <div class="mi"><span class="ico">📄</span>PDF</div>
+        <div class="mi"><span class="ico">✏️</span>My Notes</div>
+        <div class="mi"><span class="ico">♡</span>Liked topics</div>
+        <div class="mi"><span class="ico">▤</span>Library</div>
+        <div class="mi"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+        <div style="height:1px;background:#ece8e0;margin:4px 6px"></div>
+        <div class="mi" style="color:#c8102e"><span class="ico">⏻</span>Sign out</div>
       </div>
     </div>
-    <div class="ribbon" data-ribbon>
-      <div class="tabs" data-tabs>
-        <span class="tab active" data-color="#ff6600" style="--col:#ff6600">Leadership</span>
-        <span class="tab inactive" data-color="#1e3a8a" style="--col:#1e3a8a">Markets</span>
-        <span class="tab inactive" data-color="#c8102e" style="--col:#c8102e">Psychology</span>
-        <span class="tab inactive" data-color="#0891b2" style="--col:#0891b2">Technology</span>
-        <span class="tab inactive" data-color="#7c3aed" style="--col:#7c3aed">Geopolitics</span>
-        <span class="tab inactive" data-color="#15803d" style="--col:#15803d">Philosophy</span>
+
+    <div class="variant">
+      <p class="variant-label">M2 · IBM Plex Serif</p>
+      <p class="variant-spec">Editorial serif, ties to wordmark. Feels like a publication's menu, not an app's. More distinctive.</p>
+      <div class="menu-demo m2">
+        <div class="mi"><span class="ico">📄</span>PDF</div>
+        <div class="mi"><span class="ico">✏️</span>My Notes</div>
+        <div class="mi"><span class="ico">♡</span>Liked topics</div>
+        <div class="mi"><span class="ico">▤</span>Library</div>
+        <div class="mi"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+        <div style="height:1px;background:#ece8e0;margin:4px 6px"></div>
+        <div class="mi" style="color:#c8102e"><span class="ico">⏻</span>Sign out</div>
       </div>
     </div>
-    <div class="content">
-      <div class="sample-card">
-        <div class="sample-num">01</div>
-        <div>
-          <div class="sample-title">The 50-Year Career Problem</div>
-          <div class="sample-summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
-        </div>
+
+    <div class="variant">
+      <p class="variant-label">M3 · Inter small caps</p>
+      <p class="variant-spec">Tighter, uppercase Inter with letter-spacing. Matches the tab labels. Most utility-feel of the three.</p>
+      <div class="menu-demo m3">
+        <div class="mi"><span class="ico">📄</span>PDF</div>
+        <div class="mi"><span class="ico">✏️</span>My Notes</div>
+        <div class="mi"><span class="ico">♡</span>Liked</div>
+        <div class="mi"><span class="ico">▤</span>Library</div>
+        <div class="mi"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+        <div style="height:1px;background:#ece8e0;margin:4px 6px"></div>
+        <div class="mi" style="color:#c8102e"><span class="ico">⏻</span>Sign out</div>
       </div>
     </div>
-  </div></div>
-</section>
+
+  </div>
+</div>
 
 <div class="notes">
-  <h3>The final spec, applied uniformly</h3>
-  <p><strong>Masthead</strong></p>
-  <ul>
-    <li>Date top-left (plain text, white, no pill)</li>
-    <li>Hamburger then Avatar, top-right (avatar at the absolute right edge)</li>
-    <li>π logo centred, 36px (iPhone) up to 48px (larger screens)</li>
-    <li>PERFORMANCE / INTELLIGENCE eyebrow, weight 700, centred, +10% size from earlier mocks, INTELLIGENCE noticeably wider than PERFORMANCE via per-word letter-spacing</li>
-    <li>"Weekly Briefing" wordmark, IBM Plex Serif weight 500 (25% lighter than the earlier 700), upright (not italic), centred</li>
-  </ul>
-  <p><strong>Ribbon under tabs</strong></p>
-  <ul>
-    <li>Defaults to orange (matches masthead) — initial load is one continuous orange band</li>
-    <li>Recolours to active category on tab change, with a 350ms transition</li>
-    <li>Active tab: matches ribbon colour, white outline</li>
-    <li>Inactive tabs: white pill with category-coloured text and border</li>
-  </ul>
-  <p><strong>Content area</strong></p>
-  <ul>
-    <li>Topic cards, accent bar, "01" number all stay orange — unchanged from current site</li>
-  </ul>
+  <h3>How to pick from this page</h3>
+  <h4>Section A — compression</h4>
+  <p>The trade-off is real estate vs ceremony. C0 has full ceremony but takes ~200px before the reader sees a topic. C5 saves the most space but loses the editorial feel. C4 (sticky shrinking) is the best of both worlds technically but is the most engineering work.</p>
+  <p><strong>My recommendation: C2 (inline logo) or C4 (sticky shrinking).</strong> C2 is dense and editorial-looking with no engineering complexity. C4 is best UX if you want the ceremonial banner on landing but compact reading.</p>
+  <h4>Section B — tab centring</h4>
+  <p>The After version is the fix. It centres when the row fits, scrolls when it doesn't, never clips the first or last pill.</p>
+  <h4>Section C — menu font</h4>
+  <p>Inter (M1) is fine but generic. IBM Plex Serif (M2) feels more like Weekly Briefing's voice. M3 is the most distinctive but might feel a bit overdesigned for a menu.</p>
+  <p><strong>My recommendation: M2 IBM Plex Serif.</strong> Ties the menu to the rest of the publication, distinguishes the experience from generic SaaS dropdowns.</p>
 </div>
-
-<script>
-  // Click tab → recolour ribbon and update active tab in that device only
-  document.querySelectorAll('[data-tabs]').forEach(function(tabsEl){
-    var ribbon = tabsEl.closest('[data-ribbon]');
-    tabsEl.querySelectorAll('.tab').forEach(function(tab){
-      tab.addEventListener('click', function(){
-        var color = tab.dataset.color;
-        ribbon.style.setProperty('--active-col', color);
-        tabsEl.querySelectorAll('.tab').forEach(function(t){
-          t.classList.remove('active');
-          t.classList.add('inactive');
-        });
-        tab.classList.remove('inactive');
-        tab.classList.add('active');
-      });
-    });
-  });
-
-  // Hamburger toggle — opens menu in same device; closes others
-  document.querySelectorAll('[data-hamburger]').forEach(function(btn){
-    btn.addEventListener('click', function(ev){
-      ev.stopPropagation();
-      var menu = btn.closest('.utility').querySelector('[data-ham-menu]');
-      var isOpen = menu.classList.contains('open');
-      // Close all menus everywhere
-      document.querySelectorAll('[data-ham-menu]').forEach(function(m){m.classList.remove('open');});
-      if(!isOpen) menu.classList.add('open');
-    });
-  });
-  // Click anywhere outside to close menus
-  document.addEventListener('click', function(){
-    document.querySelectorAll('[data-ham-menu]').forEach(function(m){m.classList.remove('open');});
-  });
-  // Clicks inside the menu shouldn't close it
-  document.querySelectorAll('[data-ham-menu]').forEach(function(menu){
-    menu.addEventListener('click', function(ev){ev.stopPropagation();});
-  });
-</script>
 
 </body>
 </html>
