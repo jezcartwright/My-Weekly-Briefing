@@ -1148,7 +1148,17 @@ function wireTopicListHandlers(){
         var tcs=Array.from(tl.children).filter(function(el){return el.classList.contains('tc');});
         var wasOpen=card.classList.contains('op');
         tcs.forEach(function(tc){tc.classList.remove('op');});
-        if(!wasOpen){ card.classList.add('op'); oc=idx; }
+        if(!wasOpen){
+          card.classList.add('op'); oc=idx;
+          // Scroll the card header to the top of the scroll area so the
+          // user reads naturally downward through the expanded content,
+          // rather than having to scroll up to find the title.
+          // requestAnimationFrame waits one paint so the layout settles
+          // (other cards just closed) before measuring scroll target.
+          requestAnimationFrame(function(){
+            card.scrollIntoView({behavior:'smooth', block:'start'});
+          });
+        }
         else { oc=null; }
       });
     })(headers[j]);
@@ -1392,7 +1402,19 @@ document.addEventListener('click',function(e){
     if(btn)btn.classList.remove('open');
   }
 });
-function tklike(i){ ok=ok===i?null:i; rk(); }
+function tklike(i){
+  var wasOpen=(ok===i);
+  ok=wasOpen?null:i;
+  rk();
+  if(!wasOpen){
+    // After re-render, find the now-open card and scroll its title to top.
+    requestAnimationFrame(function(){
+      var ks=document.getElementById('ks'); if(!ks) return;
+      var tcs=ks.querySelectorAll('.tc');
+      if(tcs[i]) tcs[i].scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }
+}
 function skf(id){ kf_val=id; rk(); }
 function clearLikedSearch(){ document.getElementById('liked-search').value=''; rk(); }
 
