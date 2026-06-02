@@ -90,6 +90,34 @@
   }
   .ipad-portrait .wordmark,.ipad-landscape .wordmark,.desktop .wordmark{font-size:44px;margin-top:6px}
 
+  /* ───────── Hamburger menu dropdown ───────── */
+  .utility{position:relative}
+  .ham-menu{
+    position:absolute;top:100%;right:16px;margin-top:6px;
+    background:#fff;border-radius:8px;
+    box-shadow:0 12px 32px rgba(0,0,0,.22), 0 2px 6px rgba(0,0,0,.08);
+    min-width:200px;
+    padding:6px;
+    z-index:100;
+    opacity:0;visibility:hidden;transform:translateY(-4px);
+    transition:opacity .15s ease, transform .15s ease, visibility .15s;
+  }
+  .ham-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+  .ham-menu-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 12px;border-radius:5px;
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+    color:#1a1a1a;cursor:pointer;
+    transition:background .12s;
+  }
+  .ham-menu-item:hover{background:#f5f1eb}
+  .ham-menu-item .ico{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;font-size:14px;
+  }
+  .ham-menu-divider{height:1px;background:#ece8e0;margin:4px 6px}
+  .ham-menu-item.danger{color:#c8102e}
+
   /* ───────── Tab ribbon ───────── */
   /* Default: ribbon matches masthead orange (initial load — one continuous band).
      On tab change, --active-col updates and the ribbon recolours. */
@@ -100,7 +128,7 @@
   }
   .ipad-portrait .ribbon,.ipad-landscape .ribbon,.desktop .ribbon{padding:14px 28px}
   .tabs{display:flex;gap:6px;max-width:1100px;margin:0 auto;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .ipad-portrait .tabs,.ipad-landscape .tabs,.desktop .tabs{gap:8px}
+  .ipad-portrait .tabs,.ipad-landscape .tabs,.desktop .tabs{gap:8px;justify-content:center}
 
   .tab{
     flex:0 0 auto;padding:8px 14px;border-radius:4px;cursor:pointer;
@@ -144,7 +172,7 @@
 <div class="intro">
   <h1>Final spec — Design A across all platforms</h1>
   <p>Single masthead, centred identity stack, ribbon defaults to orange (matching masthead) and shifts to the active category colour on tap.</p>
-  <p class="hint">↑ Tap the tabs in each mockup to see the ribbon colour transition.</p>
+  <p class="hint">↑ Tap the tabs to see the ribbon shift colour. Tap the hamburger (≡) to see the menu layout.</p>
 </div>
 
 <!-- ─── iPhone ─── -->
@@ -156,8 +184,17 @@
       <div class="utility">
         <div class="util-date">Tue, 2 Jun 2026</div>
         <div class="util-right">
-          <button class="hamburger">≡</button>
           <div class="avatar">J</div>
+          <button class="hamburger" data-hamburger>≡</button>
+        </div>
+        <div class="ham-menu" data-ham-menu>
+          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
+          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
+          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
+          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
+          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+          <div class="ham-menu-divider"></div>
+          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
         </div>
       </div>
       <div class="identity">
@@ -195,8 +232,17 @@
       <div class="utility">
         <div class="util-date">Tuesday, 2 June 2026</div>
         <div class="util-right">
-          <button class="hamburger">≡</button>
           <div class="avatar">J</div>
+          <button class="hamburger" data-hamburger>≡</button>
+        </div>
+        <div class="ham-menu" data-ham-menu>
+          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
+          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
+          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
+          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
+          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+          <div class="ham-menu-divider"></div>
+          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
         </div>
       </div>
       <div class="identity">
@@ -236,8 +282,17 @@
       <div class="utility">
         <div class="util-date">Tuesday, 2 June 2026</div>
         <div class="util-right">
-          <button class="hamburger">≡</button>
           <div class="avatar">J</div>
+          <button class="hamburger" data-hamburger>≡</button>
+        </div>
+        <div class="ham-menu" data-ham-menu>
+          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
+          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
+          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
+          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
+          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+          <div class="ham-menu-divider"></div>
+          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
         </div>
       </div>
       <div class="identity">
@@ -277,8 +332,17 @@
       <div class="utility">
         <div class="util-date">Tuesday, 2 June 2026</div>
         <div class="util-right">
-          <button class="hamburger">≡</button>
           <div class="avatar">J</div>
+          <button class="hamburger" data-hamburger>≡</button>
+        </div>
+        <div class="ham-menu" data-ham-menu>
+          <div class="ham-menu-item"><span class="ico">📄</span>PDF</div>
+          <div class="ham-menu-item"><span class="ico">✏️</span>My Notes</div>
+          <div class="ham-menu-item"><span class="ico">♡</span>Liked topics</div>
+          <div class="ham-menu-item"><span class="ico">▤</span>Library</div>
+          <div class="ham-menu-item"><span class="ico" style="font-family:'IBM Plex Serif',serif;font-weight:600;color:#ff6600">Aa</span>Text size</div>
+          <div class="ham-menu-divider"></div>
+          <div class="ham-menu-item danger"><span class="ico">⏻</span>Sign out</div>
         </div>
       </div>
       <div class="identity">
@@ -348,6 +412,26 @@
         tab.classList.add('active');
       });
     });
+  });
+
+  // Hamburger toggle — opens menu in same device; closes others
+  document.querySelectorAll('[data-hamburger]').forEach(function(btn){
+    btn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var menu = btn.closest('.utility').querySelector('[data-ham-menu]');
+      var isOpen = menu.classList.contains('open');
+      // Close all menus everywhere
+      document.querySelectorAll('[data-ham-menu]').forEach(function(m){m.classList.remove('open');});
+      if(!isOpen) menu.classList.add('open');
+    });
+  });
+  // Click anywhere outside to close menus
+  document.addEventListener('click', function(){
+    document.querySelectorAll('[data-ham-menu]').forEach(function(m){m.classList.remove('open');});
+  });
+  // Clicks inside the menu shouldn't close it
+  document.querySelectorAll('[data-ham-menu]').forEach(function(menu){
+    menu.addEventListener('click', function(ev){ev.stopPropagation();});
   });
 </script>
 
