@@ -91,7 +91,7 @@ html.login-active{background:var(--orange)}
 .tab:hover{filter:brightness(0.97)}
 .tab.on{background:var(--strip-c);color:#fff;border-color:#fff}
 .tab .tab-ico{display:none}
-.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
+.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
 /* Category banner — coloured band per category (set inline via background) */
 .ci{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:-18px -16px 16px;padding:14px 18px;background:var(--cat-color,#EFE9DD);color:#fff}
 .ci .ico{display:none}
@@ -1032,8 +1032,27 @@ function tk(){
   var mon=new Date(d.setDate(diff));
   return mon.getFullYear()+'-'+String(mon.getMonth()+1).padStart(2,'0')+'-'+String(mon.getDate()).padStart(2,'0');
 }
-function gt(id){ var sets=D[id]; if(!sets||!sets.length)return[]; return sets[0]; }
-function linkify(text,url){ if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
+// ── Manual smooth-scroll on an overflow container.
+// CSS scroll-behavior:smooth and scrollTo({behavior:'smooth'}) are
+// unreliable on iOS Safari when combined with -webkit-overflow-scrolling.
+// This rAF-driven version works identically on every browser.
+function smoothScrollTo(scroller, targetTop, duration){
+  if(!scroller || typeof targetTop !== 'number') return;
+  var startTop = scroller.scrollTop;
+  var delta = targetTop - startTop;
+  if(Math.abs(delta) < 1){ scroller.scrollTop = targetTop; return; }
+  var startTime = (window.performance && performance.now) ? performance.now() : Date.now();
+  duration = duration || 320;
+  function step(now){
+    var elapsed = now - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    // ease-out cubic — quick start, gentle finish
+    var eased = 1 - Math.pow(1 - t, 3);
+    scroller.scrollTop = startTop + delta * eased;
+    if(t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 
 // ── Clear note ──
 function clearTopicNote(catId,title){
@@ -1166,7 +1185,7 @@ function wireTopicListHandlers(){
                 var sRect=scroller.getBoundingClientRect();
                 var cRect=card.getBoundingClientRect();
                 var delta=cRect.top - sRect.top - 8; // 8px buffer above card
-                scroller.scrollTop = scroller.scrollTop + delta;
+                smoothScrollTo(scroller, scroller.scrollTop + delta, 320);
               });
             });
           }
@@ -1428,7 +1447,7 @@ function tklike(i){
         var sRect=scroller.getBoundingClientRect();
         var cRect=tcs[i].getBoundingClientRect();
         var delta=cRect.top - sRect.top - 8;
-        scroller.scrollTop = scroller.scrollTop + delta;
+        smoothScrollTo(scroller, scroller.scrollTop + delta, 320);
       });
     });
   }
