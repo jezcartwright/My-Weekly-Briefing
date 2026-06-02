@@ -6,8 +6,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PI Briefing">
+<meta name="theme-color" content="#FF6600">
 <title>Performance Intelligence Weekly Briefing</title>
+<link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
@@ -585,9 +588,9 @@ window.sendMagicLink = function() {
   });
 };
 
-// Google sign-in — popup-first on ALL platforms (works around iOS Safari
-// cross-site tracking which breaks signInWithRedirect with custom domain).
-// Falls back to signInWithRedirect only if popup is genuinely blocked.
+// Google sign-in — popup-first in regular browser contexts, redirect-only
+// when running as installed PWA / iOS Web Clip (where popups open as
+// about:blank dead-ends because there's no parent window to return to).
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
   function show(t, color){ msg.textContent = t; msg.style.color = color || ''; }
@@ -597,6 +600,18 @@ window.signInGoogle = function() {
       return;
     }
     var provider = new firebase.auth.GoogleAuthProvider();
+    // Detect standalone display mode (added to home screen on iOS/Android,
+    // or installed as PWA). In standalone, popups don't work — use redirect.
+    var isStandalone =
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone === true;
+    if (isStandalone) {
+      show('Redirecting to Google…');
+      auth.signInWithRedirect(provider).catch(function(e) {
+        show('Sign-in error: ' + (e.message || e.code), 'red');
+      });
+      return;
+    }
     show('Opening Google sign-in…');
     auth.signInWithPopup(provider).then(function(){ show(''); }).catch(function(e) {
       // Only fall back to redirect for genuine popup-related blocks
