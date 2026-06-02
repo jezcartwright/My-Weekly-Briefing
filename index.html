@@ -91,7 +91,7 @@ html.login-active{background:var(--orange)}
 .tab:hover{filter:brightness(0.97)}
 .tab.on{background:var(--strip-c);color:#fff;border-color:#fff}
 .tab .tab-ico{display:none}
-.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
+.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
 /* Category banner — coloured band per category (set inline via background) */
 .ci{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:-18px -16px 16px;padding:14px 18px;background:var(--cat-color,#EFE9DD);color:#fff}
 .ci .ico{display:none}
@@ -1150,20 +1150,23 @@ function wireTopicListHandlers(){
         tcs.forEach(function(tc){tc.classList.remove('op');});
         if(!wasOpen){
           card.classList.add('op'); oc=idx;
-          // Scroll the card title to the top of the scroll area. We do
-          // this explicitly via the .sa scroll container's scrollTop
-          // rather than relying on scrollIntoView, which on iOS Safari
-          // can target the wrong ancestor or land mid-viewport.
+          // Scroll the card title to the top of the scroll area. Use
+          // getBoundingClientRect to compute the delta between card top
+          // and scroller's visible top — this is independent of the
+          // card's offsetParent (which on this page is body, not the
+          // scroller, so card.offsetTop was returning the wrong value).
           //
-          // Two requestAnimationFrames: the first lets the .op class
-          // apply, the second lets the resulting reflow settle so
-          // offsetTop measurements are correct after sibling cards
-          // collapsed.
+          // Double rAF: first lets the .op class apply (CSS expansion
+          // starts), second lets the reflow settle so getBoundingClientRect
+          // returns correct positions for the new layout.
           var scroller=card.closest('.sa');
           if(scroller){
             requestAnimationFrame(function(){
               requestAnimationFrame(function(){
-                scroller.scrollTo({top:card.offsetTop - 8, behavior:'smooth'});
+                var sRect=scroller.getBoundingClientRect();
+                var cRect=card.getBoundingClientRect();
+                var delta=cRect.top - sRect.top - 8; // 8px buffer above card
+                scroller.scrollTop = scroller.scrollTop + delta;
               });
             });
           }
@@ -1421,7 +1424,11 @@ function tklike(i){
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         var tcs=ks.querySelectorAll('.tc');
-        if(tcs[i]) scroller.scrollTo({top:tcs[i].offsetTop - 8, behavior:'smooth'});
+        if(!tcs[i]) return;
+        var sRect=scroller.getBoundingClientRect();
+        var cRect=tcs[i].getBoundingClientRect();
+        var delta=cRect.top - sRect.top - 8;
+        scroller.scrollTop = scroller.scrollTop + delta;
       });
     });
   }
