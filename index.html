@@ -127,8 +127,7 @@ html.login-active{background:var(--orange)}
 .mi#btn-textsize .aa-s,.mi#btn-textsize .aa-l,.mi#btn-textsize .aa-x{display:none}
 .mi-divider{height:1px;background:#ece8e0;margin:4px 6px}
 
-/* Old user-btn / user-avatar — kept for any JS that still references */
-.user-btn{display:none}
+/* Legacy .user-avatar styles kept — JS at line 754 sets the image inside the avatar */
 .user-avatar{font-family:'Inter',sans-serif;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
 .user-avatar img{width:100%;height:100%;object-fit:cover}
 
@@ -352,12 +351,6 @@ body.text-xlarge .ne-quote{font-size:15px}
   .pi-logo img{height:26px}
   .eyebrow{font-size:12px}
   .wordmark{font-size:24px}
-  .hbtn{width:32px;height:28px;font-size:0;padding:0}
-  .hbtn svg{display:none}
-  #btn-pdf::after{content:'📄';font-size:14px}
-  #btn-notes::after{content:'✏';font-size:14px}
-  #btn-likes::after{content:'♥';font-size:14px}
-  #btn-lib::after{content:'◫';font-size:14px}
   .sa{padding:14px 12px calc(var(--sb) + 14px)}
 }
 @media(max-width:375px){
