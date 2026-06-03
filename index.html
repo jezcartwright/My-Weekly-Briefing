@@ -94,7 +94,12 @@ html.login-active{background:var(--orange)}
   .hamburger-btn{width:36px;height:36px;font-size:20px}
 }
 
-.identity{display:flex;flex-direction:column;align-items:center;margin-top:6px;padding-bottom:6px}
+.identity{display:flex;flex-direction:column;align-items:center;margin-top:-10px;padding-bottom:6px}
+/* iPad+: utility row is 36px (vs 32px phone) so date_bottom sits 2px lower;
+   shift .identity up 2px further so pi-logo top remains level with date bottom. */
+@media(min-width:720px){
+  .identity{margin-top:-12px}
+}
 .pi-logo{margin-bottom:5px}
 .pi-logo img{display:block;width:auto;height:28px}
 .eyebrow{
