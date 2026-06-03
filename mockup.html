@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Label position based on tab overflow — all platforms</title>
+<title>Avatar + hamburger size — 3 options, all platforms</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -11,21 +11,29 @@
   .intro{max-width:760px;margin:0 auto 24px;padding:0 16px}
   .intro h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 8px}
   .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5}
-  .rule{font-family:'Inter',sans-serif;font-size:13px;color:#15803d;font-weight:600;margin:8px 0 0;padding:10px 14px;background:rgba(21,128,61,.08);border-left:3px solid #15803d;line-height:1.5}
-  .rule strong{display:block;margin-bottom:4px;font-size:14px}
+  .status{font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px}
+  .status strong{color:#1a1a1a}
+
+  .size-table{max-width:760px;margin:16px auto;padding:0 16px;font-family:'Inter',sans-serif;font-size:13px}
+  .size-table table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .size-table th{text-align:left;padding:10px 14px;background:#f5f1eb;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#666}
+  .size-table td{padding:10px 14px;border-top:1px solid #ece8e0;color:#333}
+  .size-table tr:first-child td{border-top:0}
+  .size-table .col-name{font-weight:700;color:#ff6600}
 
   .platform-section{margin:48px 0 0}
   .platform-header{max-width:760px;margin:0 auto 16px;padding:0 16px}
   .platform-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;margin:0 0 4px}
   .platform-sub{font-family:'Inter',sans-serif;font-size:13px;color:#666;margin:0;line-height:1.45}
-  .behaviour-tag{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:#1a1a1a;padding:2px 8px;border-radius:3px;margin-left:8px;vertical-align:middle}
-  .behaviour-tag.flush{background:#15803d}
-  .behaviour-tag.axis{background:#ff6600}
 
   .scroll-row{overflow-x:auto;padding:16px 0;-webkit-overflow-scrolling:touch}
   .scroll-row::-webkit-scrollbar{height:8px}
   .scroll-row::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:4px}
-  .row-inner{display:flex;padding:0 16px;width:max-content}
+  .row-inner{display:flex;gap:16px;padding:0 16px;width:max-content}
+
+  .variant{display:flex;flex-direction:column;gap:8px}
+  .variant-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#666;margin:0;padding:0 4px}
+  .variant-label .num{color:#ff6600}
 
   .frame{background:#1a1a1a;border-radius:14px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.18);flex-shrink:0}
   .device{background:#faf8f5;border-radius:10px;overflow:hidden;position:relative}
@@ -35,11 +43,11 @@
   .w-ipad-l{width:1180px}
   .w-desktop{width:1280px}
 
-  /* Masthead (shared) */
+  /* Masthead shared */
   .masthead{background:#ff6600;color:#fff}
   .utility{display:flex;justify-content:space-between;align-items:center}
   .util-date{font-family:'Inter',sans-serif;font-weight:600;color:#fff}
-  .util-right{display:flex;gap:8px;align-items:center}
+  .util-right{display:flex;align-items:center;gap:8px}
   .avatar{border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:700;color:#fff;overflow:hidden}
   .ham{border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;color:#fff;border:0;font-weight:300}
   .identity{display:flex;flex-direction:column;align-items:center}
@@ -48,12 +56,10 @@
   .eyebrow span{display:block}
   .wordmark{font-family:'IBM Plex Serif',serif;font-weight:500;line-height:1;color:#fff;text-align:center}
 
-  /* Per-width masthead sizing */
+  /* Per-width masthead sizing (typography/logo) */
   .w-iphone .masthead{padding:10px 14px 14px}
   .w-iphone .utility{margin-bottom:6px}
   .w-iphone .util-date{font-size:12px}
-  .w-iphone .avatar{width:26px;height:26px;font-size:11px}
-  .w-iphone .ham{width:28px;height:28px;font-size:16px}
   .w-iphone .pi-logo{font-size:28px;margin-bottom:5px}
   .w-iphone .eyebrow{font-size:13px;margin-bottom:2px}
   .w-iphone .eyebrow .perf{letter-spacing:.18em}
@@ -63,15 +69,31 @@
   .w-ipad-p .masthead, .w-ipad-l .masthead, .w-desktop .masthead{padding:14px 28px 22px}
   .w-ipad-p .utility, .w-ipad-l .utility, .w-desktop .utility{margin-bottom:10px}
   .w-ipad-p .util-date, .w-ipad-l .util-date, .w-desktop .util-date{font-size:13px}
-  .w-ipad-p .avatar, .w-ipad-l .avatar, .w-desktop .avatar{width:30px;height:30px;font-size:12px}
-  .w-ipad-p .ham, .w-ipad-l .ham, .w-desktop .ham{width:32px;height:32px;font-size:18px}
   .w-ipad-p .pi-logo, .w-ipad-l .pi-logo, .w-desktop .pi-logo{font-size:36px;margin-bottom:8px}
   .w-ipad-p .eyebrow, .w-ipad-l .eyebrow, .w-desktop .eyebrow{font-size:17px;margin-bottom:3px}
   .w-ipad-p .eyebrow .perf, .w-ipad-l .eyebrow .perf, .w-desktop .eyebrow .perf{letter-spacing:.2em}
   .w-ipad-p .eyebrow .intel, .w-ipad-l .eyebrow .intel, .w-desktop .eyebrow .intel{letter-spacing:.32em}
   .w-ipad-p .wordmark, .w-ipad-l .wordmark, .w-desktop .wordmark{font-size:36px}
 
-  /* Tab ribbon */
+  /* OPTION 1: small bump (+4px each) */
+  .opt-1.w-iphone .avatar{width:30px;height:30px;font-size:12px}
+  .opt-1.w-iphone .ham{width:32px;height:32px;font-size:18px}
+  .opt-1.w-ipad-p .avatar,.opt-1.w-ipad-l .avatar,.opt-1.w-desktop .avatar{width:34px;height:34px;font-size:13px}
+  .opt-1.w-ipad-p .ham,.opt-1.w-ipad-l .ham,.opt-1.w-desktop .ham{width:36px;height:36px;font-size:20px}
+
+  /* OPTION 2: medium bump (+8px each) */
+  .opt-2.w-iphone .avatar{width:34px;height:34px;font-size:13px}
+  .opt-2.w-iphone .ham{width:36px;height:36px;font-size:20px}
+  .opt-2.w-ipad-p .avatar,.opt-2.w-ipad-l .avatar,.opt-2.w-desktop .avatar{width:38px;height:38px;font-size:14px}
+  .opt-2.w-ipad-p .ham,.opt-2.w-ipad-l .ham,.opt-2.w-desktop .ham{width:40px;height:40px;font-size:22px}
+
+  /* OPTION 3: large bump (+12px each) */
+  .opt-3.w-iphone .avatar{width:38px;height:38px;font-size:14px}
+  .opt-3.w-iphone .ham{width:40px;height:40px;font-size:22px}
+  .opt-3.w-ipad-p .avatar,.opt-3.w-ipad-l .avatar,.opt-3.w-desktop .avatar{width:44px;height:44px;font-size:16px}
+  .opt-3.w-ipad-p .ham,.opt-3.w-ipad-l .ham,.opt-3.w-desktop .ham{width:46px;height:46px;font-size:24px}
+
+  /* Tab ribbon (just for visual completeness) */
   .ribbon{background:#ff6600;border-top:1px solid rgba(255,255,255,.12);overflow-x:auto;-webkit-overflow-scrolling:touch}
   .ribbon::-webkit-scrollbar{display:none}
   .w-iphone .ribbon{padding:10px 14px;text-align:left}
@@ -83,142 +105,137 @@
   .w-iphone .tab{padding:7px 12px;font-size:10.5px}
   .w-ipad-p .tab, .w-ipad-l .tab, .w-desktop .tab{padding:10px 18px;font-size:12px}
   .tab.on{background:#ff6600;color:#fff;border-color:rgba(255,255,255,.9)}
-
-  /* Category band */
-  .ci{background:#ff6600;color:#fff;overflow:hidden;position:relative;padding:12px 0}
-  .ci .label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap;display:inline-block}
-
-  /* JS sets .ci-flush class when all tabs fit; otherwise default axis behaviour */
-  .ci .label{position:relative;left:var(--axis,50%);transform:translateX(-50%)}
-  .ci-flush{padding:12px 28px}
-  .w-iphone .ci-flush{padding:12px 16px}
-  .ci-flush .label{position:static;transform:none;left:auto;display:block;text-align:left}
-
-  /* Content peek */
-  .content{background:#faf8f5}
-  .w-iphone .content{padding:12px 14px}
-  .w-ipad-p .content, .w-ipad-l .content, .w-desktop .content{padding:18px 28px}
-  .card{background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;display:grid;gap:10px}
-  .w-iphone .card{padding:12px 14px;grid-template-columns:30px 1fr}
-  .w-ipad-p .card, .w-ipad-l .card, .w-desktop .card{padding:16px 22px;grid-template-columns:42px 1fr}
-  .card .num{font-family:'Inter',sans-serif;font-weight:700;color:#ff6600;padding-top:3px}
-  .w-iphone .card .num{font-size:11px}
-  .w-ipad-p .card .num, .w-ipad-l .card .num, .w-desktop .card .num{font-size:13px}
-  .card .title{font-family:'IBM Plex Serif',serif;line-height:1.25;font-weight:600}
-  .w-iphone .card .title{font-size:15px}
-  .w-ipad-p .card .title, .w-ipad-l .card .title, .w-desktop .card .title{font-size:21px}
-  .card .summary{font-family:'IBM Plex Serif',serif;color:#444;line-height:1.4}
-  .w-iphone .card .summary{font-size:13px;margin-top:4px}
-  .w-ipad-p .card .summary, .w-ipad-l .card .summary, .w-desktop .card .summary{font-size:16px;margin-top:6px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Label position — dynamic based on tab overflow</h1>
-  <p>Each frame at native platform width. Scroll right within rows if needed.</p>
-  <p class="rule"><strong>The new rule:</strong>Tabs overflow (scrollable) → label centred on Leadership pill axis<br>Tabs all fit (no scroll) → label flush-left to page margin</p>
-  <p style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px"><strong style="color:#1a1a1a">PROPOSED</strong> — not yet live. Confirm before implementation.</p>
+  <h1>Avatar + hamburger size — 3 options</h1>
+  <p>Three larger sizes shown at all four platform native widths. Current sizes for reference: phone 26/28px, iPad+ 30/32px.</p>
+  <p class="status"><strong>PROPOSED</strong> — not yet live. Pick one to implement.</p>
+</div>
+
+<div class="size-table">
+  <table>
+    <tr><th></th><th>iPhone avatar</th><th>iPhone ham</th><th>iPad+ avatar</th><th>iPad+ ham</th></tr>
+    <tr><td class="col-name">Current</td><td>26 px</td><td>28 px</td><td>30 px</td><td>32 px</td></tr>
+    <tr><td class="col-name">Option 1 · small</td><td>30 px</td><td>32 px</td><td>34 px</td><td>36 px</td></tr>
+    <tr><td class="col-name">Option 2 · medium</td><td>34 px</td><td>36 px</td><td>38 px</td><td>40 px</td></tr>
+    <tr><td class="col-name">Option 3 · large</td><td>38 px</td><td>40 px</td><td>44 px</td><td>46 px</td></tr>
+  </table>
 </div>
 
 <!-- iPhone -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">iPhone portrait · 390 px <span class="behaviour-tag axis">tabs overflow → axis-centred</span></p>
-    <p class="platform-sub">All 6 tabs don't fit at 390px. Strip scrolls horizontally. Label centred on Leadership pill.</p>
+    <p class="platform-label">iPhone portrait · 390 px</p>
+    <p class="platform-sub">Three size options side-by-side. Watch the proportion against the date and the masthead overall.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="frame"><div class="device w-iphone">
-      <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-      <div class="ci" data-ci><div class="label">Leadership</div></div>
-      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-    </div></div>
+    <div class="variant"><p class="variant-label"><span class="num">1</span> · small (30/32)</p>
+      <div class="frame"><div class="device opt-1 w-iphone">
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Tech</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">2</span> · medium (34/36)</p>
+      <div class="frame"><div class="device opt-2 w-iphone">
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Tech</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">3</span> · large (38/40)</p>
+      <div class="frame"><div class="device opt-3 w-iphone">
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Tech</span></div></div>
+      </div></div>
+    </div>
   </div></div>
 </div>
 
 <!-- iPad portrait -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">iPad portrait · 820 px <span class="behaviour-tag flush">tabs fit → flush-left</span></p>
-    <p class="platform-sub">All 6 tabs fit comfortably at 820px. Label flush-left to topic-card margin.</p>
+    <p class="platform-label">iPad portrait · 820 px</p>
+    <p class="platform-sub">Bigger format, the controls need to scale up proportionately.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="frame"><div class="device w-ipad-p">
-      <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-      <div class="ci" data-ci><div class="label">Leadership</div></div>
-      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-    </div></div>
+    <div class="variant"><p class="variant-label"><span class="num">1</span> · small (34/36)</p>
+      <div class="frame"><div class="device opt-1 w-ipad-p">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">2</span> · medium (38/40)</p>
+      <div class="frame"><div class="device opt-2 w-ipad-p">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">3</span> · large (44/46)</p>
+      <div class="frame"><div class="device opt-3 w-ipad-p">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
   </div></div>
 </div>
 
 <!-- iPad landscape -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">iPad landscape · 1180 px <span class="behaviour-tag flush">tabs fit → flush-left</span></p>
-    <p class="platform-sub">Plenty of room for all 6 tabs. Label flush-left.</p>
+    <p class="platform-label">iPad landscape · 1180 px</p>
+    <p class="platform-sub">Same sizes as iPad portrait, but the wider screen gives them more room to breathe.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="frame"><div class="device w-ipad-l">
-      <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-      <div class="ci" data-ci><div class="label">Leadership</div></div>
-      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-    </div></div>
+    <div class="variant"><p class="variant-label"><span class="num">1</span> · small (34/36)</p>
+      <div class="frame"><div class="device opt-1 w-ipad-l">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">2</span> · medium (38/40)</p>
+      <div class="frame"><div class="device opt-2 w-ipad-l">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">3</span> · large (44/46)</p>
+      <div class="frame"><div class="device opt-3 w-ipad-l">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
   </div></div>
 </div>
 
 <!-- Desktop -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">Desktop · 1280 px <span class="behaviour-tag flush">tabs fit → flush-left</span></p>
-    <p class="platform-sub">Widest viewport. Label flush-left.</p>
+    <p class="platform-label">Desktop · 1280 px</p>
+    <p class="platform-sub">Same as iPad landscape sizes — the masthead format doesn't change between the two.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="frame"><div class="device w-desktop">
-      <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-      <div class="ci" data-ci><div class="label">Leadership</div></div>
-      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-    </div></div>
+    <div class="variant"><p class="variant-label"><span class="num">1</span> · small (34/36)</p>
+      <div class="frame"><div class="device opt-1 w-desktop">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">2</span> · medium (38/40)</p>
+      <div class="frame"><div class="device opt-2 w-desktop">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
+    <div class="variant"><p class="variant-label"><span class="num">3</span> · large (44/46)</p>
+      <div class="frame"><div class="device opt-3 w-desktop">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      </div></div>
+    </div>
   </div></div>
 </div>
-
-<script>
-  // Decide per-frame whether to use flush-left or axis-centred based on
-  // whether the tab strip overflows (i.e. scrollWidth > clientWidth)
-  function decideLabelPosition(){
-    document.querySelectorAll('[data-ci]').forEach(function(ci){
-      var device = ci.closest('.device');
-      var ribbon = device.querySelector('[data-ribbon]');
-      var tabs = device.querySelector('[data-tabs]');
-      var firstTab = tabs.querySelector('.tab');
-      if(!ribbon || !tabs || !firstTab) return;
-
-      // Does the tab strip overflow? Compare its scroll width to its visible width
-      var overflows = tabs.scrollWidth > ribbon.clientWidth;
-
-      if(overflows){
-        // Axis-aligned to Leadership pill centre
-        ci.classList.remove('ci-flush');
-        var tabRect = firstTab.getBoundingClientRect();
-        var ciRect = ci.getBoundingClientRect();
-        var axisX = (firstTab.offsetLeft + firstTab.offsetWidth / 2)
-                  + (ribbon.getBoundingClientRect().left - ciRect.left);
-        ci.style.setProperty('--axis', axisX + 'px');
-      } else {
-        // Flush-left
-        ci.classList.add('ci-flush');
-      }
-    });
-  }
-  window.addEventListener('load', decideLabelPosition);
-  window.addEventListener('resize', decideLabelPosition);
-  document.querySelectorAll('.scroll-row').forEach(function(r){
-    r.addEventListener('scroll', function(){ requestAnimationFrame(decideLabelPosition); });
-  });
-</script>
 
 </body>
 </html>
