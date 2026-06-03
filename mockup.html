@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Banner — π logo aligned with date bottom</title>
+<title>Briefing Library — Year · Week · Date rows, + replaces dropdown</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -35,99 +35,50 @@
   .row-inner{padding:0 16px;width:max-content}
 
   .frame{background:#1a1a1a;border-radius:14px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
-  .device{background:#faf8f5;border-radius:10px;overflow:hidden;position:relative;--cat-col:#ff6600}
+  .device{background:#faf8f5;border-radius:10px;overflow:hidden;position:relative}
 
   .w-iphone{width:390px}
   .w-ipad-p{width:820px}
   .w-ipad-l{width:1180px}
   .w-desktop{width:1280px}
 
-  /* Masthead */
-  .masthead{background:#ff6600;color:#fff;position:relative}
-  .utility{display:flex;justify-content:space-between;align-items:center}
-  .util-date{color:#fff;font-family:'Inter',sans-serif;font-weight:600;line-height:1;letter-spacing:.05em}
-  .util-right{display:flex;align-items:center;gap:6px}
-  .avatar{border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:700;color:#fff;overflow:hidden;border:none}
-  .ham{border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;color:#fff;border:none;font-weight:300;cursor:pointer}
+  /* Library page content */
+  .lib-inner{padding:16px}
+  .w-ipad-p .lib-inner,.w-ipad-l .lib-inner,.w-desktop .lib-inner{padding:24px 28px}
 
-  .identity{display:flex;flex-direction:column;align-items:center;padding-bottom:6px}
-  .pi-logo{font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1;color:#fff;margin-bottom:5px}
-  .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;text-transform:uppercase;text-align:center;color:#fff;line-height:1.4}
-  .eyebrow span{display:block}
-  .weekly{font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:.55em;padding-left:.55em;text-transform:uppercase;text-align:center;color:#fff;line-height:1;margin-top:12px;white-space:nowrap}
+  .lib-h1{font-family:'IBM Plex Serif',serif;font-size:24px;font-weight:700;color:#1a1a1a;margin:0 0 2px;line-height:1.2}
+  .lib-meta{font-family:'Inter',sans-serif;font-size:13px;color:#888;margin-bottom:14px}
+  .lib-search{width:100%;border:1px solid #d8d2c3;border-radius:8px;padding:11px 36px 11px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;background:#fff;margin-bottom:14px;position:relative}
 
-  /* Phone (≤430) sizing */
-  .w-iphone .masthead{padding-top:10px;padding-left:14px;padding-right:14px;padding-bottom:0}
-  .w-iphone .util-date{font-size:12px}
-  .w-iphone .avatar{width:32px;height:32px;font-size:13px}
-  .w-iphone .ham{width:32px;height:32px;font-size:18px}
-  .w-iphone .pi-logo{font-size:28px}
-  .w-iphone .eyebrow{font-size:17px}
-  .w-iphone .eyebrow .perf{letter-spacing:.18em}
-  .w-iphone .eyebrow .intel{letter-spacing:.28em}
-  .w-iphone .weekly{font-size:13px}
+  .lib-list{display:flex;flex-direction:column;gap:10px}
+  .lib-card{background:#faf6ee;border:1px solid #ece5d3;border-radius:10px;padding:14px 14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .w-iphone .lib-card{padding:12px 12px;flex-wrap:wrap}
+  .lib-card .text{flex:1 1 auto;min-width:0}
+  .lib-card .title{font-family:'IBM Plex Serif',serif;font-size:15px;font-weight:700;color:#1a1a1a;margin:0 0 3px;line-height:1.3}
+  .lib-card .topics{font-family:'Inter',sans-serif;font-size:12px;color:#666;line-height:1.5}
+  .lib-card.current .title{color:#ff6600}
 
-  /* iPad+/desktop sizing */
-  .w-ipad-p .masthead,.w-ipad-l .masthead,.w-desktop .masthead{padding-top:14px;padding-left:28px;padding-right:28px;padding-bottom:0}
-  .w-ipad-p .util-date,.w-ipad-l .util-date,.w-desktop .util-date{font-size:12px}
-  .w-ipad-p .avatar,.w-ipad-l .avatar,.w-desktop .avatar{width:36px;height:36px;font-size:14px}
-  .w-ipad-p .ham,.w-ipad-l .ham,.w-desktop .ham{width:36px;height:36px;font-size:20px}
-  .w-ipad-p .pi-logo,.w-ipad-l .pi-logo,.w-desktop .pi-logo{font-size:36px}
-  .w-ipad-p .eyebrow,.w-ipad-l .eyebrow,.w-desktop .eyebrow{font-size:24px}
-  .w-ipad-p .eyebrow .perf,.w-ipad-l .eyebrow .perf,.w-desktop .eyebrow .perf{letter-spacing:.2em}
-  .w-ipad-p .eyebrow .intel,.w-ipad-l .eyebrow .intel,.w-desktop .eyebrow .intel{letter-spacing:.32em}
-  .w-ipad-p .weekly,.w-ipad-l .weekly,.w-desktop .weekly{font-size:17px}
+  .lib-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .lib-btn{background:#fff;border:1.5px solid #ff6600;color:#ff6600;border-radius:7px;font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;height:32px;padding:0 10px;gap:5px;line-height:1}
+  .lib-btn.icon-only{padding:0;width:32px}
+  .lib-btn svg{width:13px;height:13px;flex-shrink:0}
+  .lib-btn .plus{font-size:18px;font-weight:600;line-height:1;display:inline-block;margin-top:-1px}
 
-  /* CURRENT: .identity margin-top 6px (live value) */
-  .cur .identity{margin-top:6px}
-
-  /* PROPOSED: pull .identity up so top of π aligns with bottom of date.
-     Phone:  utility row 32px, date_bottom = util.top + 22, π natural top
-             = util.top + 38 (= 32 + 6 margin). Shift up 16px → margin-top:-10px.
-     iPad+:  utility row 36px, date_bottom = util.top + 24, π natural top
-             = util.top + 42 (= 36 + 6 margin). Shift up 18px → margin-top:-12px. */
-  .new .identity{margin-top:-10px}
-  .w-ipad-p.new .identity,.w-ipad-l.new .identity,.w-desktop.new .identity{margin-top:-12px}
-
-  /* Dashed white guide line in PROPOSED only — drawn at date_bottom to make
-     the alignment obvious. Disabled in CURRENT. */
-  .new .util-date{position:relative}
-  .new .util-date::after{
-    content:"";position:absolute;left:-12px;right:calc(-1 * 100vw);bottom:-1px;
-    border-bottom:1px dashed rgba(255,255,255,.5);
-    pointer-events:none;
-  }
-
-  /* Tab ribbon */
-  .cat-band{background:var(--cat-col);flex-shrink:0}
-  .ribbon{background:var(--cat-col);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:12px 16px}
-  .ribbon::-webkit-scrollbar{display:none}
-  .w-ipad-p .ribbon,.w-ipad-l .ribbon,.w-desktop .ribbon{padding:12px 28px;text-align:center}
-  .w-iphone .ribbon{text-align:left}
-  .tabs{display:inline-flex;gap:8px}
-  .w-iphone .tabs{gap:6px}
-  .tab{flex:0 0 auto;border-radius:3px;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col);cursor:pointer;user-select:none;transition:all .2s ease;padding:10px 18px;font-size:12px}
-  .w-iphone .tab{padding:7px 12px;font-size:10.5px}
-  .tab.on{background:var(--cat-col);color:#fff;border-color:rgba(255,255,255,.9)}
-
-  .ci{background:var(--cat-col);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 16px 12px}
-  .w-ipad-p .ci,.w-ipad-l .ci,.w-desktop .ci{padding:0 28px 12px}
-  .ci .week,.ci .aa{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
-  .ci .aa{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;letter-spacing:0;text-transform:none}
+  /* CURRENT-state dropdown chevron (for comparison) */
+  .lib-drop{background:#fff;border:1px solid #d8d2c3;border-radius:7px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:#888;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Banner — π logo top aligned with date bottom</h1>
-  <p>Pulls the entire identity stack (π logo + PERFORMANCE / INTELLIGENCE eyebrow + WEEKLY BRIEFING) up so the top edge of π sits level with the bottom edge of the date. Net banner-height saving: <strong>~16 px on phone, ~18 px on iPad+</strong>.</p>
-  <p>The dashed white guide line in the PROPOSED frames marks the alignment level (date bottom = π top). It would be removed in the live implementation.</p>
+  <h1>Briefing Library — new row format + button cleanup</h1>
+  <p>Two changes shown together:</p>
   <table>
-    <tr><th></th><th>.identity margin-top (phone / iPad+)</th><th>Banner height change</th></tr>
-    <tr><td class="h">Current</td><td>6 px / 6 px</td><td>—</td></tr>
-    <tr><td class="h">Proposed</td><td class="match">−10 px / −12 px</td><td class="match">−16 px / −18 px shorter</td></tr>
+    <tr><th>Element</th><th>Current</th><th>Proposed</th></tr>
+    <tr><td class="h">Row title</td><td>"This Week — Mon, 1 Jun 2026" / "Week of — Mon, 25 May 2026"</td><td class="match">"2026 · Week 23 · Mon, 1 Jun" — year, ISO week number, short date. Current-week row still distinguished by orange colour.</td></tr>
+    <tr><td class="h">Row actions</td><td>[PDF] [⌄] (dropdown arrow)</td><td class="match">[PDF] [+] — dropdown removed; + button styled to match PDF (white bg, orange border)</td></tr>
   </table>
-  <p class="status"><strong>PROPOSED</strong> — not yet live. CURRENT (top) and PROPOSED (bottom) shown per platform.</p>
+  <p class="status"><strong>PROPOSED</strong> — not yet live.</p>
 </div>
 
 <!-- iPhone -->
@@ -135,33 +86,37 @@
   <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state — "Week of — date" + PDF + dropdown arrow</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-iphone">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">This Week — Mon, 1 Jun 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 25 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 18 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −10 px)</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">"2026 · Week N · short date" + PDF + matching + button</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-iphone">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">2026 · Week 23 · Mon, 1 Jun</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 22 · Mon, 25 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 21 · Mon, 18 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
@@ -172,37 +127,41 @@
   <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-ipad-p">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">This Week — Mon, 1 Jun 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 25 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 18 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 11 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 4 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −12 px)</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">year · week · short date + PDF + matching + button</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-ipad-p">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">2026 · Week 23 · Mon, 1 Jun</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 22 · Mon, 25 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 21 · Mon, 18 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 20 · Mon, 11 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 19 · Mon, 4 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
@@ -213,37 +172,41 @@
   <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-ipad-l">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">This Week — Mon, 1 Jun 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 25 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 18 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 11 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 4 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −12 px)</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">year · week · short date + PDF + matching + button</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-ipad-l">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">2026 · Week 23 · Mon, 1 Jun</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 22 · Mon, 25 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 21 · Mon, 18 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 20 · Mon, 11 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 19 · Mon, 4 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
@@ -254,54 +217,45 @@
   <div class="platform-header"><p class="platform-label">Desktop · 1280 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state — matches the screenshot you sent</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-desktop">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">This Week — Mon, 1 Jun 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 25 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 18 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 11 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">Week of — Mon, 4 May 2026</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-drop">⌄</button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −12 px)</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">year · week · short date + PDF + matching + button</span></p>
     <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
-        <div class="cat-band"><div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      <div class="frame"><div class="device w-desktop">
+        <div class="lib-inner">
+          <h1 class="lib-h1">Briefing Library</h1>
+          <p class="lib-meta">6 weeks saved</p>
+          <div class="lib-search">Search library…</div>
+          <div class="lib-list">
+            <div class="lib-card current"><div class="text"><div class="title">2026 · Week 23 · Mon, 1 Jun</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 22 · Mon, 25 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 21 · Mon, 18 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 20 · Mon, 11 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+            <div class="lib-card"><div class="text"><div class="title">2026 · Week 19 · Mon, 4 May</div><div class="topics">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="lib-actions"><button class="lib-btn"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1.5h7L13.5 6v8.5a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-12a1 1 0 0 1 1-1Zm7 0V6h4.5"/></svg>PDF</button><button class="lib-btn icon-only"><span class="plus">+</span></button></div></div>
+          </div>
+        </div>
       </div></div>
     </div></div>
   </div>
 </div>
-
-<script>
-  document.querySelectorAll('.device').forEach(function(device){
-    var tabs = device.querySelectorAll('.tab');
-    tabs.forEach(function(tab){
-      tab.addEventListener('click', function(){
-        tabs.forEach(function(t){ t.classList.remove('on'); });
-        tab.classList.add('on');
-        device.style.setProperty('--cat-col', tab.getAttribute('data-cat'));
-      });
-    });
-  });
-</script>
 
 </body>
 </html>
