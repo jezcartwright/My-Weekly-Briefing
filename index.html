@@ -327,7 +327,7 @@ html.login-active{background:var(--orange)}
 .pdf-meta #pdf-week{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;opacity:.88;letter-spacing:.02em;color:#fff}
 /* Mobile: stack the header centred (same pattern as on-screen masthead) */
 @media(max-width:640px){
-  .pdf-header{flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px 20px 20px;gap:10px}
+  .pdf-header{flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px 16px 20px;gap:10px}
   .pdf-logo{width:36px;height:36px}
   .pdf-title-block{text-align:center}
   .pdf-title-block .pdf-pi{font-size:12px;margin-bottom:6px}
@@ -336,9 +336,17 @@ html.login-active{background:var(--orange)}
   .pdf-meta #pdf-date{margin-bottom:0;font-size:12px}
   .pdf-meta #pdf-week{font-size:12px}
   .pdf-meta #pdf-week::before{content:'·\00a0'}
-  .pdf-cat-title{padding:14px 20px;font-size:12px}
+  .pdf-cat-title{padding:14px 16px;font-size:12px}
   .pdf-cat-title::after{font-size:12px}
   .pdf-cat-body{padding:18px 16px 22px}
+}
+/* iPad portrait (641-1024px): widen PDF sections to match live-site feel.
+   Reduces horizontal padding from 40px to 16px on header, cat-title and
+   cat-body. iPad landscape (>1024px) and desktop unchanged. */
+@media(min-width:641px) and (max-width:1024px){
+  .pdf-header{padding:30px 16px 26px}
+  .pdf-cat-title{padding:16px 16px}
+  .pdf-cat-body{padding:24px 16px 28px}
 }
 /* Category banner — coloured band per category (set via --cat-color inline) */
 .pdf-cat-section{margin-bottom:0}
