@@ -245,12 +245,11 @@ html.login-active{background:var(--orange)}
 .wk-label.current{color:var(--orange)}
 .wk-meta{font-family:'Inter',sans-serif;font-size:10px;color:var(--t3);margin-top:2px}
 .wk-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.wk-pdf,.wk-toggle{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border-radius:4px;padding:6px 12px;line-height:1;display:inline-flex;align-items:center;gap:4px}
-.wk-pdf{background:rgba(255,102,0,0.1);border:1px solid #ff6600;color:#ff6600}
-.wk-toggle{background:rgba(0,0,0,0.05);border:1px solid #ccc;color:var(--t3)}
-.wk-header.open .wk-toggle{background:rgba(255,102,0,0.08);border-color:#ff6600;color:#ff6600}
+.wk-pdf,.wk-toggle{font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;border-radius:4px;line-height:1;display:inline-flex;align-items:center;background:rgba(255,102,0,0.1);border:1px solid #ff6600;color:#ff6600}
+.wk-pdf{font-size:11px;padding:6px 12px;gap:4px;white-space:nowrap}
+.wk-toggle{font-size:16px;font-weight:600;width:26px;height:26px;padding:0;justify-content:center}
 .wk-chevron{transition:transform .25s;display:inline-block;line-height:1}
-.wk-header.open .wk-chevron{transform:rotate(180deg)}
+.wk-header.open .wk-chevron{transform:rotate(45deg)}
 .wk-body{display:none;border-top:1px solid var(--b);overflow:visible}
 .wk-header.open+.wk-body{display:block}
 .lh{padding:16px 18px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;background:var(--white);border:1px solid var(--b);border-left:4px solid var(--lh-cat,var(--orange));border-radius:2px;margin:0 0 10px}
@@ -1168,8 +1167,8 @@ function sh(h){ try{localStorage.setItem(SK,JSON.stringify(h))}catch(e){} }
 var ac=CATS[0], oc=null, cv='today', kf_val='all', ol=null, ok=null, likedSort='newest';
 
 // ── Week utils ──
-function getWeekNumber(){
-  var d=new Date();d.setHours(0,0,0,0);
+function getWeekNumber(d){
+  d=d?new Date(d.getFullYear(),d.getMonth(),d.getDate()):new Date();d.setHours(0,0,0,0);
   d.setDate(d.getDate()+4-(d.getDay()||7));
   var y=new Date(d.getFullYear(),0,1);
   return Math.ceil((((d-y)/86400000)+1)/7);
@@ -1430,8 +1429,9 @@ function rl(){
     var entries=groups[date];
     var isCurrentWeek=date===currentWeek;
     var d2=new Date(date+'T12:00:00');
-    var label=isCurrentWeek?'This Week':'Week of';
-    var disp=d2.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    var year=d2.getFullYear();
+    var week=getWeekNumber(d2);
+    var disp=d2.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
     var catNames=[...new Set(entries.map(function(e){return e.catLabel;}))].join(', ');
     var topicCount=entries.reduce(function(a,e){return a+(e.topics||[]).length;},0);
 
@@ -1445,7 +1445,7 @@ function rl(){
     var labelWrap=document.createElement('div');
     labelWrap.className='wk-label-wrap';
     labelWrap.onclick=function(){toggleWeek(date);};
-    labelWrap.innerHTML='<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+label+' \u2014 '+disp+'</div>'+
+    labelWrap.innerHTML='<div class="wk-label'+(isCurrentWeek?' current':'')+'">'+year+' \u00B7 Week '+week+' \u00B7 '+disp+'</div>'+
       '<div class="wk-meta">'+topicCount+' topics across '+catNames+'</div>';
 
     var right=document.createElement('div');
@@ -1454,7 +1454,7 @@ function rl(){
 
     var togBtn=document.createElement('button');
     togBtn.className='wk-toggle';
-    togBtn.innerHTML='<span class="wk-chevron">\u2304</span>';
+    togBtn.innerHTML='<span class="wk-chevron">+</span>';
     togBtn.onclick=function(ev){ev.stopPropagation();toggleWeek(date);};
     right.appendChild(togBtn);
 
