@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>New login screen — matches main app branding hierarchy</title>
+<title>Banner — π logo aligned with date bottom</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -35,71 +35,99 @@
   .row-inner{padding:0 16px;width:max-content}
 
   .frame{background:#1a1a1a;border-radius:14px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
-  .device{background:#ff6600;border-radius:10px;overflow:hidden;position:relative}
+  .device{background:#faf8f5;border-radius:10px;overflow:hidden;position:relative;--cat-col:#ff6600}
 
-  .w-iphone{width:390px;height:844px}
-  .w-ipad-p{width:820px;height:1100px}
-  .w-ipad-l{width:1180px;height:820px}
-  .w-desktop{width:1280px;height:800px}
+  .w-iphone{width:390px}
+  .w-ipad-p{width:820px}
+  .w-ipad-l{width:1180px}
+  .w-desktop{width:1280px}
 
-  /* Login screen content */
-  .login-inner{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:48px 24px 40px;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .w-iphone .login-inner{padding:36px 20px 32px}
+  /* Masthead */
+  .masthead{background:#ff6600;color:#fff;position:relative}
+  .utility{display:flex;justify-content:space-between;align-items:center}
+  .util-date{color:#fff;font-family:'Inter',sans-serif;font-weight:600;line-height:1;letter-spacing:.05em}
+  .util-right{display:flex;align-items:center;gap:6px}
+  .avatar{border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:700;color:#fff;overflow:hidden;border:none}
+  .ham{border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;color:#fff;border:none;font-weight:300;cursor:pointer}
 
-  .login-logo{width:72px;height:72px;margin-bottom:18px;flex-shrink:0;display:block}
-  .w-iphone .login-logo{width:60px;height:60px;margin-bottom:14px}
+  .identity{display:flex;flex-direction:column;align-items:center;padding-bottom:6px}
+  .pi-logo{font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1;color:#fff;margin-bottom:5px}
+  .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;text-transform:uppercase;text-align:center;color:#fff;line-height:1.4}
+  .eyebrow span{display:block}
+  .weekly{font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:.55em;padding-left:.55em;text-transform:uppercase;text-align:center;color:#fff;line-height:1;margin-top:12px;white-space:nowrap}
 
-  /* CURRENT design — for comparison */
-  .cur .login-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.9);font-weight:600;margin-bottom:8px;text-align:center}
-  .cur .login-wb{font-size:32px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center;font-family:'Inter',sans-serif}
-  .w-iphone.cur .login-wb{font-size:28px}
+  /* Phone (≤430) sizing */
+  .w-iphone .masthead{padding-top:10px;padding-left:14px;padding-right:14px;padding-bottom:0}
+  .w-iphone .util-date{font-size:12px}
+  .w-iphone .avatar{width:32px;height:32px;font-size:13px}
+  .w-iphone .ham{width:32px;height:32px;font-size:18px}
+  .w-iphone .pi-logo{font-size:28px}
+  .w-iphone .eyebrow{font-size:17px}
+  .w-iphone .eyebrow .perf{letter-spacing:.18em}
+  .w-iphone .eyebrow .intel{letter-spacing:.28em}
+  .w-iphone .weekly{font-size:13px}
 
-  /* NEW design — masthead branding hierarchy applied */
-  .new .login-eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.35;text-align:center;margin-bottom:14px}
-  .new .login-eyebrow span{display:block}
-  .new .login-eyebrow .eb-perf{font-size:28px;letter-spacing:.2em}
-  .new .login-eyebrow .eb-intel{font-size:28px;letter-spacing:.32em}
-  .w-iphone.new .login-eyebrow .eb-perf,.w-iphone.new .login-eyebrow .eb-intel{font-size:22px}
-  .w-iphone.new .login-eyebrow .eb-perf{letter-spacing:.18em}
-  .w-iphone.new .login-eyebrow .eb-intel{letter-spacing:.28em}
+  /* iPad+/desktop sizing */
+  .w-ipad-p .masthead,.w-ipad-l .masthead,.w-desktop .masthead{padding-top:14px;padding-left:28px;padding-right:28px;padding-bottom:0}
+  .w-ipad-p .util-date,.w-ipad-l .util-date,.w-desktop .util-date{font-size:12px}
+  .w-ipad-p .avatar,.w-ipad-l .avatar,.w-desktop .avatar{width:36px;height:36px;font-size:14px}
+  .w-ipad-p .ham,.w-ipad-l .ham,.w-desktop .ham{width:36px;height:36px;font-size:20px}
+  .w-ipad-p .pi-logo,.w-ipad-l .pi-logo,.w-desktop .pi-logo{font-size:36px}
+  .w-ipad-p .eyebrow,.w-ipad-l .eyebrow,.w-desktop .eyebrow{font-size:24px}
+  .w-ipad-p .eyebrow .perf,.w-ipad-l .eyebrow .perf,.w-desktop .eyebrow .perf{letter-spacing:.2em}
+  .w-ipad-p .eyebrow .intel,.w-ipad-l .eyebrow .intel,.w-desktop .eyebrow .intel{letter-spacing:.32em}
+  .w-ipad-p .weekly,.w-ipad-l .weekly,.w-desktop .weekly{font-size:17px}
 
-  .new .login-wb-new{font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:.55em;padding-left:.55em;text-transform:uppercase;color:#fff;line-height:1;font-size:20px;text-align:center;margin:6px 0 0}
-  .w-iphone.new .login-wb-new{font-size:16px}
+  /* CURRENT: .identity margin-top 6px (live value) */
+  .cur .identity{margin-top:6px}
 
-  /* Tagline + form (common to both) */
-  .login-sub{font-family:'IBM Plex Serif',serif;font-size:14px;color:rgba(255,255,255,.82);margin:32px 0;text-align:center;line-height:1.6;flex-shrink:0}
-  .w-iphone .login-sub{font-size:13px;margin:24px 0}
+  /* PROPOSED: pull .identity up so top of π aligns with bottom of date.
+     Phone:  utility row 32px, date_bottom = util.top + 22, π natural top
+             = util.top + 38 (= 32 + 6 margin). Shift up 16px → margin-top:-10px.
+     iPad+:  utility row 36px, date_bottom = util.top + 24, π natural top
+             = util.top + 42 (= 36 + 6 margin). Shift up 18px → margin-top:-12px. */
+  .new .identity{margin-top:-10px}
+  .w-ipad-p.new .identity,.w-ipad-l.new .identity,.w-desktop.new .identity{margin-top:-12px}
 
-  .login-box{background:#fff;border-radius:12px;padding:28px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.15);flex-shrink:0}
-  .w-iphone .login-box{padding:22px;max-width:100%}
-  .login-box h2{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a;margin:0 0 6px}
-  .login-box p{font-family:'Inter',sans-serif;font-size:12px;color:#666;margin:0 0 20px;line-height:1.5}
-  .name-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-  .login-input{width:100%;border:1px solid #e1d9c8;border-radius:8px;padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;color:#1a1a1a;outline:none;margin-bottom:12px;background:#fff}
-  .login-input::placeholder{color:#a89c84}
-  .login-btn{width:100%;background:#ff6600;color:#fff;border:none;border-radius:8px;padding:14px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:12px}
-  .login-divider{font-family:'Inter',sans-serif;display:flex;align-items:center;gap:10px;margin:4px 0 12px;color:#888;font-size:11px}
-  .login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:#e1d9c8}
-  .google-btn{width:100%;background:#fff;color:#1a1a1a;border:1px solid #e1d9c8;border-radius:8px;padding:12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  /* Dashed white guide line in PROPOSED only — drawn at date_bottom to make
+     the alignment obvious. Disabled in CURRENT. */
+  .new .util-date{position:relative}
+  .new .util-date::after{
+    content:"";position:absolute;left:-12px;right:calc(-1 * 100vw);bottom:-1px;
+    border-bottom:1px dashed rgba(255,255,255,.5);
+    pointer-events:none;
+  }
 
-  /* Pi logo as inline SVG — same shape as live */
-  .pi-glyph{font-family:'Cormorant Garamond',serif;font-weight:700;color:#fff;line-height:1;text-align:center}
-  .w-iphone .pi-glyph{font-size:48px}
-  .pi-glyph{font-size:60px}
+  /* Tab ribbon */
+  .cat-band{background:var(--cat-col);flex-shrink:0}
+  .ribbon{background:var(--cat-col);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:12px 16px}
+  .ribbon::-webkit-scrollbar{display:none}
+  .w-ipad-p .ribbon,.w-ipad-l .ribbon,.w-desktop .ribbon{padding:12px 28px;text-align:center}
+  .w-iphone .ribbon{text-align:left}
+  .tabs{display:inline-flex;gap:8px}
+  .w-iphone .tabs{gap:6px}
+  .tab{flex:0 0 auto;border-radius:3px;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col);cursor:pointer;user-select:none;transition:all .2s ease;padding:10px 18px;font-size:12px}
+  .w-iphone .tab{padding:7px 12px;font-size:10.5px}
+  .tab.on{background:var(--cat-col);color:#fff;border-color:rgba(255,255,255,.9)}
+
+  .ci{background:var(--cat-col);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 16px 12px}
+  .w-ipad-p .ci,.w-ipad-l .ci,.w-desktop .ci{padding:0 28px 12px}
+  .ci .week,.ci .aa{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
+  .ci .aa{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;letter-spacing:0;text-transform:none}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>New login screen — matches main app branding</h1>
-  <p>Replaces the current single big "Weekly Briefing" wordmark with the same brand hierarchy used in the live masthead: π → PERFORMANCE INTELLIGENCE (eyebrow style) → WEEKLY BRIEFING (Option C style). Scaled up from the masthead values because the login canvas is much larger and the brand should carry it.</p>
+  <h1>Banner — π logo top aligned with date bottom</h1>
+  <p>Pulls the entire identity stack (π logo + PERFORMANCE / INTELLIGENCE eyebrow + WEEKLY BRIEFING) up so the top edge of π sits level with the bottom edge of the date. Net banner-height saving: <strong>~16 px on phone, ~18 px on iPad+</strong>.</p>
+  <p>The dashed white guide line in the PROPOSED frames marks the alignment level (date bottom = π top). It would be removed in the live implementation.</p>
   <table>
-    <tr><th>Element</th><th>Current login</th><th>Proposed login</th></tr>
-    <tr><td class="h">π logo</td><td>72px image</td><td>72px image (unchanged)</td></tr>
-    <tr><td class="h">"Performance Intelligence"</td><td>14px · .35em · weight 600 · one line</td><td class="match">28px iPad+ / 22px phone · two-line eyebrow (PERFORMANCE / INTELLIGENCE) · matches masthead letter-spacing</td></tr>
-    <tr><td class="h">"Weekly Briefing"</td><td>32px · weight 700 · Inter title case</td><td class="match">20px iPad+ / 16px phone · Cormorant Garamond · weight 600 · .55em uppercase (Option C, scaled up)</td></tr>
+    <tr><th></th><th>.identity margin-top (phone / iPad+)</th><th>Banner height change</th></tr>
+    <tr><td class="h">Current</td><td>6 px / 6 px</td><td>—</td></tr>
+    <tr><td class="h">Proposed</td><td class="match">−10 px / −12 px</td><td class="match">−16 px / −18 px shorter</td></tr>
   </table>
-  <p class="status"><strong>PROPOSED</strong> — not yet live. Both states shown per platform: CURRENT (top), PROPOSED (bottom).</p>
+  <p class="status"><strong>PROPOSED</strong> — not yet live. CURRENT (top) and PROPOSED (bottom) shown per platform.</p>
 </div>
 
 <!-- iPhone -->
@@ -107,59 +135,33 @@
   <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state — Weekly Briefing as sans-serif wordmark</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-iphone">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-title">Performance Intelligence</div>
-          <div class="login-wb">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid">
-              <input class="login-input" type="text" placeholder="First name">
-              <input class="login-input" type="text" placeholder="Last name">
-            </div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">
-              <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-              Sign in with Google
-            </button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">matches masthead hierarchy — PERFORMANCE / INTELLIGENCE / WEEKLY BRIEFING</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −10 px)</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-iphone">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-eyebrow"><span class="eb-perf">Performance</span><span class="eb-intel">Intelligence</span></div>
-          <div class="login-wb-new">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid">
-              <input class="login-input" type="text" placeholder="First name">
-              <input class="login-input" type="text" placeholder="Last name">
-            </div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">
-              <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-              Sign in with Google
-            </button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
@@ -170,47 +172,37 @@
   <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-ipad-p">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-title">Performance Intelligence</div>
-          <div class="login-wb">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid"><input class="login-input" type="text" placeholder="First name"><input class="login-input" type="text" placeholder="Last name"></div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">Sign in with Google</button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">matches masthead hierarchy</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −12 px)</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-ipad-p">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-eyebrow"><span class="eb-perf">Performance</span><span class="eb-intel">Intelligence</span></div>
-          <div class="login-wb-new">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid"><input class="login-input" type="text" placeholder="First name"><input class="login-input" type="text" placeholder="Last name"></div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">Sign in with Google</button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
@@ -221,47 +213,37 @@
   <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-ipad-l">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-title">Performance Intelligence</div>
-          <div class="login-wb">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid"><input class="login-input" type="text" placeholder="First name"><input class="login-input" type="text" placeholder="Last name"></div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">Sign in with Google</button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">matches masthead hierarchy</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −12 px)</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-ipad-l">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-eyebrow"><span class="eb-perf">Performance</span><span class="eb-intel">Intelligence</span></div>
-          <div class="login-wb-new">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid"><input class="login-input" type="text" placeholder="First name"><input class="login-input" type="text" placeholder="Last name"></div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">Sign in with Google</button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
@@ -272,51 +254,54 @@
   <div class="platform-header"><p class="platform-label">Desktop · 1280 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">live state</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">π sits below the utility row with 6 px gap</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-desktop">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-title">Performance Intelligence</div>
-          <div class="login-wb">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid"><input class="login-input" type="text" placeholder="First name"><input class="login-input" type="text" placeholder="Last name"></div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">Sign in with Google</button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">matches masthead hierarchy</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">π top aligned with date bottom (.identity margin-top −12 px)</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-desktop">
-        <div class="login-inner">
-          <div class="pi-glyph">π</div>
-          <div class="login-eyebrow"><span class="eb-perf">Performance</span><span class="eb-intel">Intelligence</span></div>
-          <div class="login-wb-new">Weekly Briefing</div>
-          <div class="login-sub">Your personal briefing.<br>Sign in to access your notes and liked topics.</div>
-          <div class="login-box">
-            <h2>Sign in or create account</h2>
-            <p>Enter your details and we'll send you a secure sign-in link — no password needed.</p>
-            <div class="name-grid"><input class="login-input" type="text" placeholder="First name"><input class="login-input" type="text" placeholder="Last name"></div>
-            <input class="login-input" type="email" placeholder="your@email.com">
-            <button class="login-btn">Send sign-in link</button>
-            <div class="login-divider">or</div>
-            <button class="google-btn">Sign in with Google</button>
-          </div>
-        </div>
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 </div>
+
+<script>
+  document.querySelectorAll('.device').forEach(function(device){
+    var tabs = device.querySelectorAll('.tab');
+    tabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabs.forEach(function(t){ t.classList.remove('on'); });
+        tab.classList.add('on');
+        device.style.setProperty('--cat-col', tab.getAttribute('data-cat'));
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
