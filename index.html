@@ -350,6 +350,15 @@ html.login-active{background:var(--orange)}
   .pdf-cat-body{padding:24px 16px 28px}
   .pdf-topic{padding:20px 18px 18px}
 }
+/* Phone + iPad portrait: drop the 30px left indent on body content
+   inside .pdf-topic so headline + two-column extend to the card's
+   inner edge — matches live-site visual width (live body has no
+   margin-left). Desktop/iPad landscape keep the indent. */
+@media(max-width:1024px){
+  .pdf-topic-hl{margin-left:0}
+  .pdf-two{margin-left:0}
+  .pdf-deeper{padding-left:0}
+}
 /* Category banner — coloured band per category (set via --cat-color inline) */
 .pdf-cat-section{margin-bottom:0}
 .pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:16px 40px;background:var(--cat-color,#EFE9DD);border-bottom:1px solid rgba(0,0,0,0.06);margin:0}
