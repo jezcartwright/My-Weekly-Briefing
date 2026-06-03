@@ -159,6 +159,19 @@ html.login-active{background:var(--orange)}
 /* Hide the legacy Aa sizing spans inside the textsize menu item */
 .mi#btn-textsize .aa-s,.mi#btn-textsize .aa-l,.mi#btn-textsize .aa-x{display:none}
 .mi-divider{height:1px;background:#ece8e0;margin:4px 6px}
+/* Text-size picker — three buttons rendering Aa at the actual size
+   each state will use. .ts-btn deliberately NOT .mi so the existing
+   menu-close handler ignores them — menu stays open while the user
+   auditions sizes. */
+.ts-picker{display:flex;gap:6px;padding:4px 6px}
+.ts-btn{flex:1;height:38px;display:flex;align-items:center;justify-content:center;background:transparent;border:1.5px solid transparent;border-radius:5px;cursor:pointer;transition:all .12s}
+.ts-btn:hover{background:#f5f1eb}
+.ts-btn.on{background:rgba(255,102,0,0.08);border-color:var(--orange)}
+.ts-aa{font-family:'IBM Plex Serif',Georgia,serif;font-weight:600;color:var(--t);line-height:1}
+.ts-btn.on .ts-aa{color:var(--orange)}
+.ts-aa-s{font-size:11px}
+.ts-aa-m{font-size:14px}
+.ts-aa-l{font-size:17px}
 
 /* .user-avatar class kept on element for backward compat with JS; styling now fully delegated to .avatar-btn */
 
@@ -487,7 +500,11 @@ body.text-xlarge .ne-quote{font-size:15px}
           <button class="mi" id="btn-likes" onclick="showView('likes')"><span class="ico">♥</span>Liked</button>
           <button class="mi" id="btn-lib" onclick="showView('library')"><span class="ico">◫</span>Library</button>
           <div class="mi-divider"></div>
-          <button class="mi" id="btn-textsize" onclick="toggleTextSize()" aria-label="Text size"><span class="ico ico-aa">Aa</span>Text size</button>
+          <div class="ts-picker" role="radiogroup" aria-label="Text size">
+            <button class="ts-btn" data-size="default" onclick="setTextSize('default')" aria-label="Normal text size"><span class="ts-aa ts-aa-s">Aa</span></button>
+            <button class="ts-btn" data-size="large" onclick="setTextSize('large')" aria-label="Large text size"><span class="ts-aa ts-aa-m">Aa</span></button>
+            <button class="ts-btn" data-size="xlarge" onclick="setTextSize('xlarge')" aria-label="Extra large text size"><span class="ts-aa ts-aa-l">Aa</span></button>
+          </div>
         </div>
       </div>
     </div>
@@ -1695,27 +1712,18 @@ function hidePDF(){ document.getElementById('pdf-view').classList.remove('show')
 function generateLibraryPDF(){ generateCurrentPDF(); }
 
 // ── Init (called after Firebase auth) ──
-window.toggleTextSize=function(){
-  // Three-state cycle: default → large → xlarge → default
+window.setTextSize=function(state){
+  // Direct selection — sets one of three states without cycling.
+  // 'default' | 'large' | 'xlarge'.
   var b=document.body;
-  var btn=document.getElementById('btn-textsize');
-  var nextState;
-  if(b.classList.contains('text-xlarge')){
-    b.classList.remove('text-xlarge');
-    nextState='default';
-  } else if(b.classList.contains('text-large')){
-    b.classList.remove('text-large');
-    b.classList.add('text-xlarge');
-    nextState='xlarge';
-  } else {
-    b.classList.add('text-large');
-    nextState='large';
-  }
-  if(btn){
-    btn.classList.toggle('on', nextState !== 'default');
-    btn.classList.toggle('on-xl', nextState === 'xlarge');
-  }
-  try{localStorage.setItem('exec_brief_v3_text_size', nextState);}catch(e){}
+  b.classList.remove('text-large','text-xlarge');
+  if(state==='large') b.classList.add('text-large');
+  else if(state==='xlarge') b.classList.add('text-xlarge');
+  // Reflect selection on the picker buttons
+  document.querySelectorAll('.ts-btn').forEach(function(btn){
+    btn.classList.toggle('on', btn.dataset.size===state);
+  });
+  try{localStorage.setItem('exec_brief_v3_text_size', state);}catch(e){}
 };
 
 // Hamburger menu toggle (Phase 2)
@@ -1755,9 +1763,9 @@ window.toggleTextSize=function(){
 window.initApp=function(){
   document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try{
-    var ts=localStorage.getItem('exec_brief_v3_text_size');
-    if(ts==='large'){document.body.classList.add('text-large');var _bt=document.getElementById('btn-textsize');if(_bt)_bt.classList.add('on');}
-    else if(ts==='xlarge'){document.body.classList.add('text-xlarge');var _bt2=document.getElementById('btn-textsize');if(_bt2){_bt2.classList.add('on');_bt2.classList.add('on-xl');}}
+    var ts=localStorage.getItem('exec_brief_v3_text_size')||'default';
+    // setTextSize handles body class + .ts-btn.on + persists state
+    if(typeof setTextSize==='function') setTextSize(ts);
   }catch(e){}
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
   // One-time refresh: for last week (2026-05-04) replace any stored topics with
