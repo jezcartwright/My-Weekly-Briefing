@@ -140,7 +140,12 @@ html.login-active{background:var(--orange)}
 #vl,#vk,#vn{display:none}
 
 /* Tabs — solid pills, category colour fills when active */
-#tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:var(--strip-c,var(--white));scrollbar-width:none;padding:12px 16px;transition:background .35s ease;justify-content:flex-start}
+/* Single category-coloured band wrapping both pills (#tabs) and the
+   week/Aa row (.ci). One background = no internal element seams,
+   no fragile negative-margin trick. --strip-c set by JS on .cat-band
+   cascades down so .tab.on still resolves it correctly. */
+.cat-band{background:var(--strip-c,#ff6600);flex-shrink:0;transition:background .35s ease}
+#tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:transparent;scrollbar-width:none;padding:12px 16px;justify-content:flex-start}
 #tabs::-webkit-scrollbar{display:none}
 @media(min-width:720px){#tabs{justify-content:center}}
 .tab{padding:9px 16px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--tab-c,#888);background:#fff;border:1.5px solid var(--tab-c,#ccc);border-radius:3px;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0;line-height:1}
@@ -148,8 +153,10 @@ html.login-active{background:var(--orange)}
 .tab.on{background:var(--strip-c);color:#fff;border-color:rgba(255,255,255,0.9)}
 .tab .tab-ico{display:none}
 .sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
-/* Category banner — week left, Aa text-size toggle right (flex space-between) */
-.ci{margin:-18px -16px 16px;padding:0 16px 12px;background:var(--cat-color,#EFE9DD);color:#fff;overflow:hidden;position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px}
+/* Week + Aa row. Now a sibling of #tabs inside .cat-band so it sits
+   flush against the pill row naturally — no negative-margin trick.
+   Background inherited from .cat-band; .ci itself is transparent. */
+.ci{padding:0 16px 12px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative}
 .ci .ico{display:none}
 .ci .cw{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;white-space:nowrap}
 .ci .aa-toggle{background:transparent;border:none;color:#fff;font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;line-height:1;cursor:pointer;padding:4px 10px;border-radius:4px;transition:background .15s;text-transform:none;letter-spacing:0}
@@ -373,7 +380,7 @@ body.text-xlarge .ne-quote{font-size:15px}
   .pi-logo img{height:26px}
   .eyebrow{font-size:16px}
   .sa{padding:14px 12px calc(var(--sb) + 14px)}
-  .ci{margin:-14px -12px 16px}
+  .ci{padding-left:12px;padding-right:12px}
 }
 @media(max-width:375px){
   .pi-logo img{height:24px}
@@ -445,7 +452,10 @@ body.text-xlarge .ne-quote{font-size:15px}
   </div>
 
   <div id="vt">
-    <div id="tabs"></div>
+    <div class="cat-band">
+      <div id="tabs"></div>
+      <div id="ci-host"></div>
+    </div>
     <div class="sa" id="ts"></div>
   </div>
   <div id="vl">
@@ -1181,6 +1191,11 @@ function noteInput(el,catId,title){saveTopicNote(catId,title,el.value);}
 // ── Render ──
 function rt(){
   var tabsEl=document.getElementById('tabs');
+  // --strip-c now lives on .cat-band so both #tabs and .ci share it from
+  // one source. Keep also setting it on tabsEl for safety (e.g. if .cat-band
+  // is ever missing, .tab.on can still resolve via legacy cascade).
+  var band=document.querySelector('.cat-band');
+  if(band) band.style.setProperty('--strip-c',ac.color);
   tabsEl.style.setProperty('--strip-c',ac.color);
   tabsEl.innerHTML=CATS.map(function(c){
     return'<button class="tab'+(c.id===ac.id?' on':'')+'" style="--tab-c:'+c.color+'" onclick="sc(\''+c.id+'\')">'+c.label+'</button>';
@@ -1195,7 +1210,7 @@ function rt(){
 function setLabelAxis(){
   var firstTab = document.querySelector('#tabs .tab');
   var tabsEl = document.getElementById('tabs');
-  var ci = document.querySelector('#ts .ci');
+  var ci = document.querySelector('#ci-host .ci');
   if(!firstTab || !tabsEl || !ci) return;
   var tabsRect = tabsEl.getBoundingClientRect();
   var ciRect = ci.getBoundingClientRect();
@@ -1215,11 +1230,12 @@ function rto(){
   var aaClass='';
   if(document.body.classList.contains('text-xlarge')) aaClass=' on on-xl';
   else if(document.body.classList.contains('text-large')) aaClass=' on';
-  document.getElementById('ts').innerHTML=
-    '<div class="ci" style="--cat-color:'+ac.color+'">'+
+  document.getElementById('ci-host').innerHTML=
+    '<div class="ci">'+
     '<div class="cw">Week '+getWeekNumber()+'</div>'+
     '<button type="button" class="aa-toggle'+aaClass+'" onclick="toggleTextSize()" id="btn-textsize" aria-label="Text size">Aa</button>'+
-    '</div>'+
+    '</div>';
+  document.getElementById('ts').innerHTML=
     '<div class="tl">'+tops.map(function(t,i){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
