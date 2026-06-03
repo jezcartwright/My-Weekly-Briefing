@@ -3,206 +3,174 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Label centred on Leadership pill axis</title>
+<title>Wider format — label left-justified options</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
-  body{
-    font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;
-    margin:0;padding:24px 16px 64px;-webkit-font-smoothing:antialiased;
-  }
-  .intro{max-width:900px;margin:0 auto 24px;padding:0 8px}
+  body{font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;margin:0;padding:24px 16px 64px;-webkit-font-smoothing:antialiased}
+  .intro{max-width:1400px;margin:0 auto 24px;padding:0 8px}
   .intro h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 6px}
-  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 6px;line-height:1.5;max-width:760px}
-  .intro .hint{font-family:'Inter',sans-serif;font-size:13px;color:#ff6600;font-weight:600;margin:8px 0 0;padding:8px 12px;background:rgba(255,102,0,.08);border-left:3px solid #ff6600}
+  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5;max-width:760px}
 
-  .device-frame{
-    background:#1a1a1a;border-radius:18px;padding:6px;
-    box-shadow:0 12px 32px rgba(0,0,0,.18);
-    max-width:390px;margin:0 auto;
-  }
+  .section{max-width:1400px;margin:36px auto 0}
+  .section-title{font-family:'IBM Plex Serif',serif;font-size:20px;font-weight:600;margin:0 0 4px;padding:0 8px}
+  .section-sub{font-family:'Inter',sans-serif;font-size:13px;color:#666;margin:0 0 18px;padding:0 8px;line-height:1.45}
+
+  .variant{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+  .variant-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;margin:0;padding:0 8px}
+  .variant-name{font-family:'IBM Plex Serif',serif;font-size:16px;font-weight:600;margin:0;padding:0 8px}
+  .variant-spec{font-family:'Inter',sans-serif;font-size:12px;color:#555;margin:0 0 6px;padding:0 8px;line-height:1.4}
+
+  .device-frame{background:#1a1a1a;border-radius:18px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.18);max-width:1180px;margin:0 auto}
   .device-inner{background:#faf8f5;border-radius:12px;overflow:hidden;position:relative}
 
-  /* The vertical guide line — runs through Leadership pill centre and label centre */
-  .axis-guide{
-    position:absolute;
-    top:var(--axis-top, 0);
-    bottom:var(--axis-bottom, 0);
-    left:var(--axis-x, 0);
-    width:1px;
-    background:rgba(0,0,0,.32);
-    border-left:1px dashed rgba(0,0,0,.32);
-    pointer-events:none;
-    z-index:10;
-  }
-
   /* Masthead */
-  .masthead{background:#ff6600;color:#fff;padding:10px 14px 14px}
-  .utility{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-  .util-date{font-family:'Inter',sans-serif;font-size:12px;font-weight:600}
-  .util-right{display:flex;gap:6px;align-items:center}
-  .avatar{width:26px;height:26px;border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#fff}
-  .ham{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;font-size:16px;color:#fff;border:0;font-weight:300}
+  .masthead{background:#ff6600;color:#fff;padding:14px 28px 20px}
+  .utility{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .util-date{font-family:'Inter',sans-serif;font-size:13px;font-weight:600}
+  .util-right{display:flex;gap:8px;align-items:center}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:#fff;overflow:hidden}
+  .ham{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;font-size:18px;color:#fff;border:0;font-weight:300}
   .identity{display:flex;flex-direction:column;align-items:center}
-  .pi-logo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:5px}
-  .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;text-transform:uppercase;text-align:center;line-height:1.15;margin-bottom:2px}
+  .pi-logo{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;line-height:1;margin-bottom:8px}
+  .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:17px;text-transform:uppercase;text-align:center;line-height:1.15;margin-bottom:3px}
   .eyebrow span{display:block}
-  .eyebrow .perf{letter-spacing:.18em}
-  .eyebrow .intel{letter-spacing:.28em}
-  .wordmark{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:26px;line-height:1}
+  .eyebrow .perf{letter-spacing:.2em}
+  .eyebrow .intel{letter-spacing:.32em}
+  .wordmark{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:36px;line-height:1}
 
-  /* Tab ribbon */
-  .ribbon{
-    padding:12px 16px;
-    background:var(--strip-c,#ff6600);
-    transition:background .35s ease;
-    border-top:1px solid rgba(255,255,255,.12);
-  }
-  .tabs-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;text-align:left}
+  /* Tab ribbon — wider screens centre the cluster */
+  .ribbon{background:#ff6600;padding:12px 16px;border-top:1px solid rgba(255,255,255,.12);text-align:center}
   .tabs{display:inline-flex;gap:8px}
-  .tab{
-    flex:0 0 auto;padding:9px 16px;border-radius:3px;cursor:pointer;
-    font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;
-    text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col);
-    transition:background .25s, color .25s, border-color .25s;
-  }
-  .tab.on{
-    background:var(--strip-c,#ff6600);
-    border-color:rgba(255,255,255,.9);color:#fff;
-  }
+  .tab{flex:0 0 auto;padding:10px 18px;border-radius:3px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:#fff;border:1.5px solid var(--col);color:var(--col)}
+  .tab.on{background:#ff6600;color:#fff;border-color:rgba(255,255,255,.9)}
 
-  /* Category band — label centred on a fixed axis */
-  .ci{
-    background:var(--strip-c,#ff6600);
-    padding:14px 0;
-    overflow:hidden;
-    position:relative;
-  }
-  .ci .label{
-    font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;
-    text-transform:uppercase;color:#fff;
-    display:inline-block;
-    position:relative;
-    left:var(--axis-x, 75px);
-    transform:translateX(-50%);
-    white-space:nowrap;
-  }
+  /* Category band */
+  .ci{background:#ff6600;color:#fff;padding:12px 0}
+  .ci .label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff}
+
+  /* Variants */
+  .opt-current .ci{padding:12px 0;text-align:center}
+  .opt-current .ci .label{position:relative;left:var(--axis,50%);transform:translateX(-50%);display:inline-block;text-align:left}
+
+  .opt-flush .ci{padding:12px 28px}
+  .opt-flush .ci .label{display:block;text-align:left}
+
+  .opt-tab-edge .ci{padding:12px 0}
+  .opt-tab-edge .ci .label{display:block;padding-left:var(--tab-cluster-left, 350px)}
 
   /* Content peek */
-  .content{padding:14px;background:#faf8f5}
-  .card{background:#fff;border:1px solid #E0D8CB;border-left:4px solid var(--strip-c,#ff6600);padding:12px 14px;display:grid;grid-template-columns:30px 1fr;gap:10px}
-  .card .num{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--strip-c,#ff6600);padding-top:2px}
-  .card .title{font-family:'IBM Plex Serif',serif;font-size:15px;line-height:1.25;font-weight:600}
-  .card .summary{font-family:'IBM Plex Serif',serif;font-size:13px;line-height:1.4;color:#444;margin-top:4px}
+  .content{padding:18px 28px;background:#faf8f5}
+  .card{background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;padding:16px 22px;display:grid;grid-template-columns:42px 1fr;gap:10px;margin-bottom:10px}
+  .card .num{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#ff6600;padding-top:3px}
+  .card .title{font-family:'IBM Plex Serif',serif;font-size:21px;line-height:1.25;font-weight:600}
+  .card .summary{font-family:'IBM Plex Serif',serif;font-size:16px;line-height:1.4;color:#444;margin-top:6px}
 
-  .notes{
-    max-width:900px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;
-    font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333;
-  }
+  .notes{max-width:1100px;margin:48px auto 0;background:#fff;border-radius:8px;padding:24px 28px;font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#333}
   .notes h3{font-family:'IBM Plex Serif',serif;font-size:18px;font-weight:600;margin:0 0 12px}
   .notes p{margin:0 0 10px}
-  .notes ul{margin:0 0 12px;padding-left:20px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Every category label centred on the Leadership-pill axis</h1>
-  <p>Dashed line runs through the centre of the Leadership pill and continues down through every category label's centre. Tap the tabs to switch categories — the label text and colours change, but the label's centre stays anchored to the same vertical axis.</p>
-  <p class="hint">↑ Tap any tab. Notice the label text/colour change, but its centre stays on the dashed line.</p>
+  <h1>Wider format — three label-position options</h1>
+  <p>Three iPad-landscape mockups, each showing how the LEADERSHIP label could be positioned in the band below the centred tab cluster. On phone the label stays as-is (axis-aligned to the Leadership pill). These options only apply at iPad+ widths.</p>
 </div>
 
-<div class="device-frame"><div class="device-inner" id="device">
-  <div class="axis-guide" id="axis-guide"></div>
-  <div class="masthead">
-    <div class="utility">
-      <div class="util-date">Tuesday, 2 June 2026</div>
-      <div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div>
+<!-- Current behaviour for reference -->
+<div class="section">
+  <p class="variant-label">A · Current (after recent fix)</p>
+  <p class="variant-name">Axis-aligned to Leadership pill centre</p>
+  <p class="variant-spec">Looks fine on phone where tabs are left-aligned, but on iPad+ where the cluster centres, the label floats in the middle of the band looking disconnected from anything specific.</p>
+  <div class="device-frame opt-current"><div class="device-inner">
+    <div class="masthead">
+      <div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div>
+      <div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div>
     </div>
-    <div class="identity">
-      <div class="pi-logo">π</div>
-      <div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div>
-      <div class="wordmark">Weekly Briefing</div>
-    </div>
-  </div>
-  <div class="ribbon" id="ribbon" style="--strip-c:#ff6600">
-    <div class="tabs-wrap"><div class="tabs" id="tabs">
-      <span class="tab on" data-color="#ff6600" data-label="Leadership" style="--col:#ff6600">Leadership</span>
-      <span class="tab"     data-color="#1e3a8a" data-label="Markets"    style="--col:#1e3a8a">Markets</span>
-      <span class="tab"     data-color="#c8102e" data-label="Psychology" style="--col:#c8102e">Psychology</span>
-      <span class="tab"     data-color="#0891b2" data-label="Technology" style="--col:#0891b2">Technology</span>
-      <span class="tab"     data-color="#7c3aed" data-label="Geopolitics" style="--col:#7c3aed">Geopolitics</span>
-      <span class="tab"     data-color="#15803d" data-label="Philosophy" style="--col:#15803d">Philosophy</span>
+    <div class="ribbon"><div class="tabs">
+      <span class="tab on" style="--col:#ff6600">Leadership</span>
+      <span class="tab" style="--col:#1e3a8a">Markets</span>
+      <span class="tab" style="--col:#c8102e">Psychology</span>
+      <span class="tab" style="--col:#0891b2">Technology</span>
+      <span class="tab" style="--col:#7c3aed">Geopolitics</span>
+      <span class="tab" style="--col:#15803d">Philosophy</span>
     </div></div>
-  </div>
-  <div class="ci" id="ci" style="--strip-c:#ff6600">
-    <div class="label" id="label">Leadership</div>
-  </div>
-  <div class="content">
-    <div class="card">
-      <div class="num">01</div>
-      <div>
-        <div class="title">The 50-Year Career Problem</div>
-        <div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div>
-      </div>
+    <div class="ci" style="--axis:494px"><div class="label">Leadership</div></div>
+    <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+  </div></div>
+</div>
+
+<!-- Option B: flush left -->
+<div class="section">
+  <p class="variant-label">B · Flush left to page edge</p>
+  <p class="variant-name">Label sits at the same left edge as topic cards</p>
+  <p class="variant-spec">Anchors to the page margin (28px from screen edge — matches where topic cards start). Behaves like an editorial section heading. Same horizontal position as the cards below, making the visual hierarchy clear: section heading + cards in that section.</p>
+  <div class="device-frame opt-flush"><div class="device-inner">
+    <div class="masthead">
+      <div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div>
+      <div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div>
     </div>
-  </div>
-</div></div>
+    <div class="ribbon"><div class="tabs">
+      <span class="tab on" style="--col:#ff6600">Leadership</span>
+      <span class="tab" style="--col:#1e3a8a">Markets</span>
+      <span class="tab" style="--col:#c8102e">Psychology</span>
+      <span class="tab" style="--col:#0891b2">Technology</span>
+      <span class="tab" style="--col:#7c3aed">Geopolitics</span>
+      <span class="tab" style="--col:#15803d">Philosophy</span>
+    </div></div>
+    <div class="ci"><div class="label">Leadership</div></div>
+    <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+  </div></div>
+</div>
+
+<!-- Option C: aligned to tab cluster left edge -->
+<div class="section">
+  <p class="variant-label">C · Aligned to left edge of tab cluster</p>
+  <p class="variant-name">Label starts where the Leadership pill starts (the cluster's left edge)</p>
+  <p class="variant-spec">Tracks where the tab cluster sits. When centred on iPad+, the label sits indented to match the cluster's left edge. Anchored to the visual block above rather than the page edge.</p>
+  <div class="device-frame opt-tab-edge"><div class="device-inner">
+    <div class="masthead">
+      <div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div>
+      <div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div>
+    </div>
+    <div class="ribbon"><div class="tabs" id="cluster">
+      <span class="tab on" style="--col:#ff6600">Leadership</span>
+      <span class="tab" style="--col:#1e3a8a">Markets</span>
+      <span class="tab" style="--col:#c8102e">Psychology</span>
+      <span class="tab" style="--col:#0891b2">Technology</span>
+      <span class="tab" style="--col:#7c3aed">Geopolitics</span>
+      <span class="tab" style="--col:#15803d">Philosophy</span>
+    </div></div>
+    <div class="ci" id="ci-c"><div class="label">Leadership</div></div>
+    <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+  </div></div>
+</div>
 
 <div class="notes">
-  <h3>How this works</h3>
-  <ul>
-    <li>JS measures the Leadership pill's horizontal centre on load, sets that as the "axis" via a CSS variable</li>
-    <li>The category label uses <code>position:relative; left:axis-x; transform:translateX(-50%)</code> so its centre always lands on that axis</li>
-    <li>The label is on the same vertical line as the LEADERSHIP pill above, regardless of which category is currently active</li>
-    <li>Dashed guideline is just for this mockup — would be invisible on the live site</li>
-  </ul>
-  <h3>What you'd see on the live site</h3>
-  <p>Same behaviour, no visible guideline. The label sits below the Leadership pill's centre. Tap Markets → band turns blue, label says MARKETS, but MARKETS is centred on the same x-position. Tap Technology → band turns teal, label says TECHNOLOGY, still on the same line.</p>
+  <h3>What I see comparing the three</h3>
+  <p><strong>A (current):</strong> The label floating mid-band looks orphaned at this width. The connection to anything specific isn't visible.</p>
+  <p><strong>B (flush left, page margin):</strong> Clean editorial feel. Label aligns with the cards below — strong section-heading relationship. Doesn't track the tab cluster, but the cluster is centred and decorative anyway; the label tracks the CONTENT.</p>
+  <p><strong>C (aligned to cluster):</strong> Visually links the label to the tabs but indents it deeply on wide screens, leaving a big empty band to its left.</p>
+  <p>My recommendation: <strong>B</strong>. It mirrors how editorial publications work — section headings always sit at the same left edge as the content of that section. The eye reads "LEADERSHIP" then drops down to "01 The 50-Year Career Problem" — perfectly aligned.</p>
+  <p>On phone (width below 720px), nothing changes — labels stay axis-aligned to the Leadership pill (the current behaviour). This is a wider-screen-only adjustment.</p>
 </div>
 
 <script>
-  function setupAxis(){
-    var firstTab = document.querySelector('.tab');
-    var device = document.getElementById('device');
-    var axisGuide = document.getElementById('axis-guide');
-    var ribbon = document.getElementById('ribbon');
-    var ci = document.getElementById('ci');
-
-    var tabRect = firstTab.getBoundingClientRect();
-    var deviceRect = device.getBoundingClientRect();
-    var ribbonRect = ribbon.getBoundingClientRect();
+  // Option C: compute the actual position of the tab cluster's left edge
+  // and indent the label to match
+  function alignToCluster(){
+    var cluster = document.getElementById('cluster');
+    var ci = document.getElementById('ci-c');
+    var ribbon = cluster.parentElement;
+    if(!cluster || !ci || !ribbon) return;
+    var clusterRect = cluster.getBoundingClientRect();
     var ciRect = ci.getBoundingClientRect();
-
-    // Tab centre relative to device's left edge
-    var axisX = tabRect.left + tabRect.width / 2 - deviceRect.left;
-
-    // Set CSS var on device for axis-guide AND on .ci for label positioning
-    device.style.setProperty('--axis-x', axisX + 'px');
-    ci.style.setProperty('--axis-x', (axisX - (ciRect.left - deviceRect.left)) + 'px');
-
-    // Set guide bounds — top of pill, bottom of label band
-    var top = ribbonRect.top - deviceRect.top + 6;
-    var bottom = deviceRect.height - (ciRect.top + ciRect.height - deviceRect.top) + 6;
-    device.style.setProperty('--axis-top', top + 'px');
-    device.style.setProperty('--axis-bottom', bottom + 'px');
+    var offset = clusterRect.left - ciRect.left;
+    ci.style.setProperty('--tab-cluster-left', offset + 'px');
   }
-
-  document.querySelectorAll('.tab').forEach(function(tab){
-    tab.addEventListener('click', function(){
-      var color = tab.dataset.color;
-      var labelText = tab.dataset.label;
-      document.getElementById('ribbon').style.setProperty('--strip-c', color);
-      document.getElementById('ci').style.setProperty('--strip-c', color);
-      document.querySelectorAll('.card').forEach(function(c){c.style.setProperty('--strip-c', color);});
-      document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-      tab.classList.add('on');
-      document.getElementById('label').textContent = labelText;
-    });
-  });
-
-  window.addEventListener('load', setupAxis);
-  window.addEventListener('resize', setupAxis);
+  window.addEventListener('load', alignToCluster);
+  window.addEventListener('resize', alignToCluster);
 </script>
 
 </body>
