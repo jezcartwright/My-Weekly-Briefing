@@ -149,6 +149,10 @@ html.login-active{background:var(--orange)}
 .ci .ico{display:none}
 .ci-text{display:block}
 .ci-text .cl{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;display:inline-block;position:relative;left:var(--label-axis-x,50%);transform:translateX(-50%);white-space:nowrap}
+/* Wider screens: label flush-left to topic-card edge, not axis-aligned to Leadership pill */
+@media(min-width:720px){
+  .ci-text .cl{display:block;position:static;transform:none;left:auto;padding-left:16px;text-align:left}
+}
 .tl{display:flex;flex-direction:column;gap:14px}
 /* Topic cards — editorial white cards with category-coloured left edge */
 .tc{background:var(--white);border:1px solid #E0D8CB;border-left:4px solid var(--orange);border-radius:1px;overflow:hidden;transition:box-shadow .2s;scroll-margin-top:8px}
