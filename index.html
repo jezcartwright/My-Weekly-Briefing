@@ -59,7 +59,7 @@ html.login-active{background:var(--orange)}
 /* Header — new structure (Phase 1: C1 compression + centred stack) */
 #hdr{padding:calc(var(--st) + 8px) 14px 12px;display:flex;flex-direction:column;flex-shrink:0;background:var(--orange);position:relative}
 .utility{display:flex;justify-content:space-between;align-items:center;width:100%;position:relative}
-.util-date{color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;line-height:1}
+.util-date{color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;line-height:1;letter-spacing:.05em}
 .util-right{display:flex;align-items:center;gap:6px;position:relative}
 .avatar-btn{
   width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.25);
@@ -141,11 +141,12 @@ html.login-active{background:var(--orange)}
 
 /* Tabs — solid pills, category colour fills when active */
 /* Single category-coloured band wrapping both pills (#tabs) and the
-   week/Aa row (.ci). One background = no internal element seams,
-   no fragile negative-margin trick. --strip-c set by JS on .cat-band
-   cascades down so .tab.on still resolves it correctly. */
-.cat-band{background:var(--strip-c,#ff6600);flex-shrink:0;transition:background .35s ease}
-#tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:transparent;scrollbar-width:none;padding:12px 16px;justify-content:flex-start}
+   week/Aa row (.ci). All three layers (parent + both children) paint
+   from the same --strip-c. iOS Safari composites the scroll-container
+   #tabs as a separate paint layer; making every layer the same colour
+   means any sub-pixel gap shows that same colour from underneath. */
+.cat-band{background:var(--strip-c,#ff6600);flex-shrink:0}
+#tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:var(--strip-c,#ff6600);scrollbar-width:none;padding:12px 16px;justify-content:flex-start}
 #tabs::-webkit-scrollbar{display:none}
 @media(min-width:720px){#tabs{justify-content:center}}
 .tab{padding:9px 16px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--tab-c,#888);background:#fff;border:1.5px solid var(--tab-c,#ccc);border-radius:3px;white-space:nowrap;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;flex-shrink:0;line-height:1}
@@ -153,10 +154,9 @@ html.login-active{background:var(--orange)}
 .tab.on{background:var(--strip-c);color:#fff;border-color:rgba(255,255,255,0.9)}
 .tab .tab-ico{display:none}
 .sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
-/* Week + Aa row. Now a sibling of #tabs inside .cat-band so it sits
-   flush against the pill row naturally — no negative-margin trick.
-   Background inherited from .cat-band; .ci itself is transparent. */
-.ci{padding:0 16px 12px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative}
+/* Week + Aa row. Sibling of #tabs inside .cat-band. .ci paints its own
+   --strip-c background too — same value as #tabs, no possible seam. */
+.ci{padding:0 16px 12px;color:#fff;background:var(--strip-c,#ff6600);display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative}
 .ci .ico{display:none}
 .ci .cw{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;white-space:nowrap}
 .ci .aa-toggle{background:transparent;border:none;color:#fff;font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;line-height:1;cursor:pointer;padding:4px 10px;border-radius:4px;transition:background .15s;text-transform:none;letter-spacing:0}
