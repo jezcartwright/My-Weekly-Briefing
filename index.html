@@ -1147,14 +1147,20 @@ function rt(){
 // Sets the label's horizontal axis to match the first tab pill's centre,
 // so every category label below the ribbon sits on the same vertical line
 // as the Leadership pill. Static — does not move when categories change.
+// Uses offsetLeft so the axis is correct even when the tab strip has
+// scrolled (e.g. when Geopolitics or Philosophy is the active tab and
+// Leadership has been pushed off the left edge of the visible strip).
 function setLabelAxis(){
   var firstTab = document.querySelector('#tabs .tab');
+  var tabsEl = document.getElementById('tabs');
   var ci = document.querySelector('#ts .ci');
-  if(!firstTab || !ci) return;
-  var tabRect = firstTab.getBoundingClientRect();
+  if(!firstTab || !tabsEl || !ci) return;
+  var tabsRect = tabsEl.getBoundingClientRect();
   var ciRect = ci.getBoundingClientRect();
-  if(!tabRect.width || !ciRect.width) return;
-  var axisX = (tabRect.left + tabRect.width / 2) - ciRect.left;
+  if(!tabsRect.width || !ciRect.width || !firstTab.offsetWidth) return;
+  // offsetLeft is the tab's position within #tabs regardless of scroll
+  var firstTabNaturalCentre = tabsRect.left + firstTab.offsetLeft + firstTab.offsetWidth / 2;
+  var axisX = firstTabNaturalCentre - ciRect.left;
   ci.style.setProperty('--label-axis-x', axisX + 'px');
 }
 // Recompute on window resize/orientation change so label stays aligned
