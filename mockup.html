@@ -3,23 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mockup: WEEK 23 removed from landing, PDF, and Library</title>
+<title>Mockup: PDF date top-right + WEEK removed everywhere</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
   body { margin:0; padding:24px; background:#262626; font-family:'Inter',sans-serif; color:#eee; }
   h1 { margin:0 0 6px; font-size:18px; font-weight:600; }
   .sub { color:#bbb; font-size:13px; margin:0 0 28px; }
-
   .platforms { display:flex; gap:48px; padding-bottom:60px; }
   .platform { flex:0 0 auto; }
   .platform-label { color:#fff; font-size:14px; font-weight:600; margin-bottom:14px; }
   .phone-label { color:#bbb; font-size:11px; font-weight:600; margin:14px 0 8px; letter-spacing:.05em; text-transform:uppercase; }
   .phone { background:#fff; box-shadow:0 0 0 1px #444; }
-
-  /* ============ LANDING ============ */
   .hdr-landing { background:#ff6600; padding:14px 14px 0; display:flex; flex-direction:column; }
   .utility { display:flex; justify-content:space-between; align-items:center; }
   .util-date { color:#fff; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; letter-spacing:.05em; }
@@ -40,20 +36,17 @@
   .tab.other-t { color:#06b6d4; border-color:#06b6d4; background:transparent; }
   .ci { padding:0 14px 12px; background:#ff6600; display:flex; justify-content:flex-end; align-items:center; }
   .ci-aa { color:#fff; font-family:'IBM Plex Serif',serif; font-weight:600; font-size:18px; padding:4px 10px; }
-
   .sa { padding:16px; background:#FBF8F2; }
   .tc { background:#fff; border:1px solid #E0D8CB; border-left:4px solid #ff6600; padding:14px 16px; display:flex; gap:10px; }
   .tn { color:#ff6600; font-family:'Inter',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; padding-top:4px; width:22px; flex-shrink:0; }
   .tt { font-family:'IBM Plex Serif',serif; font-size:15px; font-weight:600; color:#1a1a1a; line-height:1.2; margin:0 0 4px; }
   .thl { font-family:'IBM Plex Serif',serif; font-size:12px; color:#666; line-height:1.45; font-weight:500; }
-
-  /* ============ PDF ============ */
+  /* PDF: utility row uses flex-end so date sits top-RIGHT */
   .hdr-pdf { background:#ff6600; padding:14px 14px 0; display:flex; flex-direction:column; }
+  .hdr-pdf .utility { justify-content:flex-end; }
   .pdf-cat-title { background:#ff6600; color:#fff; font-family:'Inter',sans-serif; font-size:12px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; padding:14px 14px; }
   .pdf-cat-body { background:#FBF8F2; padding:18px 14px 22px; }
   .pdf-topic { background:#fff; border:1px solid #E0D8CB; border-left:4px solid #ff6600; padding:14px 16px; }
-
-  /* ============ LIBRARY ============ */
   .lib-screen { background:#FBF8F2; padding:16px 14px; }
   .wk { background:#fff; border:1px solid #E0D8CB; border-radius:2px; margin:0 0 10px; padding:14px 16px; display:flex; align-items:center; gap:10px; }
   .wk-label { font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:#1a1a1a; flex:1; }
@@ -64,8 +57,8 @@
 </head>
 <body>
 
-<h1>Mockup: WEEK 23 removed from landing, PDF, and Library</h1>
-<p class="sub">Landing keeps Aa bottom-right. PDF utility row has just the date. Library rows drop the "Week N" segment — new format <code style="background:#444;padding:1px 5px;border-radius:2px;">YYYY · Day, D Mon</code>.</p>
+<h1>Mockup: PDF date moved to top-right + WEEK removed across all surfaces</h1>
+<p class="sub">PDF utility row: empty left, date right. Mirrors landing's pattern (controls live on the right). Landing &amp; Library unchanged from previous mockup.</p>
 
 <div class="platforms">
 
@@ -108,7 +101,7 @@
     </div>
   </div>
 
-  <div class="phone-label">PDF</div>
+  <div class="phone-label">PDF — date now top-right</div>
   <div class="phone" style="width:390px;">
     <div class="hdr-pdf">
       <div class="utility">
@@ -137,26 +130,10 @@
   <div class="phone-label">LIBRARY</div>
   <div class="phone" style="width:390px;">
     <div class="lib-screen">
-      <div class="wk">
-        <div class="wk-label current">2026 · Mon, 1 Jun</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 25 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 18 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 11 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
+      <div class="wk"><div class="wk-label current">2026 · Mon, 1 Jun</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 25 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 18 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 11 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
     </div>
   </div>
 </div>
@@ -200,7 +177,7 @@
     </div>
   </div>
 
-  <div class="phone-label">PDF</div>
+  <div class="phone-label">PDF — date now top-right</div>
   <div class="phone" style="width:820px;">
     <div class="hdr-pdf">
       <div class="utility">
@@ -229,26 +206,10 @@
   <div class="phone-label">LIBRARY</div>
   <div class="phone" style="width:820px;">
     <div class="lib-screen">
-      <div class="wk">
-        <div class="wk-label current">2026 · Mon, 1 Jun</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 25 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 18 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 11 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
+      <div class="wk"><div class="wk-label current">2026 · Mon, 1 Jun</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 25 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 18 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 11 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
     </div>
   </div>
 </div>
@@ -292,7 +253,7 @@
     </div>
   </div>
 
-  <div class="phone-label">PDF</div>
+  <div class="phone-label">PDF — date now top-right</div>
   <div class="phone" style="width:1180px;">
     <div class="hdr-pdf">
       <div class="utility">
@@ -321,26 +282,10 @@
   <div class="phone-label">LIBRARY</div>
   <div class="phone" style="width:1180px;">
     <div class="lib-screen">
-      <div class="wk">
-        <div class="wk-label current">2026 · Mon, 1 Jun</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 25 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 18 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 11 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
+      <div class="wk"><div class="wk-label current">2026 · Mon, 1 Jun</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 25 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 18 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 11 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
     </div>
   </div>
 </div>
@@ -384,7 +329,7 @@
     </div>
   </div>
 
-  <div class="phone-label">PDF</div>
+  <div class="phone-label">PDF — date now top-right</div>
   <div class="phone" style="width:1280px;">
     <div class="hdr-pdf">
       <div class="utility">
@@ -413,26 +358,10 @@
   <div class="phone-label">LIBRARY</div>
   <div class="phone" style="width:1280px;">
     <div class="lib-screen">
-      <div class="wk">
-        <div class="wk-label current">2026 · Mon, 1 Jun</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 25 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 18 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
-      <div class="wk">
-        <div class="wk-label">2026 · Mon, 11 May</div>
-        <div class="wk-pdf">PDF</div>
-        <div class="wk-toggle">+</div>
-      </div>
+      <div class="wk"><div class="wk-label current">2026 · Mon, 1 Jun</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 25 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 18 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
+      <div class="wk"><div class="wk-label">2026 · Mon, 11 May</div><div class="wk-pdf">PDF</div><div class="wk-toggle">+</div></div>
     </div>
   </div>
 </div>
