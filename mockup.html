@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WEEKLY BRIEFING — A vs updated B</title>
+<title>WEEKLY BRIEFING — equal gaps above and below</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -41,7 +41,8 @@
   .w-ipad-l{width:1180px}
   .w-desktop{width:1280px}
 
-  /* Masthead */
+  /* Masthead — NEW: padding-bottom 0 so the entire below-gap comes from
+     #tabs.padding-top (12px), matching the new 12px WEEKLY BRIEFING margin-top */
   .masthead{background:#ff6600;color:#fff}
   .utility{display:flex;justify-content:space-between;align-items:center}
   .util-date{color:#fff;font-family:'Inter',sans-serif;font-weight:600;line-height:1;letter-spacing:.05em}
@@ -53,10 +54,12 @@
   .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;text-transform:uppercase;text-align:center;color:#fff;margin-bottom:0;line-height:1.4}
   .eyebrow span{display:block}
 
-  /* WEEKLY BRIEFING line — same family as eyebrow */
-  .weekly{font-family:'Cormorant Garamond',serif;text-transform:uppercase;text-align:center;color:#fff;line-height:1;white-space:nowrap}
+  /* WEEKLY BRIEFING line — same family as eyebrow. Equal 12px gap above
+     and below, with .masthead.padding-bottom:0 + #tabs/.ribbon.padding-top:12. */
+  .weekly{font-family:'Cormorant Garamond',serif;text-transform:uppercase;text-align:center;color:#fff;line-height:1;white-space:nowrap;margin-top:12px}
 
-  .w-iphone .masthead{padding:10px 14px 14px}
+  /* All four platforms now share padding-bottom:0 for the masthead */
+  .w-iphone .masthead{padding:10px 14px 0}
   .w-iphone .utility{margin-bottom:6px}
   .w-iphone .util-date{font-size:12px}
   .w-iphone .avatar{width:32px;height:32px;font-size:13px}
@@ -66,7 +69,7 @@
   .w-iphone .eyebrow .perf{letter-spacing:.18em}
   .w-iphone .eyebrow .intel{letter-spacing:.28em}
 
-  .w-ipad-p .masthead, .w-ipad-l .masthead, .w-desktop .masthead{padding:14px 28px 22px}
+  .w-ipad-p .masthead, .w-ipad-l .masthead, .w-desktop .masthead{padding:14px 28px 0}
   .w-ipad-p .utility, .w-ipad-l .utility, .w-desktop .utility{margin-bottom:10px}
   .w-ipad-p .util-date, .w-ipad-l .util-date, .w-desktop .util-date{font-size:13px}
   .w-ipad-p .avatar, .w-ipad-l .avatar, .w-desktop .avatar{width:36px;height:36px;font-size:14px}
@@ -76,17 +79,17 @@
   .w-ipad-p .eyebrow .perf, .w-ipad-l .eyebrow .perf, .w-desktop .eyebrow .perf{letter-spacing:.2em}
   .w-ipad-p .eyebrow .intel, .w-ipad-l .eyebrow .intel, .w-desktop .eyebrow .intel{letter-spacing:.32em}
 
-  /* Option A — unchanged: 20px iPad+ / 15px phone, weight 700, .4em */
-  .opt-a .weekly{margin-top:14px;font-weight:700;letter-spacing:.4em}
-  .w-iphone.opt-a .weekly{font-size:15px;margin-top:11px}
-  .w-ipad-p.opt-a .weekly,.w-ipad-l.opt-a .weekly,.w-desktop.opt-a .weekly{font-size:20px;margin-top:16px}
+  /* Option A — Large & Bold (unchanged styling) */
+  .opt-a .weekly{font-weight:700;letter-spacing:.4em}
+  .w-iphone.opt-a .weekly{font-size:15px}
+  .w-ipad-p.opt-a .weekly,.w-ipad-l.opt-a .weekly,.w-desktop.opt-a .weekly{font-size:20px}
 
-  /* Option B — UPDATED: more spread, .7em (was .55em). Now clearly wider than INTELLIGENCE. */
-  .opt-b .weekly{margin-top:14px;font-weight:600;letter-spacing:.7em;padding-left:.7em /* offset trailing letter-spacing for visual centring */}
-  .w-iphone.opt-b .weekly{font-size:11px;margin-top:11px}
-  .w-ipad-p.opt-b .weekly,.w-ipad-l.opt-b .weekly,.w-desktop.opt-b .weekly{font-size:15px;margin-top:16px}
+  /* Option B — Medium, re-spread .7em (unchanged styling) */
+  .opt-b .weekly{font-weight:600;letter-spacing:.7em;padding-left:.7em}
+  .w-iphone.opt-b .weekly{font-size:11px}
+  .w-ipad-p.opt-b .weekly,.w-ipad-l.opt-b .weekly,.w-desktop.opt-b .weekly{font-size:15px}
 
-  /* Tab ribbon — live structure: .cat-band wraps #tabs */
+  /* Tab ribbon — live structure */
   .cat-band{background:var(--cat-col);flex-shrink:0}
   .ribbon{background:var(--cat-col);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:12px 16px}
   .ribbon::-webkit-scrollbar{display:none}
@@ -98,7 +101,6 @@
   .w-iphone .tab{padding:7px 12px;font-size:10.5px}
   .tab.on{background:var(--cat-col);color:#fff;border-color:rgba(255,255,255,.9)}
 
-  /* Category band */
   .ci{background:var(--cat-col);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 16px 12px}
   .w-ipad-p .ci,.w-ipad-l .ci,.w-desktop .ci{padding:0 28px 12px}
   .ci .week,.ci .aa{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
@@ -108,12 +110,12 @@
 <body>
 
 <div class="intro">
-  <h1>WEEKLY BRIEFING — A unchanged, B re-spread</h1>
-  <p>Option A unchanged from last mockup. Option B's letter-spacing pushed from <code>.55em</code> to <code>.7em</code> — that takes the line from roughly the same total width as INTELLIGENCE to clearly wider.</p>
+  <h1>WEEKLY BRIEFING — equal 12px gaps above and below</h1>
+  <p>Both A and B with equal gaps above and below the new line. Implementation: <code>masthead.padding-bottom</code> drops to <strong>0</strong> (was 12px on iPad+ / 10px phone), and <code>.weekly.margin-top</code> is <strong>12px</strong>. Total gap above = 12px (margin); total gap below = 0 + #tabs.padding-top (12) = 12px. Pill row moves up by 22px on iPad+ vs the current mockup.</p>
   <table>
-    <tr><th></th><th>Size (iPad+ / phone)</th><th>Weight</th><th>Letter-spacing</th><th>Width vs INTELLIGENCE (iPad+)</th></tr>
-    <tr><td class="h">A · Large &amp; Bold</td><td>20px / 15px</td><td>700</td><td>.4em</td><td class="match">~34px wider ✓</td></tr>
-    <tr><td class="h">B · Medium, re-spread</td><td>15px / 11px</td><td>600</td><td>.7em</td><td class="match">~34px wider ✓</td></tr>
+    <tr><th></th><th>Style</th><th>Gap above</th><th>Gap below</th></tr>
+    <tr><td class="h">A · Large &amp; Bold</td><td>20/15px · weight 700 · .4em</td><td class="match">12px ✓</td><td class="match">12px ✓</td></tr>
+    <tr><td class="h">B · Medium re-spread</td><td>15/11px · weight 600 · .7em</td><td class="match">12px ✓</td><td class="match">12px ✓</td></tr>
   </table>
   <p class="status"><strong>PROPOSED</strong> — not yet live. Tap any pill to confirm presentation against category-colour transitions.</p>
 </div>
@@ -123,7 +125,7 @@
   <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 15px / weight 700 / .4em (unchanged)</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 15px · weight 700 · .4em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-iphone">
         <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -139,7 +141,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 11px / weight 600 / .7em (re-spread, wider than INTELLIGENCE)</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 11px · weight 600 · .7em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-iphone">
         <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -160,7 +162,7 @@
   <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px / weight 700 / .4em (unchanged)</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px · weight 700 · .4em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-ipad-p">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -178,7 +180,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px / weight 600 / .7em (re-spread)</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px · weight 600 · .7em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-ipad-p">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -201,7 +203,7 @@
   <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px / weight 700 / .4em (unchanged)</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px · weight 700 · .4em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-ipad-l">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -219,7 +221,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px / weight 600 / .7em (re-spread)</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px · weight 600 · .7em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-ipad-l">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -242,7 +244,7 @@
   <div class="platform-header"><p class="platform-label">Desktop · 1280 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px / weight 700 / .4em (unchanged)</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px · weight 700 · .4em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-desktop">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
@@ -260,7 +262,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px / weight 600 / .7em (re-spread)</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px · weight 600 · .7em · 12px gaps</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-desktop">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
