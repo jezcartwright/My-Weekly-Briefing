@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Week-row symmetry — current vs proposed</title>
+<title>Full vertical rhythm symmetry — current vs options</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -15,6 +15,7 @@
   .intro th{text-align:left;padding:8px 12px;background:#f5f1eb;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#666}
   .intro td{padding:8px 12px;border-top:1px solid #ece8e0}
   .intro td.h{font-weight:700;color:#1a1a1a}
+  .intro td.match{color:#15803d;font-weight:600}
   .status{font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px}
   .status strong{color:#1a1a1a}
 
@@ -41,7 +42,7 @@
   .w-ipad-l{width:1180px}
   .w-desktop{width:1280px}
 
-  /* Masthead */
+  /* Masthead — three variants for padding-bottom (the gap above pills) */
   .masthead{background:#ff6600;color:#fff}
   .utility{display:flex;justify-content:space-between;align-items:center}
   .util-date{font-family:'Inter',sans-serif;font-weight:600;color:#fff}
@@ -53,7 +54,7 @@
   .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;text-transform:uppercase;text-align:center;color:#fff;margin-bottom:0;line-height:1.4}
   .eyebrow span{display:block}
 
-  .w-iphone .masthead{padding:10px 14px 14px}
+  .w-iphone .masthead{padding-left:14px;padding-right:14px;padding-top:10px}
   .w-iphone .utility{margin-bottom:6px}
   .w-iphone .util-date{font-size:12px}
   .w-iphone .avatar{width:32px;height:32px;font-size:13px}
@@ -63,7 +64,7 @@
   .w-iphone .eyebrow .perf{letter-spacing:.18em}
   .w-iphone .eyebrow .intel{letter-spacing:.28em}
 
-  .w-ipad-p .masthead, .w-ipad-l .masthead, .w-desktop .masthead{padding:14px 28px 22px}
+  .w-ipad-p .masthead, .w-ipad-l .masthead, .w-desktop .masthead{padding-left:28px;padding-right:28px;padding-top:14px}
   .w-ipad-p .utility, .w-ipad-l .utility, .w-desktop .utility{margin-bottom:10px}
   .w-ipad-p .util-date, .w-ipad-l .util-date, .w-desktop .util-date{font-size:13px}
   .w-ipad-p .avatar, .w-ipad-l .avatar, .w-desktop .avatar{width:36px;height:36px;font-size:14px}
@@ -73,7 +74,7 @@
   .w-ipad-p .eyebrow .perf, .w-ipad-l .eyebrow .perf, .w-desktop .eyebrow .perf{letter-spacing:.2em}
   .w-ipad-p .eyebrow .intel, .w-ipad-l .eyebrow .intel, .w-desktop .eyebrow .intel{letter-spacing:.32em}
 
-  /* Tab ribbon — background takes category colour. NO border. */
+  /* Tab ribbon — kept SYMMETRIC at 12/12 vertical for pill breathing */
   .ribbon{background:var(--cat-col);overflow-x:auto;-webkit-overflow-scrolling:touch;transition:background .35s ease;padding:12px 16px}
   .ribbon::-webkit-scrollbar{display:none}
   .w-ipad-p .ribbon, .w-ipad-l .ribbon, .w-desktop .ribbon{padding:12px 28px;text-align:center}
@@ -84,36 +85,44 @@
   .w-iphone .tab{padding:7px 12px;font-size:10.5px}
   .tab.on{background:var(--cat-col);color:#fff;border-color:rgba(255,255,255,.9)}
 
-  /* Category band — three variants for padding */
-  .ci{background:var(--cat-col);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .35s ease,padding .15s ease}
-  .w-ipad-p .ci, .w-ipad-l .ci, .w-desktop .ci{padding:14px 28px}
+  /* Category band */
+  .ci{background:var(--cat-col);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .35s ease,padding .15s ease;padding-left:16px;padding-right:16px}
+  .w-ipad-p .ci, .w-ipad-l .ci, .w-desktop .ci{padding-left:28px;padding-right:28px}
   .ci .week, .ci .aa{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
   .ci .aa{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;letter-spacing:0;text-transform:none}
 
-  /* Phone padding overrides — none here, default applies */
-
-  /* CURRENT — pt:14, pb:14 → ABOVE=12+14=26, BELOW=14 (ASYMMETRIC) */
+  /* CURRENT — hdr.pb=12, .ci pad-top=14, .ci pad-bottom=14 */
+  /* Gaps: ABOVE pills = 12+12=24 | BELOW pills = 12+14=26 | BELOW WEEK = 14 */
+  .opt-current .masthead{padding-bottom:12px}
   .opt-current .ci{padding-top:14px;padding-bottom:14px}
 
-  /* Option A — pt:0, pb:12 → ABOVE=12+0=12, BELOW=12 (TIGHT SYMMETRY) */
+  /* Option A — hdr.pb=0, .ci pad-top=0, .ci pad-bottom=12 */
+  /* Gaps: ABOVE pills = 0+12=12 ✓ | BELOW pills = 12+0=12 ✓ | BELOW WEEK = 12 ✓ */
+  .opt-a .masthead{padding-bottom:0}
   .opt-a .ci{padding-top:0;padding-bottom:12px}
 
-  /* Option B — pt:4, pb:16 → ABOVE=12+4=16, BELOW=16 (MODERATE SYMMETRY) */
+  /* Option B — hdr.pb=4, .ci pad-top=4, .ci pad-bottom=16 */
+  /* Gaps: ABOVE pills = 4+12=16 ✓ | BELOW pills = 12+4=16 ✓ | BELOW WEEK = 16 ✓ */
+  .opt-b .masthead{padding-bottom:4px}
   .opt-b .ci{padding-top:4px;padding-bottom:16px}
+
+  /* iPhone overrides for current's pb (live phone uses hdr.pb:10) */
+  .opt-current.w-iphone .masthead{padding-bottom:10px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Week-row symmetry — three options compared</h1>
-  <p>The orange space above WEEK 23 currently combines <code>#tabs</code> bottom-padding (12px) + <code>.ci</code> top-padding (14px) = <strong>26px</strong>. The space below is just <code>.ci</code> bottom-padding = <strong>14px</strong>. Result: asymmetric, with more space above than below.</p>
+  <h1>Full vertical rhythm — all four gaps equal</h1>
+  <p>Extending the symmetry to include the gap <em>above</em> the pills (between "INTELLIGENCE" and the pill row). All four gaps in the chosen orange-rhythm now use the same value G.</p>
   <table>
-    <tr><th></th><th>.ci padding-top</th><th>.ci padding-bottom</th><th>Above gap</th><th>Below gap</th><th>Header change</th></tr>
-    <tr><td class="h">Current</td><td>14px</td><td>14px</td><td>26px</td><td>14px</td><td>—</td></tr>
-    <tr><td class="h">Option A · tight</td><td>0</td><td>12px</td><td>12px ✓</td><td>12px ✓</td><td>–16px shorter</td></tr>
-    <tr><td class="h">Option B · moderate</td><td>4px</td><td>16px</td><td>16px ✓</td><td>16px ✓</td><td>–8px shorter</td></tr>
+    <tr><th></th><th>Above pills</th><th>Below pills</th><th>Below WEEK 23</th><th>Header change</th></tr>
+    <tr><td class="h">Current</td><td>24px (iPad+)</td><td>26px</td><td>14px</td><td>—</td></tr>
+    <tr><td class="h">Option A · tight</td><td class="match">12px ✓</td><td class="match">12px ✓</td><td class="match">12px ✓</td><td>–28px shorter</td></tr>
+    <tr><td class="h">Option B · moderate</td><td class="match">16px ✓</td><td class="match">16px ✓</td><td class="match">16px ✓</td><td>–16px shorter</td></tr>
   </table>
-  <p class="status"><strong>PROPOSED</strong> — not yet live. Tap any pill in any frame to verify the symmetry transitions correctly with category colour.</p>
+  <p>Implementation: keep <code>#tabs</code> symmetric at 12/12 around pills; change <code>#hdr.padding-bottom</code> to G−12; change <code>.ci.padding-top</code> to G−12; change <code>.ci.padding-bottom</code> to G.</p>
+  <p class="status"><strong>PROPOSED</strong> — not yet live. Tap any pill in any frame to confirm symmetry holds across category colours.</p>
 </div>
 
 <!-- iPhone -->
@@ -121,7 +130,7 @@
   <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 22 / 26 / 14 px</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-current w-iphone">
         <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -137,7 +146,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal both sides, header 16px shorter</span></p>
+    <p class="row-label opt"><span class="tag">A</span><span class="detail">12 / 12 / 12 — header 28px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-iphone">
         <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -153,7 +162,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal both sides, header 8px shorter</span></p>
+    <p class="row-label opt"><span class="tag">B</span><span class="detail">16 / 16 / 16 — header 16px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-iphone">
         <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -174,7 +183,7 @@
   <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 24 / 26 / 14 px</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-current w-ipad-p">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -192,7 +201,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal, header 16px shorter</span></p>
+    <p class="row-label opt"><span class="tag">A</span><span class="detail">12 / 12 / 12 — header 28px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-ipad-p">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -210,7 +219,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal, header 8px shorter</span></p>
+    <p class="row-label opt"><span class="tag">B</span><span class="detail">16 / 16 / 16 — header 16px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-ipad-p">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -233,7 +242,7 @@
   <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 24 / 26 / 14 px</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-current w-ipad-l">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -251,7 +260,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal, header 16px shorter</span></p>
+    <p class="row-label opt"><span class="tag">A</span><span class="detail">12 / 12 / 12 — header 28px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-ipad-l">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -269,7 +278,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal, header 8px shorter</span></p>
+    <p class="row-label opt"><span class="tag">B</span><span class="detail">16 / 16 / 16 — header 16px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-ipad-l">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -292,7 +301,7 @@
   <div class="platform-header"><p class="platform-label">Desktop · 1280 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 24 / 26 / 14 px</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-current w-desktop">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -310,7 +319,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal, header 16px shorter</span></p>
+    <p class="row-label opt"><span class="tag">A</span><span class="detail">12 / 12 / 12 — header 28px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-desktop">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
@@ -328,7 +337,7 @@
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal, header 8px shorter</span></p>
+    <p class="row-label opt"><span class="tag">B</span><span class="detail">16 / 16 / 16 — header 16px shorter</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-desktop">
         <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
