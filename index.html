@@ -546,21 +546,55 @@ function initTurnstile() {
   if (!TURNSTILE_SITE_KEY) return;
   var div = document.getElementById('turnstile-widget');
   if (!div) return;
-  div.style.display = 'block';
+  // Reset state for this attempt (user may revisit login screen on sign-out)
+  turnstileToken = "";
+  window._turnstileFailed = false;
+  // Keep widget hidden until it actually renders (avoids blank-box flash if CF slow)
+  div.style.display = 'none';
+  // Graceful degradation: if Turnstile script/widget fails or times out, allow login
+  // to proceed. The hidden honeypot field still catches simple bots; server-side
+  // Turnstile verification (pending) is a separate, stronger defence layer.
+  var TURNSTILE_TIMEOUT_MS = 8000;
+  var failTimer = setTimeout(function(){
+    if (!turnstileToken) {
+      window._turnstileFailed = true;
+      try { console.warn('[Turnstile] Timeout after ' + TURNSTILE_TIMEOUT_MS + 'ms — falling back; honeypot still active'); } catch(e){}
+    }
+  }, TURNSTILE_TIMEOUT_MS);
   // Load Turnstile script if not already
   if (!document.getElementById('cf-turnstile-script')) {
     var s = document.createElement('script');
     s.id = 'cf-turnstile-script';
     s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad';
     s.async = true; s.defer = true;
+    s.onerror = function(){
+      window._turnstileFailed = true;
+      try { console.warn('[Turnstile] Script failed to load — falling back; honeypot still active'); } catch(e){}
+      clearTimeout(failTimer);
+    };
     document.head.appendChild(s);
   }
   window.onTurnstileLoad = function() {
-    if (!window.turnstile) return;
+    if (!window.turnstile) {
+      window._turnstileFailed = true;
+      try { console.warn('[Turnstile] window.turnstile missing after script load — falling back'); } catch(e){}
+      clearTimeout(failTimer);
+      return;
+    }
+    // Widget code ready — reveal div and render
+    div.style.display = 'block';
     window.turnstile.render('#turnstile-widget', {
       sitekey: TURNSTILE_SITE_KEY,
-      callback: function(token) { turnstileToken = token; },
-      'error-callback': function() { turnstileToken = ''; },
+      callback: function(token) {
+        turnstileToken = token;
+        clearTimeout(failTimer);
+      },
+      'error-callback': function() {
+        turnstileToken = '';
+        window._turnstileFailed = true;
+        try { console.warn('[Turnstile] Widget reported error — falling back'); } catch(e){}
+        clearTimeout(failTimer);
+      },
       'expired-callback': function() { turnstileToken = ''; },
     });
   };
@@ -623,8 +657,10 @@ window.sendMagicLink = function() {
   if(hp){ msg.textContent = 'Something went wrong. Please reload and try again.'; return; }
   if(!fname){ msg.textContent = 'Please enter your first name.'; return; }
   if(!email || !email.includes('@')){ msg.textContent = 'Please enter a valid email.'; return; }
-  // Turnstile: require a valid token if site key is configured
-  if(TURNSTILE_SITE_KEY && !turnstileToken){
+  // Turnstile: require a valid token if site key is configured AND Turnstile
+  // didn't gracefully fail (script load error, timeout, or widget error). Honeypot
+  // field above still blocks simple bots even in fallback.
+  if(TURNSTILE_SITE_KEY && !turnstileToken && !window._turnstileFailed){
     msg.textContent = 'Please complete the security check above.'; return;
   }
   msg.textContent = 'Sending...';
