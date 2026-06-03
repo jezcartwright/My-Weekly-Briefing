@@ -133,9 +133,7 @@ html.login-active{background:var(--orange)}
 .mi#btn-textsize .aa-s,.mi#btn-textsize .aa-l,.mi#btn-textsize .aa-x{display:none}
 .mi-divider{height:1px;background:#ece8e0;margin:4px 6px}
 
-/* Legacy .user-avatar styles kept — JS at line 754 sets the image inside the avatar */
-.user-avatar{font-family:'Inter',sans-serif;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
-.user-avatar img{width:100%;height:100%;object-fit:cover}
+/* .user-avatar class kept on element for backward compat with JS; styling now fully delegated to .avatar-btn */
 
 /* Views */
 #vt,#vl,#vk,#vn{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
@@ -150,10 +148,14 @@ html.login-active{background:var(--orange)}
 .tab.on{background:var(--strip-c);color:#fff;border-color:rgba(255,255,255,0.9)}
 .tab .tab-ico{display:none}
 .sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
-/* Category banner — coloured band per category (set inline via background) */
-.ci{margin:-18px -16px 16px;padding:14px 16px;background:var(--cat-color,#EFE9DD);color:#fff;overflow:hidden;position:relative;text-align:right}
+/* Category banner — week left, Aa text-size toggle right (flex space-between) */
+.ci{margin:-18px -16px 16px;padding:14px 16px;background:var(--cat-color,#EFE9DD);color:#fff;overflow:hidden;position:relative;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .ci .ico{display:none}
-.ci .cw{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;display:inline-block;white-space:nowrap}
+.ci .cw{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;white-space:nowrap}
+.ci .aa-toggle{background:transparent;border:none;color:#fff;font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;line-height:1;cursor:pointer;padding:4px 10px;border-radius:4px;transition:background .15s;text-transform:none;letter-spacing:0}
+.ci .aa-toggle:hover{background:rgba(255,255,255,0.18)}
+.ci .aa-toggle.on{background:rgba(255,255,255,0.22)}
+.ci .aa-toggle.on-xl{background:rgba(255,255,255,0.32)}
 @media(min-width:720px){
   .ci{padding:14px 28px}
 }
@@ -433,7 +435,6 @@ body.text-xlarge .ne-quote{font-size:15px}
           <button class="mi" id="btn-notes" onclick="showView('notes')"><span class="ico">✏️</span>My Notes</button>
           <button class="mi" id="btn-likes" onclick="showView('likes')"><span class="ico">♥</span>Liked</button>
           <button class="mi" id="btn-lib" onclick="showView('library')"><span class="ico">◫</span>Library</button>
-          <button class="mi" id="btn-textsize" onclick="toggleTextSize()"><span class="ico ico-aa">Aa</span>Text size<span class="aa-s"></span><span class="aa-l"></span><span class="aa-x"></span></button>
         </div>
       </div>
     </div>
@@ -1174,9 +1175,15 @@ window.addEventListener('resize', function(){ requestAnimationFrame(setLabelAxis
 function rto(){
   var tops=gt(ac.id);
   var darkColor = ac.color;  // Unified: labels and numbers use banner colour, not colorDark
+  // Determine current text-size state so the new in-banner Aa toggle reflects it
+  var aaClass='';
+  if(document.body.classList.contains('text-xlarge')) aaClass=' on on-xl';
+  else if(document.body.classList.contains('text-large')) aaClass=' on';
   document.getElementById('ts').innerHTML=
     '<div class="ci" style="--cat-color:'+ac.color+'">'+
-    '<div class="cw">Week '+getWeekNumber()+'</div></div>'+
+    '<div class="cw">Week '+getWeekNumber()+'</div>'+
+    '<button type="button" class="aa-toggle'+aaClass+'" onclick="toggleTextSize()" id="btn-textsize" aria-label="Text size">Aa</button>'+
+    '</div>'+
     '<div class="tl">'+tops.map(function(t,i){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
@@ -1610,8 +1617,10 @@ window.toggleTextSize=function(){
     b.classList.add('text-large');
     nextState='large';
   }
-  btn.classList.toggle('on', nextState !== 'default');
-  btn.classList.toggle('on-xl', nextState === 'xlarge');
+  if(btn){
+    btn.classList.toggle('on', nextState !== 'default');
+    btn.classList.toggle('on-xl', nextState === 'xlarge');
+  }
   try{localStorage.setItem('exec_brief_v3_text_size', nextState);}catch(e){}
 };
 
@@ -1653,8 +1662,8 @@ window.initApp=function(){
   document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try{
     var ts=localStorage.getItem('exec_brief_v3_text_size');
-    if(ts==='large'){document.body.classList.add('text-large');document.getElementById('btn-textsize').classList.add('on');}
-    else if(ts==='xlarge'){document.body.classList.add('text-xlarge');document.getElementById('btn-textsize').classList.add('on');document.getElementById('btn-textsize').classList.add('on-xl');}
+    if(ts==='large'){document.body.classList.add('text-large');var _bt=document.getElementById('btn-textsize');if(_bt)_bt.classList.add('on');}
+    else if(ts==='xlarge'){document.body.classList.add('text-xlarge');var _bt2=document.getElementById('btn-textsize');if(_bt2){_bt2.classList.add('on');_bt2.classList.add('on-xl');}}
   }catch(e){}
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
   // One-time refresh: for last week (2026-05-04) replace any stored topics with
