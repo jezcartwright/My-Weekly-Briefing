@@ -350,15 +350,6 @@ html.login-active{background:var(--orange)}
   .pdf-cat-body{padding:24px 16px 28px}
   .pdf-topic{padding:20px 18px 18px}
 }
-/* Phone + iPad portrait: drop the 30px left indent on body content
-   inside .pdf-topic so headline + two-column extend to the card's
-   inner edge — matches live-site visual width (live body has no
-   margin-left). Desktop/iPad landscape keep the indent. */
-@media(max-width:1024px){
-  .pdf-topic-hl{margin-left:0}
-  .pdf-two{margin-left:0}
-  .pdf-deeper{padding-left:0}
-}
 /* Category banner — coloured band per category (set via --cat-color inline) */
 .pdf-cat-section{margin-bottom:0}
 .pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:16px 40px;background:var(--cat-color,#EFE9DD);border-bottom:1px solid rgba(0,0,0,0.06);margin:0}
@@ -382,6 +373,17 @@ html.login-active{background:var(--orange)}
 .pdf-di::before{content:"";display:inline-block;width:6px;height:6px;background:var(--bullet,var(--orange));flex-shrink:0;margin-top:6px}
 .pdf-di a{color:#A0530B;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:0.5px}
 .pdf-footer{text-align:center;padding:16px 40px 20px;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;color:#8E857C;border-top:1px solid #E0D8CB;background:#FBF8F2}
+/* Phone + iPad portrait: drop the 30px left indent on .pdf-topic body
+   content so headline, two-column and deeper-cut extend to the card's
+   inner edge — matches the live-site visual width. Placed AFTER the
+   default rules above so the shorthand `margin: 0 0 14px 30px` doesn't
+   overwrite margin-left via the cascade. Desktop/iPad landscape (>1024)
+   keep the indent. */
+@media(max-width:1024px){
+  .pdf-topic-hl{margin-left:0}
+  .pdf-two{margin-left:0}
+  .pdf-deeper{padding-left:0}
+}
 /* Larger reading text — Aa pill toggle */
 /* large: body at 14px, everything proportional */
 body.text-large .tt{font-size:18px}
