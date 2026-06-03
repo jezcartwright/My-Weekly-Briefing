@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Week-row symmetry — current vs proposed</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>WEEKLY BRIEFING placement — three options</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
   body{font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;margin:0;padding:24px 0 64px;-webkit-font-smoothing:antialiased}
@@ -24,8 +24,7 @@
 
   .frame-row{padding:14px 0 4px}
   .row-label{max-width:760px;margin:0 auto 6px;padding:0 16px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#666}
-  .row-label .tag{display:inline-block;color:#fff;background:#888;padding:2px 7px;border-radius:3px;margin-right:8px;font-size:10px}
-  .row-label.opt .tag{background:#ff6600}
+  .row-label .tag{display:inline-block;color:#fff;background:#ff6600;padding:2px 7px;border-radius:3px;margin-right:8px;font-size:10px}
   .row-label .detail{color:#999;font-weight:500;letter-spacing:.4px;text-transform:none}
 
   .scroll-row{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -44,7 +43,7 @@
   /* Masthead */
   .masthead{background:#ff6600;color:#fff}
   .utility{display:flex;justify-content:space-between;align-items:center}
-  .util-date{font-family:'Inter',sans-serif;font-weight:600;color:#fff}
+  .util-date{color:#fff;font-family:'Inter',sans-serif;font-weight:600;line-height:1;letter-spacing:.05em}
   .util-right{display:flex;align-items:center;gap:8px}
   .avatar{border-radius:50%;background:#3a2818;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:700;color:#fff;overflow:hidden;border:none}
   .ham{border-radius:50%;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;color:#fff;border:none;font-weight:300;cursor:pointer}
@@ -52,6 +51,9 @@
   .pi-logo{font-family:'Cormorant Garamond',serif;font-weight:700;line-height:1;color:#fff}
   .eyebrow{font-family:'Cormorant Garamond',serif;font-weight:700;text-transform:uppercase;text-align:center;color:#fff;margin-bottom:0;line-height:1.4}
   .eyebrow span{display:block}
+
+  /* NEW — WEEKLY BRIEFING line, three style variants */
+  .weekly{font-family:'Cormorant Garamond',serif;text-transform:uppercase;text-align:center;color:#fff;line-height:1;white-space:nowrap}
 
   .w-iphone .masthead{padding:10px 14px 14px}
   .w-iphone .utility{margin-bottom:6px}
@@ -73,10 +75,26 @@
   .w-ipad-p .eyebrow .perf, .w-ipad-l .eyebrow .perf, .w-desktop .eyebrow .perf{letter-spacing:.2em}
   .w-ipad-p .eyebrow .intel, .w-ipad-l .eyebrow .intel, .w-desktop .eyebrow .intel{letter-spacing:.32em}
 
-  /* Tab ribbon — background takes category colour. NO border. */
-  .ribbon{background:var(--cat-col);overflow-x:auto;-webkit-overflow-scrolling:touch;transition:background .35s ease;padding:12px 16px}
+  /* Option A — Large & Bold (20px iPad+ / 15px phone, weight 700, .4em) */
+  .opt-a .weekly{margin-top:14px;font-weight:700;letter-spacing:.4em}
+  .w-iphone.opt-a .weekly{font-size:15px;margin-top:11px}
+  .w-ipad-p.opt-a .weekly,.w-ipad-l.opt-a .weekly,.w-desktop.opt-a .weekly{font-size:20px;margin-top:16px}
+
+  /* Option B — Medium (15px iPad+ / 11px phone, weight 600, .55em) */
+  .opt-b .weekly{margin-top:14px;font-weight:600;letter-spacing:.55em}
+  .w-iphone.opt-b .weekly{font-size:11px;margin-top:11px}
+  .w-ipad-p.opt-b .weekly,.w-ipad-l.opt-b .weekly,.w-desktop.opt-b .weekly{font-size:15px;margin-top:16px}
+
+  /* Option C — Small & Light, very spread (11px iPad+ / 9px phone, weight 400, .9em) */
+  .opt-c .weekly{margin-top:16px;font-weight:400;letter-spacing:.9em;padding-left:.9em /* offset trailing letter-spacing visually */}
+  .w-iphone.opt-c .weekly{font-size:9px;margin-top:13px}
+  .w-ipad-p.opt-c .weekly,.w-ipad-l.opt-c .weekly,.w-desktop.opt-c .weekly{font-size:11px;margin-top:17px}
+
+  /* Tab ribbon — uses the live structure: .cat-band wraps #tabs */
+  .cat-band{background:var(--cat-col);flex-shrink:0}
+  .ribbon{background:var(--cat-col);overflow-x:auto;-webkit-overflow-scrolling:touch;padding:12px 16px}
   .ribbon::-webkit-scrollbar{display:none}
-  .w-ipad-p .ribbon, .w-ipad-l .ribbon, .w-desktop .ribbon{padding:12px 28px;text-align:center}
+  .w-ipad-p .ribbon,.w-ipad-l .ribbon,.w-desktop .ribbon{padding:12px 28px;text-align:center}
   .w-iphone .ribbon{text-align:left}
   .tabs{display:inline-flex;gap:8px}
   .w-iphone .tabs{gap:6px}
@@ -84,36 +102,25 @@
   .w-iphone .tab{padding:7px 12px;font-size:10.5px}
   .tab.on{background:var(--cat-col);color:#fff;border-color:rgba(255,255,255,.9)}
 
-  /* Category band — three variants for padding */
-  .ci{background:var(--cat-col);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:background .35s ease,padding .15s ease}
-  .w-ipad-p .ci, .w-ipad-l .ci, .w-desktop .ci{padding:14px 28px}
-  .ci .week, .ci .aa{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
+  /* Category band */
+  .ci{background:var(--cat-col);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 16px 12px}
+  .w-ipad-p .ci,.w-ipad-l .ci,.w-desktop .ci{padding:0 28px 12px}
+  .ci .week,.ci .aa{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
   .ci .aa{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:18px;letter-spacing:0;text-transform:none}
-
-  /* Phone padding overrides — none here, default applies */
-
-  /* CURRENT — pt:14, pb:14 → ABOVE=12+14=26, BELOW=14 (ASYMMETRIC) */
-  .opt-current .ci{padding-top:14px;padding-bottom:14px}
-
-  /* Option A — pt:0, pb:12 → ABOVE=12+0=12, BELOW=12 (TIGHT SYMMETRY) */
-  .opt-a .ci{padding-top:0;padding-bottom:12px}
-
-  /* Option B — pt:4, pb:16 → ABOVE=12+4=16, BELOW=16 (MODERATE SYMMETRY) */
-  .opt-b .ci{padding-top:4px;padding-bottom:16px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Week-row symmetry — three options compared</h1>
-  <p>The orange space above WEEK 23 currently combines <code>#tabs</code> bottom-padding (12px) + <code>.ci</code> top-padding (14px) = <strong>26px</strong>. The space below is just <code>.ci</code> bottom-padding = <strong>14px</strong>. Result: asymmetric, with more space above than below.</p>
+  <h1>WEEKLY BRIEFING — three style options</h1>
+  <p>Added between INTELLIGENCE and the pill row, inside the masthead (always orange). Same font family as the eyebrow (Cormorant Garamond), uppercase, centred, white. All three options use letter-spacing wider than INTELLIGENCE's <code>.32em</code> so the line spreads visibly wider than INTELLIGENCE.</p>
   <table>
-    <tr><th></th><th>.ci padding-top</th><th>.ci padding-bottom</th><th>Above gap</th><th>Below gap</th><th>Header change</th></tr>
-    <tr><td class="h">Current</td><td>14px</td><td>14px</td><td>26px</td><td>14px</td><td>—</td></tr>
-    <tr><td class="h">Option A · tight</td><td>0</td><td>12px</td><td>12px ✓</td><td>12px ✓</td><td>–16px shorter</td></tr>
-    <tr><td class="h">Option B · moderate</td><td>4px</td><td>16px</td><td>16px ✓</td><td>16px ✓</td><td>–8px shorter</td></tr>
+    <tr><th></th><th>Size (iPad+ / phone)</th><th>Weight</th><th>Letter-spacing</th><th>Character</th></tr>
+    <tr><td class="h">A · Large &amp; Bold</td><td>20px / 15px</td><td>700</td><td>.4em</td><td>Strong secondary headline</td></tr>
+    <tr><td class="h">B · Medium</td><td>15px / 11px</td><td>600</td><td>.55em</td><td>Balanced spread label</td></tr>
+    <tr><td class="h">C · Small &amp; Light</td><td>11px / 9px</td><td>400</td><td>.9em</td><td>Airy magazine-style strap</td></tr>
   </table>
-  <p class="status"><strong>PROPOSED</strong> — not yet live. Tap any pill in any frame to verify the symmetry transitions correctly with category colour.</p>
+  <p class="status"><strong>PROPOSED</strong> — not yet live. Tap any pill in any frame to confirm the new line's presentation against category-colour transitions.</p>
 </div>
 
 <!-- iPhone -->
@@ -121,49 +128,49 @@
   <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device opt-current w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal both sides, header 16px shorter</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 15px / weight 700 / .4em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
           <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal both sides, header 8px shorter</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 11px / weight 600 / .55em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
           <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="frame-row">
+    <p class="row-label"><span class="tag">C</span><span class="detail">small &amp; light · 9px / weight 400 / .9em (airy)</span></p>
+    <div class="scroll-row"><div class="row-inner">
+      <div class="frame"><div class="device opt-c w-iphone">
+        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Tech</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
@@ -174,29 +181,11 @@
   <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device opt-current w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal, header 16px shorter</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px / weight 700 / .4em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
@@ -204,17 +193,17 @@
           <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
           <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal, header 8px shorter</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px / weight 600 / .55em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
@@ -222,7 +211,25 @@
           <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
           <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="frame-row">
+    <p class="row-label"><span class="tag">C</span><span class="detail">small &amp; light · 11px / weight 400 / .9em (airy)</span></p>
+    <div class="scroll-row"><div class="row-inner">
+      <div class="frame"><div class="device opt-c w-ipad-p">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
@@ -233,29 +240,11 @@
   <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device opt-current w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal, header 16px shorter</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px / weight 700 / .4em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
@@ -263,17 +252,17 @@
           <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
           <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal, header 8px shorter</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px / weight 600 / .55em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
@@ -281,7 +270,25 @@
           <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
           <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="frame-row">
+    <p class="row-label"><span class="tag">C</span><span class="detail">small &amp; light · 11px / weight 400 / .9em (airy)</span></p>
+    <div class="scroll-row"><div class="row-inner">
+      <div class="frame"><div class="device opt-c w-ipad-l">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
@@ -292,29 +299,11 @@
   <div class="platform-header"><p class="platform-label">Desktop · 1280 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">asymmetric — 26px above / 14px below</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device opt-current w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
-          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
-          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
-          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
-          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
-          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
-          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
-        </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label opt"><span class="tag">A</span><span class="detail">tight — 12px equal, header 16px shorter</span></p>
+    <p class="row-label"><span class="tag">A</span><span class="detail">large &amp; bold · 20px / weight 700 / .4em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-a w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
@@ -322,17 +311,17 @@
           <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
           <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label opt"><span class="tag">B</span><span class="detail">moderate — 16px equal, header 8px shorter</span></p>
+    <p class="row-label"><span class="tag">B</span><span class="detail">medium · 15px / weight 600 / .55em</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device opt-b w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div></div></div>
-        <div class="ribbon"><div class="tabs">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
           <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
           <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
           <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
@@ -340,7 +329,25 @@
           <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
           <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
         </div></div>
-        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
+      </div></div>
+    </div></div>
+  </div>
+
+  <div class="frame-row">
+    <p class="row-label"><span class="tag">C</span><span class="detail">small &amp; light · 11px / weight 400 / .9em (airy)</span></p>
+    <div class="scroll-row"><div class="row-inner">
+      <div class="frame"><div class="device opt-c w-desktop">
+        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="weekly">Weekly Briefing</div></div></div>
+        <div class="cat-band"><div class="ribbon"><div class="tabs">
+          <span class="tab on" style="--col:#ff6600" data-cat="#ff6600">Leadership</span>
+          <span class="tab" style="--col:#1e3a8a" data-cat="#1e3a8a">Markets</span>
+          <span class="tab" style="--col:#c8102e" data-cat="#c8102e">Psychology</span>
+          <span class="tab" style="--col:#0891b2" data-cat="#0891b2">Technology</span>
+          <span class="tab" style="--col:#7c3aed" data-cat="#7c3aed">Geopolitics</span>
+          <span class="tab" style="--col:#15803d" data-cat="#15803d">Philosophy</span>
+        </div></div>
+        <div class="ci"><div class="week">Week 23</div><div class="aa">Aa</div></div></div>
       </div></div>
     </div></div>
   </div>
