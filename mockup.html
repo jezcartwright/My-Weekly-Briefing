@@ -3,243 +3,429 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PDF view — widen content to match live-site feel</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>PDF banner = landing banner — width proof</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box}
-  body{font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;margin:0;padding:24px 0 64px;-webkit-font-smoothing:antialiased}
-  .intro{max-width:760px;margin:0 auto 24px;padding:0 16px}
-  .intro h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 8px}
-  .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5}
-  .intro table{width:100%;border-collapse:collapse;margin:12px 0;font-family:'Inter',sans-serif;font-size:13px}
-  .intro th{text-align:left;padding:8px 12px;background:#f5f1eb;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#666}
-  .intro td{padding:8px 12px;border-top:1px solid #ece8e0}
-  .intro td.h{font-weight:700;color:#1a1a1a}
-  .intro td.match{color:#15803d;font-weight:600}
-  .intro code{background:#f0ebdf;padding:1px 5px;border-radius:3px;font-size:12px}
-  .status{font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px}
-  .status strong{color:#1a1a1a}
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px; background:#262626; font-family:'Inter',sans-serif; color:#eee; }
+  h1 { margin:0 0 6px; font-size:18px; font-weight:600; letter-spacing:.01em; }
+  .sub { color:#bbb; font-size:13px; margin:0 0 24px; line-height:1.5; }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; margin:14px 0 28px; font-size:12px; }
+  .legend > div { display:flex; align-items:center; gap:6px; }
+  .swatch { width:20px; height:2px; background:repeating-linear-gradient(90deg, currentColor 0, currentColor 4px, transparent 4px, transparent 7px); }
 
-  .platform-section{margin:48px 0 0;padding:24px 0;background:rgba(0,0,0,.02)}
-  .platform-header{max-width:760px;margin:0 auto 16px;padding:0 16px}
-  .platform-label{font-family:'Inter',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;margin:0 0 4px}
+  .platforms { display:flex; gap:48px; padding-bottom:60px; }
+  .platform { flex:0 0 auto; }
+  .platform-label { color:#fff; font-size:14px; font-weight:600; margin-bottom:10px; letter-spacing:.02em; }
+  .platform-sub { color:#aaa; font-size:11px; margin-bottom:14px; }
 
-  .frame-row{padding:14px 0 4px}
-  .row-label{max-width:760px;margin:0 auto 6px;padding:0 16px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#666}
-  .row-label .tag{display:inline-block;color:#fff;background:#888;padding:2px 7px;border-radius:3px;margin-right:8px;font-size:10px}
-  .row-label.new .tag{background:#15803d}
-  .row-label .detail{color:#999;font-weight:500;letter-spacing:.4px;text-transform:none}
+  .pair { position:relative; }
+  .phone-label { color:#bbb; font-size:11px; font-weight:600; margin:12px 0 8px; letter-spacing:.05em; text-transform:uppercase; }
+  .phone { background:#fff; border-radius:0; box-shadow:0 0 0 1px #444; }
 
-  .scroll-row{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .scroll-row::-webkit-scrollbar{height:8px}
-  .scroll-row::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:4px}
-  .row-inner{padding:0 16px;width:max-content}
+  /* DOTTED LINES — vertical overlays spanning both phones */
+  .dl { position:absolute; top:34px; bottom:8px; width:0; border-left:2px dashed; pointer-events:none; z-index:50; }
+  .dl-edge   { border-color:#e91e63; }
+  .dl-card   { border-color:#22d3ee; }
+  .dl-center { border-color:#84cc16; }
+  .dl-label  { position:absolute; font-size:10px; font-weight:700; color:#fff; padding:3px 6px; border-radius:3px; white-space:nowrap; z-index:51; top:6px; }
+  .dl-label.edge { background:#e91e63; }
+  .dl-label.card { background:#22d3ee; color:#000; }
+  .dl-label.center { background:#84cc16; color:#000; }
 
-  .frame{background:#1a1a1a;border-radius:14px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
-  .device{background:#F2EFE9;border-radius:10px;overflow:hidden;position:relative}
+  /* ============ LANDING styles (real, copied from index.html) ============ */
+  .hdr-landing { background:#ff6600; padding:14px 14px 0; display:flex; flex-direction:column; }
+  .utility { display:flex; justify-content:space-between; align-items:center; }
+  .util-date { color:#fff; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; letter-spacing:.05em; }
+  .util-right { display:flex; gap:6px; }
+  .avatar-btn { width:32px; height:32px; border-radius:50%; background:#999; overflow:hidden; }
+  .avatar-btn img { width:100%; height:100%; object-fit:cover; display:block; }
+  .hamburger-btn { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.18); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:300; }
+  .identity { display:flex; flex-direction:column; align-items:center; padding:8px 0 6px; }
+  .pi-logo img { height:28px; width:auto; display:block; margin-bottom:5px; }
+  .eyebrow { font-family:'Cormorant Garamond',serif; font-weight:700; font-size:17px; line-height:1.4; text-transform:uppercase; color:#fff; text-align:center; }
+  .eb-perf { display:block; letter-spacing:.18em; }
+  .eb-intel { display:block; letter-spacing:.28em; }
+  .weekly { font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13px; letter-spacing:.55em; text-transform:uppercase; color:#fff; text-align:center; line-height:1; white-space:nowrap; margin:12px 0 0; padding-left:.55em; }
+  .tabs-row { display:flex; gap:8px; overflow:hidden; padding:12px 0 0; }
+  .tab { padding:11px 18px; border:1.5px solid #fff; border-radius:8px; background:#fff; color:#ff6600; font-size:13px; font-weight:700; letter-spacing:.05em; flex:0 0 auto; }
+  .tab.other-m { color:#1e40af; border-color:#1e40af; }
+  .tab.other-p { color:#dc2626; border-color:#dc2626; }
+  .tab.other-t { color:#06b6d4; border-color:#06b6d4; background:transparent; color:#06b6d4; }
+  .wk-row { display:flex; justify-content:space-between; align-items:center; padding:14px 0 12px; }
+  .wk-label { color:#fff; font-family:'Inter',sans-serif; font-size:14px; font-weight:700; letter-spacing:.2em; }
+  .aa-toggle { color:#fff; font-family:'IBM Plex Serif',serif; font-size:22px; font-style:italic; font-weight:500; }
 
-  .w-iphone{width:390px}
-  .w-ipad-p{width:820px}
-  .w-ipad-l{width:1180px}
-  .w-desktop{width:1280px}
+  /* Topic card (landing) — matches .tc with .th content */
+  .sa { padding:16px; background:#FBF8F2; }
+  .tc { background:#fff; border:1px solid #E0D8CB; border-left:4px solid #ff6600; padding:14px 16px; display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+  .tn { color:#ff6600; font-family:'Inter',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; padding-top:4px; width:22px; flex-shrink:0; }
+  .tw { flex:1; min-width:0; }
+  .tt { font-family:'IBM Plex Serif',serif; font-size:15px; font-weight:600; color:#1a1a1a; line-height:1.2; margin:0 0 4px; }
+  .thl { font-family:'IBM Plex Serif',serif; font-size:12px; color:#666; line-height:1.45; font-weight:500; }
+  .th-right { display:flex; gap:10px; align-items:center; padding-top:4px; }
+  .heart { width:22px; height:22px; border:1.5px solid #999; border-radius:50%; }
+  .plus { color:#999; font-size:22px; font-weight:300; line-height:1; }
 
-  /* PDF page wrapper — matches live .pdf-page (max-width 820, auto centred) */
-  .pdf-page{max-width:820px;margin:18px auto;background:#FBF8F2;box-shadow:0 1px 0 #E0D8CB,0 20px 40px -24px rgba(0,0,0,.08);border-radius:2px;overflow:hidden}
+  /* ============ PDF PROPOSED ============ */
+  /* Same hdr layout as landing, MINUS avatar/hamburger/tabs/Aa toggle */
+  .hdr-pdf-proposed { background:#ff6600; padding:14px 14px 0; display:flex; flex-direction:column; }
+  .utility-pdf { display:flex; justify-content:space-between; align-items:center; min-height:32px; }
+  /* No avatar/hamburger placeholder — empty right side */
+  .pdf-wk-row { display:flex; justify-content:flex-start; align-items:center; padding:14px 0 12px; }
 
-  /* PDF header — orange */
-  .pdf-header{background:#ff6600;color:#fff;padding:24px 40px 22px;display:flex;flex-direction:column;align-items:center;text-align:center}
-  .pdf-logo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:42px;color:#fff;line-height:1;margin-bottom:10px}
-  .pdf-pi{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:14px;text-transform:uppercase;color:#fff;margin-bottom:14px;line-height:1.2}
-  .pdf-pi span{display:block}
-  .pdf-pi .perf{letter-spacing:.2em}
-  .pdf-pi .intel{letter-spacing:.32em}
-  .pdf-wb{font-family:'IBM Plex Serif',serif;font-size:32px;font-weight:500;color:#fff;line-height:1;letter-spacing:-.01em;margin-bottom:12px}
-  .pdf-meta{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#fff;opacity:.92}
-
-  /* PDF category */
-  .pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:14px 40px;background:#ff6600;border-bottom:1px solid rgba(0,0,0,.06);margin:0}
-  .pdf-cat-body{padding:24px 40px 28px;display:flex;flex-direction:column;gap:16px}
-
-  /* PDF topic card */
-  .pdf-topic{background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;border-radius:1px;padding:18px 22px 16px}
-  .pdf-topic-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
-  .pdf-topic-num{font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;color:#ff6600;flex-shrink:0}
-  .pdf-topic-title{font-family:'IBM Plex Serif',serif;font-size:20px;font-weight:600;color:#1a1a1a;margin:0;line-height:1.2;letter-spacing:-.005em}
-  .pdf-topic-hl{font-family:'IBM Plex Serif',serif;font-size:13px;color:#666;margin:0 0 12px 28px;line-height:1.45;font-weight:500}
-  .pdf-two{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin:0 0 12px 28px}
-  .pdf-lbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#8E857C;margin-bottom:7px}
-  .pdf-bt{font-size:11px;color:#1a1a1a;line-height:1.6}
-  .pdf-it{font-family:'IBM Plex Serif',serif;font-size:12px;font-style:italic;color:#1a1a1a;line-height:1.5;font-weight:500}
-
-  /* PROPOSED variant — reduced horizontal padding to match live .sa (16px) */
-  .new .pdf-header{padding:24px 16px 22px}
-  .new .pdf-cat-title{padding:14px 16px}
-  .new .pdf-cat-body{padding:24px 16px 28px}
-
-  /* Dashed orange guide showing target edge in CURRENT for visual reference */
-  .cur .pdf-page{position:relative}
-  .cur .pdf-page::before, .cur .pdf-page::after{
-    content:"";position:absolute;top:0;bottom:0;width:0;
-    border-left:1.5px dashed rgba(255,102,0,.7);pointer-events:none;z-index:5;
-  }
-  .cur .pdf-page::before{left:16px}
-  .cur .pdf-page::after{right:16px}
+  /* PDF cat title strip below banner (PDF-specific) */
+  .pdf-cat-title { background:#ff6600; color:#fff; font-family:'Inter',sans-serif; font-size:13px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; padding:14px 16px; }
+  .pdf-cat-body { background:#FBF8F2; padding:18px 16px 22px; }
+  .pdf-topic { background:#fff; border:1px solid #E0D8CB; border-left:4px solid #ff6600; padding:14px 16px; }
+  .pdf-topic-head { display:flex; align-items:flex-start; gap:10px; margin-bottom:4px; }
+  .pdf-topic-num { color:#ff6600; font-family:'Inter',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; padding-top:4px; width:22px; flex-shrink:0; }
+  .pdf-topic-title { font-family:'IBM Plex Serif',serif; font-size:15px; font-weight:600; color:#1a1a1a; line-height:1.2; margin:0; flex:1; }
+  .pdf-topic-hl { font-family:'IBM Plex Serif',serif; font-size:12px; color:#666; line-height:1.45; font-weight:500; margin:0; }
 </style>
 </head>
 <body>
 
-<div class="intro">
-  <h1>PDF view — widen sections to match live-site feel</h1>
-  <p>The PDF view uses 40 px horizontal padding on its category-title, category-body and header blocks. The live site uses 16 px (the <code>.sa</code> scroll-area padding). On phone that takes ~48 px off the effective topic-card width inside the PDF, which is why the sections feel noticeably narrower than the same topics on the live site.</p>
-  <table>
-    <tr><th>Selector</th><th>Current padding</th><th>Proposed padding</th></tr>
-    <tr><td class="h"><code>.pdf-header</code></td><td>30px <strong>40px</strong> 26px</td><td class="match">30px <strong>16px</strong> 26px</td></tr>
-    <tr><td class="h"><code>.pdf-cat-title</code></td><td>16px <strong>40px</strong></td><td class="match">16px <strong>16px</strong></td></tr>
-    <tr><td class="h"><code>.pdf-cat-body</code></td><td>24px <strong>40px</strong> 28px</td><td class="match">24px <strong>16px</strong> 28px</td></tr>
-  </table>
-  <p>Internal topic-card padding (<code>.pdf-topic</code> 20px 24px 18px) left untouched — that's the card's own breathing room, not a width-restrictor. The dashed orange guides on the CURRENT frames mark the target inner edge (where the PROPOSED layout will sit).</p>
-  <p class="status"><strong>PROPOSED</strong> — not yet live. CURRENT (top, with guides) vs PROPOSED (bottom) per platform.</p>
+<h1>PDF banner mockup — width proof</h1>
+<p class="sub">Two phones per platform, native pixel width, no scaling. The dotted lines extend through both phones to show every horizontal edge lines up.</p>
+
+<div class="legend">
+  <div><span class="swatch" style="color:#e91e63"></span> Screen edge (0 / W)</div>
+  <div><span class="swatch" style="color:#22d3ee"></span> Card edge (16 / W−16)</div>
+  <div><span class="swatch" style="color:#84cc16"></span> Logo center (W ÷ 2)</div>
 </div>
 
-<!-- iPhone -->
-<div class="platform-section">
-  <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px — biggest impact</p></div>
+<div class="platforms">
 
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF horizontal padding — dashed orange = target edge (16 px in)</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-iphone">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+<div class="platform">
+  <div class="platform-label">iPhone 390</div>
+  <div class="platform-sub">iPhone 14/15 Pro — native width 390px</div>
+
+  <div class="pair" style="width:390px;">
+    <!-- DOTTED LINES (span both phones) -->
+    <div class="dl dl-edge"   style="left:0px;"></div>
+    <div class="dl dl-card"   style="left:16px;"></div>
+    <div class="dl dl-center" style="left:195px;"></div>
+    <div class="dl dl-card"   style="left:373px;"></div>
+    <div class="dl dl-edge"   style="left:388px;"></div>
+
+    <div class="dl-label edge" style="left:0;">0</div>
+    <div class="dl-label card" style="left:18px;">16</div>
+    <div class="dl-label center" style="left:199px;">195</div>
+    <div class="dl-label card" style="right:18px;">374</div>
+    <div class="dl-label edge" style="right:0;">390</div>
+
+    <!-- ============ LANDING (live) ============ -->
+    <div class="phone-label">LANDING (live)</div>
+    <div class="phone" style="width:390px;">
+      <div class="hdr-landing">
+        <div class="utility">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <div class="util-right">
+            <div class="avatar-btn" style="width:32px;height:32px;"><img src="https://i.pravatar.cc/64?u=jez"/></div>
+            <div class="hamburger-btn" style="width:32px;height:32px;font-size:18px;">≡</div>
           </div>
         </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal — matches live site .sa padding</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-iphone">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
-          </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:28px;"/></div>
+          <div class="eyebrow" style="font-size:17px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:13px;">WEEKLY BRIEFING</div>
         </div>
-      </div></div>
-    </div></div>
-  </div>
-</div>
-
-<!-- iPad portrait -->
-<div class="platform-section">
-  <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
-
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF padding — dashed orange = target edge</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-ipad-p">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
-          </div>
+        <div class="tabs-row">
+          <div class="tab" style="padding:11px 18px;font-size:13px;">LEADERSHIP</div>
+          <div class="tab other-m" style="padding:11px 18px;font-size:13px;">MARKETS</div>
+          <div class="tab other-p" style="padding:11px 18px;font-size:13px;">PSYCHOLOGY</div>
+          <div class="tab other-t" style="padding:11px 18px;font-size:13px;">TECH</div>
         </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal — matches live site .sa padding</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-ipad-p">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
-          </div>
+        <div class="wk-row"><div class="wk-label">WEEK 23</div><div class="aa-toggle">Aa</div></div>
+      </div>
+      <div class="sa">
+        <div class="tc">
+          <span class="tn">01</span>
+          <div class="tw"><div class="tt">The 50-Year Career Problem</div><div class="thl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div></div>
+          <div class="th-right"><div class="heart"></div><div class="plus">+</div></div>
         </div>
-      </div></div>
-    </div></div>
-  </div>
-</div>
+      </div>
+    </div>
 
-<!-- iPad landscape -->
-<div class="platform-section">
-  <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px — PDF page max-width 820, centred</p></div>
-
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF padding — dashed guides at target edge</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-ipad-l">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
-          </div>
+    <!-- ============ PROPOSED PDF ============ -->
+    <div class="phone-label">PROPOSED PDF — same banner, minus avatar/hamburger/tabs/Aa</div>
+    <div class="phone" style="width:390px;">
+      <div class="hdr-pdf-proposed">
+        <div class="utility-pdf">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <!-- right side empty in PDF (no auth, no nav) -->
         </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-ipad-l">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
-          </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:28px;"/></div>
+          <div class="eyebrow" style="font-size:17px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:13px;">WEEKLY BRIEFING</div>
         </div>
-      </div></div>
-    </div></div>
+        <!-- no tabs-row in PDF -->
+        <div class="pdf-wk-row"><div class="wk-label">WEEK 23</div></div>
+      </div>
+      <div class="pdf-cat-title">LEADERSHIP</div>
+      <div class="pdf-cat-body">
+        <div class="pdf-topic">
+          <div class="pdf-topic-head">
+            <div class="pdf-topic-num">01</div>
+            <div class="pdf-topic-title">The 50-Year Career Problem</div>
+          </div>
+          <div class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- Desktop -->
-<div class="platform-section">
-  <div class="platform-header"><p class="platform-label">Desktop · 1280 px — PDF page max-width 820, centred</p></div>
+<div class="platform">
+  <div class="platform-label">iPad portrait 820</div>
+  <div class="platform-sub">iPad 10.9″ portrait — native width 820px</div>
 
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF padding — dashed guides at target edge</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device cur w-desktop">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+  <div class="pair" style="width:820px;">
+    <!-- DOTTED LINES (span both phones) -->
+    <div class="dl dl-edge"   style="left:0px;"></div>
+    <div class="dl dl-card"   style="left:16px;"></div>
+    <div class="dl dl-center" style="left:410px;"></div>
+    <div class="dl dl-card"   style="left:803px;"></div>
+    <div class="dl dl-edge"   style="left:818px;"></div>
+
+    <div class="dl-label edge" style="left:0;">0</div>
+    <div class="dl-label card" style="left:18px;">16</div>
+    <div class="dl-label center" style="left:414px;">410</div>
+    <div class="dl-label card" style="right:18px;">804</div>
+    <div class="dl-label edge" style="right:0;">820</div>
+
+    <!-- ============ LANDING (live) ============ -->
+    <div class="phone-label">LANDING (live)</div>
+    <div class="phone" style="width:820px;">
+      <div class="hdr-landing">
+        <div class="utility">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <div class="util-right">
+            <div class="avatar-btn" style="width:36px;height:36px;"><img src="https://i.pravatar.cc/64?u=jez"/></div>
+            <div class="hamburger-btn" style="width:36px;height:36px;font-size:20px;">≡</div>
           </div>
         </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device new w-desktop">
-        <div class="pdf-page">
-          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
-          <div class="pdf-cat-title">Leadership</div>
-          <div class="pdf-cat-body">
-            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
-          </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:40px;"/></div>
+          <div class="eyebrow" style="font-size:24px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:17px;">WEEKLY BRIEFING</div>
         </div>
-      </div></div>
-    </div></div>
+        <div class="tabs-row">
+          <div class="tab" style="padding:13px 22px;font-size:14px;">LEADERSHIP</div>
+          <div class="tab other-m" style="padding:13px 22px;font-size:14px;">MARKETS</div>
+          <div class="tab other-p" style="padding:13px 22px;font-size:14px;">PSYCHOLOGY</div>
+          <div class="tab other-t" style="padding:13px 22px;font-size:14px;">TECH</div>
+        </div>
+        <div class="wk-row"><div class="wk-label">WEEK 23</div><div class="aa-toggle">Aa</div></div>
+      </div>
+      <div class="sa">
+        <div class="tc">
+          <span class="tn">01</span>
+          <div class="tw"><div class="tt">The 50-Year Career Problem</div><div class="thl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div></div>
+          <div class="th-right"><div class="heart"></div><div class="plus">+</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PROPOSED PDF ============ -->
+    <div class="phone-label">PROPOSED PDF — same banner, minus avatar/hamburger/tabs/Aa</div>
+    <div class="phone" style="width:820px;">
+      <div class="hdr-pdf-proposed">
+        <div class="utility-pdf">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <!-- right side empty in PDF (no auth, no nav) -->
+        </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:40px;"/></div>
+          <div class="eyebrow" style="font-size:24px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:17px;">WEEKLY BRIEFING</div>
+        </div>
+        <!-- no tabs-row in PDF -->
+        <div class="pdf-wk-row"><div class="wk-label">WEEK 23</div></div>
+      </div>
+      <div class="pdf-cat-title">LEADERSHIP</div>
+      <div class="pdf-cat-body">
+        <div class="pdf-topic">
+          <div class="pdf-topic-head">
+            <div class="pdf-topic-num">01</div>
+            <div class="pdf-topic-title">The 50-Year Career Problem</div>
+          </div>
+          <div class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
+<div class="platform">
+  <div class="platform-label">iPad landscape 1180</div>
+  <div class="platform-sub">iPad 10.9″ landscape — native width 1180px</div>
+
+  <div class="pair" style="width:1180px;">
+    <!-- DOTTED LINES (span both phones) -->
+    <div class="dl dl-edge"   style="left:0px;"></div>
+    <div class="dl dl-card"   style="left:16px;"></div>
+    <div class="dl dl-center" style="left:590px;"></div>
+    <div class="dl dl-card"   style="left:1163px;"></div>
+    <div class="dl dl-edge"   style="left:1178px;"></div>
+
+    <div class="dl-label edge" style="left:0;">0</div>
+    <div class="dl-label card" style="left:18px;">16</div>
+    <div class="dl-label center" style="left:594px;">590</div>
+    <div class="dl-label card" style="right:18px;">1164</div>
+    <div class="dl-label edge" style="right:0;">1180</div>
+
+    <!-- ============ LANDING (live) ============ -->
+    <div class="phone-label">LANDING (live)</div>
+    <div class="phone" style="width:1180px;">
+      <div class="hdr-landing">
+        <div class="utility">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <div class="util-right">
+            <div class="avatar-btn" style="width:36px;height:36px;"><img src="https://i.pravatar.cc/64?u=jez"/></div>
+            <div class="hamburger-btn" style="width:36px;height:36px;font-size:20px;">≡</div>
+          </div>
+        </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAIrUlEQVR42u1c3Y9dVRX/rXvvdPphPyBhxGiBjj5UhTodSmkRlFKjEiMEgi+EBx7klRdN/BOIoA8kiuHjQV8p0CBppC880BgrGEqBppAgaZma0qJYUvvBzL3n58OspWs2++x77p1zzv3I7GRybs7ZZ6+1fvu3PvY+5wyw0pbVhGQTwCYAGYALIjJPUgA0rM8A9OqICP0J1ak5AF1Mj0xESHIVgHWKz7kWgBaAbwH4CYDbSH4JQAfABQALCmCjZqXvA3BEJxci0gEwA+C5mvXIFMAJAOtUn9MADgHYB+DPLRH5DMArAF4h+XUAPwJwL4DdA/SM1Tnnpgeo018AvADggIgct5MtdY+GiGR64TiAX5H8GoAfA7gHwC6dBZuVtrKyUYG7iI4ftrZjhFTAtEzxMJsWABwGsB/ASyLyfhBSFjELT+oAS2IQyW8CuEvBvCliWFlgGjg3icjfvAuT3AHg9RIB9KD59rqC9kcRORaJwZmIZEsY+L+Msnghi4B5DMAxAI+Q3A7gbv2bcWNQY2cZYLLguX5BawZ6vgngRQAvisiRBGjt/qwhGyRbkfM7ST5C8h0ubR2SC3rspWV6nHVyG/p7NuhTtOXp8o7qvjNiV8vklp/TI2CSbJK8leSvSb6XY0DWA4DbIwBu7wHALAe091THWy081AJaj2CuInkHyd+Q/ID9tZkIgDN9jvWB6nKH1nCDBS0HSFEWhmCuJflDkk+RnFNmFGHQtgiA2woyL1NZT6nstRHQmhrfhq8lwFzv3LtbbLwhAuANBWKduen6ukBrlb42XCx/Oi6LNRZPy3mS5wpm1H6ysF0/p7Jaei4TkXZVhGlVyUYDU5kkWpxWXcYsqKwl9VpVrbYAqmAWZUK2DADb4UbEWABouywFWMccsLKgTz8yRh5AKQjyfOT8fEFwZJwBLLKfNw/gUoSNl3KA7UfGyAFoIEwU6HtR9yLDdkGvdWsTJa6dh46Bkwk3M4M/zQHqol7LA0cCGePDQN0KFwBrCrD0ExFpkxQRod2rtdwnBdi11u4dCwBd9W/PErq1MxHdGsG1VFurslDHcq1OF17jAEy58D8ifSS4lnLhL3Rh+sgBaIatV+O6tbnEtQ8L3L8OwIa6Spo6GXhFlyRi7UTi2skCEzWpssaOgV9MLNO8LicjbsrgWqPLEnBqnBhoRny5yzq3oYXyqQSAp7RPI7Hc87LGyoWvLVDCnAXwUQLAj7RPt1Lm2nFcyk0XAPCEiFzWZ64M6siGiFx2MTIF4FfHCcBOYFSqhHk3oVcj6JMqZabr2pmpFEBbEZBcDeC6AnHp7QLDvl0g3l5Hco1bAY0sA035zQCuTgBoehxNsItBn0ZC3tUAvlJHIqkLwK1Y3GbqRAyyDPwfLL6Xk5ep7dxx7RvLxKIymipzbACcSTDLgHlXRM7mbQS4TYWzLg6mtv63jwOAZsyOAgnkr3pMbYg2g76pRHJjgWw9vAAqWzokJx0DJWHwqz0M/2qB8WZITqoOw/kQvQuA/oF4J+eNBDt3ieRmf1+XMTfrPUyMm/kH9KPowjb2bv3dScS/oyIyp6zNfZYrIpn2mXPZOMupPQX/f8t2JAG02HN7gT4HC8S/MA4eLBDj9tQRByuJf3pcTfLDxPsw5n47tX+zwNhNPe5MuLDJmtMiHiMVB52RuxPg+ZeBWr0YqC8wtbq8rGTnbik6OcPkwgbGnQUK4/36wKgXA5t6z/4C499Z19ZWqS6sf28oC9qJTDnTK0Mcw2cS7xwaA98wfUatfPmGAhczzs4f7rfMcHIO61h5k9TWrwwqKWcaFYaFe936N8/Nn1mGHnbPMwn3tHXxPTVu35Xivg2SR3MCvLncWZIb+82QLtNv1LFirmyy33LvKI5E9r05kR0X9Pio9m0tQ559afVoMHYMxJurzMZlAWgGPZFjkLHkIslrjK3Libc6xjU6ZoyFpsPvljthdRXPG0l+nFPkmjFPlsUGx/onE5NG1WnT0BbVjn0/zSldMnWnSyS3LJd9ERZu0bFjGxemy0NDy0JnSF7tZ8x4vOxY5Fj4eA4L264mbAzFxzU5BuxNZN4OyX+RnCqLfZHJm1IZnURG3jt0ycQB+Kcu7Hu4KuWdDg93YeHLVe8R9qy4zv6NOsudHMWPVPnFkP9CSmXFJtKYucP6DxP7XojMfOaWbbuqdh2ny65AdugJ+4fCjR37ZnPYV1rRXGJxbXrODpyFbsYPRFym7ZZRk3V9IelceVJl5+l1YKAsdOB9N5J5zX0u+09XB7AjtE11CF3ZQLx9YCA6930tMsvzgy5cnSs/FOjkdX1tIG7s2PdgBDyLOU8Puup3ID4diYem84O1stBtV20ieTpIHqbgoWH4MjwobQ4FOprep0leUdt2l5vV3wYzace/k7xqWIpVFw+vIvl+js5P1OItznVvCbbRjYH/JLl12JZKTu+tbqeoEzxe+Halejt3WOX+T4x33/N1FMslbfaej+h/rNJyy7nuL93MmfCLJPcM9YblUhv2qM4GYrvSgj+o+cx1TegFt8MxtOBFQNyrujOwp9za0PbPNOueCGqqf5P8zqiAFwHxNrXB23RSbS1n39AJe04FXNbjKfc/rkYGvIhds2qLt+35UuxyQn7mYh31keWWUQUvYt8W9xjWbPz5suwLYkWH5Gc68EvueW4TI95cfN+otlFt7ZD8Xl8gukGnSZ5xy5/HwgJ1HJq3heRjzt4zJKd7Iot7vrCB5Js60KckH/DXMWbNP6ch+YDaTMVgQ6HnOK5YFpIv6wCHSV5vVB5H8AL7LXRdr7aT5EElTn6R7bd1SO4zl9W37Ec6WSwj/k86l97nt/E+B577/ay+rPODcYx3fcbF7ysmz34OM/dKxiTJ35N83r0CMdYu26NLb9Ja+A/OK8U6XUnyFyTvDzPxSluKBcn7FasrDcAJ/RhmKtfHV1qYI6YUs4kw/q2wrjc2ikd3hXW9sVEA4L9j1b/+fJ6lQQAAAABJRU5ErkJggg==" style="height:40px;"/></div>
+          <div class="eyebrow" style="font-size:24px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:17px;">WEEKLY BRIEFING</div>
+        </div>
+        <div class="tabs-row">
+          <div class="tab" style="padding:13px 22px;font-size:14px;">LEADERSHIP</div>
+          <div class="tab other-m" style="padding:13px 22px;font-size:14px;">MARKETS</div>
+          <div class="tab other-p" style="padding:13px 22px;font-size:14px;">PSYCHOLOGY</div>
+          <div class="tab other-t" style="padding:13px 22px;font-size:14px;">TECH</div>
+        </div>
+        <div class="wk-row"><div class="wk-label">WEEK 23</div><div class="aa-toggle">Aa</div></div>
+      </div>
+      <div class="sa">
+        <div class="tc">
+          <span class="tn">01</span>
+          <div class="tw"><div class="tt">The 50-Year Career Problem</div><div class="thl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div></div>
+          <div class="th-right"><div class="heart"></div><div class="plus">+</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PROPOSED PDF ============ -->
+    <div class="phone-label">PROPOSED PDF — same banner, minus avatar/hamburger/tabs/Aa</div>
+    <div class="phone" style="width:1180px;">
+      <div class="hdr-pdf-proposed">
+        <div class="utility-pdf">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <!-- right side empty in PDF (no auth, no nav) -->
+        </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:40px;"/></div>
+          <div class="eyebrow" style="font-size:24px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:17px;">WEEKLY BRIEFING</div>
+        </div>
+        <!-- no tabs-row in PDF -->
+        <div class="pdf-wk-row"><div class="wk-label">WEEK 23</div></div>
+      </div>
+      <div class="pdf-cat-title">LEADERSHIP</div>
+      <div class="pdf-cat-body">
+        <div class="pdf-topic">
+          <div class="pdf-topic-head">
+            <div class="pdf-topic-num">01</div>
+            <div class="pdf-topic-title">The 50-Year Career Problem</div>
+          </div>
+          <div class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="platform">
+  <div class="platform-label">Desktop 1280</div>
+  <div class="platform-sub">≥1280px — native width 1280px</div>
+
+  <div class="pair" style="width:1280px;">
+    <!-- DOTTED LINES (span both phones) -->
+    <div class="dl dl-edge"   style="left:0px;"></div>
+    <div class="dl dl-card"   style="left:16px;"></div>
+    <div class="dl dl-center" style="left:640px;"></div>
+    <div class="dl dl-card"   style="left:1263px;"></div>
+    <div class="dl dl-edge"   style="left:1278px;"></div>
+
+    <div class="dl-label edge" style="left:0;">0</div>
+    <div class="dl-label card" style="left:18px;">16</div>
+    <div class="dl-label center" style="left:644px;">640</div>
+    <div class="dl-label card" style="right:18px;">1264</div>
+    <div class="dl-label edge" style="right:0;">1280</div>
+
+    <!-- ============ LANDING (live) ============ -->
+    <div class="phone-label">LANDING (live)</div>
+    <div class="phone" style="width:1280px;">
+      <div class="hdr-landing">
+        <div class="utility">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <div class="util-right">
+            <div class="avatar-btn" style="width:36px;height:36px;"><img src="https://i.pravatar.cc/64?u=jez"/></div>
+            <div class="hamburger-btn" style="width:36px;height:36px;font-size:20px;">≡</div>
+          </div>
+        </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:40px;"/></div>
+          <div class="eyebrow" style="font-size:24px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:17px;">WEEKLY BRIEFING</div>
+        </div>
+        <div class="tabs-row">
+          <div class="tab" style="padding:13px 22px;font-size:14px;">LEADERSHIP</div>
+          <div class="tab other-m" style="padding:13px 22px;font-size:14px;">MARKETS</div>
+          <div class="tab other-p" style="padding:13px 22px;font-size:14px;">PSYCHOLOGY</div>
+          <div class="tab other-t" style="padding:13px 22px;font-size:14px;">TECH</div>
+        </div>
+        <div class="wk-row"><div class="wk-label">WEEK 23</div><div class="aa-toggle">Aa</div></div>
+      </div>
+      <div class="sa">
+        <div class="tc">
+          <span class="tn">01</span>
+          <div class="tw"><div class="tt">The 50-Year Career Problem</div><div class="thl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div></div>
+          <div class="th-right"><div class="heart"></div><div class="plus">+</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PROPOSED PDF ============ -->
+    <div class="phone-label">PROPOSED PDF — same banner, minus avatar/hamburger/tabs/Aa</div>
+    <div class="phone" style="width:1280px;">
+      <div class="hdr-pdf-proposed">
+        <div class="utility-pdf">
+          <div class="util-date">Wednesday, 3 June 2026</div>
+          <!-- right side empty in PDF (no auth, no nav) -->
+        </div>
+        <div class="identity">
+          <div class="pi-logo"><img src="data:image/png;base64,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" style="height:40px;"/></div>
+          <div class="eyebrow" style="font-size:24px;"><span class="eb-perf">PERFORMANCE</span><span class="eb-intel">INTELLIGENCE</span></div>
+          <div class="weekly" style="font-size:17px;">WEEKLY BRIEFING</div>
+        </div>
+        <!-- no tabs-row in PDF -->
+        <div class="pdf-wk-row"><div class="wk-label">WEEK 23</div></div>
+      </div>
+      <div class="pdf-cat-title">LEADERSHIP</div>
+      <div class="pdf-cat-body">
+        <div class="pdf-topic">
+          <div class="pdf-topic-head">
+            <div class="pdf-topic-num">01</div>
+            <div class="pdf-topic-title">The 50-Year Career Problem</div>
+          </div>
+          <div class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
 </body>
 </html>
