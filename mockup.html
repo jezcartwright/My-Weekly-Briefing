@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Briefing Library — widen .wk cards to match .lh card width</title>
+<title>PDF view — widen content to match live-site feel</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
@@ -16,6 +16,7 @@
   .intro td{padding:8px 12px;border-top:1px solid #ece8e0}
   .intro td.h{font-weight:700;color:#1a1a1a}
   .intro td.match{color:#15803d;font-weight:600}
+  .intro code{background:#f0ebdf;padding:1px 5px;border-radius:3px;font-size:12px}
   .status{font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px}
   .status strong{color:#1a1a1a}
 
@@ -27,7 +28,6 @@
   .row-label{max-width:760px;margin:0 auto 6px;padding:0 16px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#666}
   .row-label .tag{display:inline-block;color:#fff;background:#888;padding:2px 7px;border-radius:3px;margin-right:8px;font-size:10px}
   .row-label.new .tag{background:#15803d}
-  .row-label.ref .tag{background:#1e3a8a}
   .row-label .detail{color:#999;font-weight:500;letter-spacing:.4px;text-transform:none}
 
   .scroll-row{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -36,101 +36,100 @@
   .row-inner{padding:0 16px;width:max-content}
 
   .frame{background:#1a1a1a;border-radius:14px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
-  .device{background:#faf8f5;border-radius:10px;overflow:hidden;position:relative}
+  .device{background:#F2EFE9;border-radius:10px;overflow:hidden;position:relative}
 
   .w-iphone{width:390px}
   .w-ipad-p{width:820px}
   .w-ipad-l{width:1180px}
   .w-desktop{width:1280px}
 
-  /* .sa = scroll area with 16px horizontal padding (matches live) */
-  .sa{padding:18px 16px;background:#faf8f5}
+  /* PDF page wrapper — matches live .pdf-page (max-width 820, auto centred) */
+  .pdf-page{max-width:820px;margin:18px auto;background:#FBF8F2;box-shadow:0 1px 0 #E0D8CB,0 20px 40px -24px rgba(0,0,0,.08);border-radius:2px;overflow:hidden}
 
-  /* CURRENT .wk: 12px horizontal margin → 28px inset from edge */
-  .cur .wk{background:#fff;border:1px solid #e3dccc;border-radius:8px;margin:0 12px 10px;overflow:hidden}
+  /* PDF header — orange */
+  .pdf-header{background:#ff6600;color:#fff;padding:24px 40px 22px;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .pdf-logo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:42px;color:#fff;line-height:1;margin-bottom:10px}
+  .pdf-pi{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:14px;text-transform:uppercase;color:#fff;margin-bottom:14px;line-height:1.2}
+  .pdf-pi span{display:block}
+  .pdf-pi .perf{letter-spacing:.2em}
+  .pdf-pi .intel{letter-spacing:.32em}
+  .pdf-wb{font-family:'IBM Plex Serif',serif;font-size:32px;font-weight:500;color:#fff;line-height:1;letter-spacing:-.01em;margin-bottom:12px}
+  .pdf-meta{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#fff;opacity:.92}
 
-  /* PROPOSED .wk: no horizontal margin → 16px inset (flush with .sa padding, matches .lh) */
-  .new .wk{background:#fff;border:1px solid #e3dccc;border-radius:8px;margin:0 0 10px;overflow:hidden}
+  /* PDF category */
+  .pdf-cat-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;padding:14px 40px;background:#ff6600;border-bottom:1px solid rgba(0,0,0,.06);margin:0}
+  .pdf-cat-body{padding:24px 40px 28px;display:flex;flex-direction:column;gap:16px}
 
-  /* .wk-header (live structure) */
-  .wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px}
-  .wk-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#1a1a1a}
-  .wk-label.current{color:#ff6600}
-  .wk-meta{font-family:'Inter',sans-serif;font-size:10px;color:#888;margin-top:2px}
-  .wk-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-  .wk-pdf,.wk-toggle{font-family:'Inter',sans-serif;font-weight:700;border-radius:4px;line-height:1;display:inline-flex;align-items:center;background:rgba(255,102,0,0.1);border:1px solid #ff6600;color:#ff6600}
-  .wk-pdf{font-size:11px;padding:6px 12px;gap:4px;white-space:nowrap}
-  .wk-toggle{font-size:16px;font-weight:600;width:26px;height:26px;padding:0;justify-content:center}
+  /* PDF topic card */
+  .pdf-topic{background:#fff;border:1px solid #E0D8CB;border-left:4px solid #ff6600;border-radius:1px;padding:18px 22px 16px}
+  .pdf-topic-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px}
+  .pdf-topic-num{font-family:'Inter',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;color:#ff6600;flex-shrink:0}
+  .pdf-topic-title{font-family:'IBM Plex Serif',serif;font-size:20px;font-weight:600;color:#1a1a1a;margin:0;line-height:1.2;letter-spacing:-.005em}
+  .pdf-topic-hl{font-family:'IBM Plex Serif',serif;font-size:13px;color:#666;margin:0 0 12px 28px;line-height:1.45;font-weight:500}
+  .pdf-two{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin:0 0 12px 28px}
+  .pdf-lbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#8E857C;margin-bottom:7px}
+  .pdf-bt{font-size:11px;color:#1a1a1a;line-height:1.6}
+  .pdf-it{font-family:'IBM Plex Serif',serif;font-size:12px;font-style:italic;color:#1a1a1a;line-height:1.5;font-weight:500}
 
-  /* Topic card (.lh) — reference for the target width */
-  .lh{padding:14px 16px;background:#fff;border:1px solid #e3dccc;border-left:4px solid var(--lh-cat,#ff6600);border-radius:2px;margin:0 0 10px}
-  .lh-cat{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--lh-cat,#ff6600);margin-bottom:5px}
-  .lh-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:3px;line-height:1.25}
-  .lh-hl{font-family:'IBM Plex Serif',serif;font-size:12px;color:#555;line-height:1.45}
+  /* PROPOSED variant — reduced horizontal padding to match live .sa (16px) */
+  .new .pdf-header{padding:24px 16px 22px}
+  .new .pdf-cat-title{padding:14px 16px}
+  .new .pdf-cat-body{padding:24px 16px 28px}
 
-  /* Dashed orange vertical guides showing the .lh card edge position
-     (= where the proposed .wk edge will sit). Painted on CURRENT only. */
-  .cur .sa{position:relative}
-  .cur .sa::before, .cur .sa::after{
-    content:"";position:absolute;top:18px;bottom:18px;width:0;
-    border-left:1.5px dashed rgba(255,102,0,.7);pointer-events:none;
+  /* Dashed orange guide showing target edge in CURRENT for visual reference */
+  .cur .pdf-page{position:relative}
+  .cur .pdf-page::before, .cur .pdf-page::after{
+    content:"";position:absolute;top:0;bottom:0;width:0;
+    border-left:1.5px dashed rgba(255,102,0,.7);pointer-events:none;z-index:5;
   }
-  .cur .sa::before{left:16px}
-  .cur .sa::after{right:16px}
+  .cur .pdf-page::before{left:16px}
+  .cur .pdf-page::after{right:16px}
 </style>
 </head>
 <body>
 
 <div class="intro">
-  <h1>Briefing Library — widen .wk cards to match .lh topic-card width</h1>
-  <p>Library cards (<code>.wk</code>) currently sit with an extra 12px horizontal margin inside the scroll area, making them 12px narrower per side than the briefing topic cards (<code>.lh</code>). Removing that margin lines the library cards up with the same edges as the topic cards on every other view.</p>
+  <h1>PDF view — widen sections to match live-site feel</h1>
+  <p>The PDF view uses 40 px horizontal padding on its category-title, category-body and header blocks. The live site uses 16 px (the <code>.sa</code> scroll-area padding). On phone that takes ~48 px off the effective topic-card width inside the PDF, which is why the sections feel noticeably narrower than the same topics on the live site.</p>
   <table>
-    <tr><th></th><th>Card horizontal margin</th><th>Inset from screen edge</th></tr>
-    <tr><td class="h">Topic card .lh (target)</td><td>0</td><td>16 px (from .sa padding alone)</td></tr>
-    <tr><td class="h">Library card .wk — current</td><td>12 px each side</td><td>28 px (16 .sa + 12 .wk)</td></tr>
-    <tr><td class="h">Library card .wk — proposed</td><td class="match">0</td><td class="match">16 px (flush with .lh)</td></tr>
+    <tr><th>Selector</th><th>Current padding</th><th>Proposed padding</th></tr>
+    <tr><td class="h"><code>.pdf-header</code></td><td>30px <strong>40px</strong> 26px</td><td class="match">30px <strong>16px</strong> 26px</td></tr>
+    <tr><td class="h"><code>.pdf-cat-title</code></td><td>16px <strong>40px</strong></td><td class="match">16px <strong>16px</strong></td></tr>
+    <tr><td class="h"><code>.pdf-cat-body</code></td><td>24px <strong>40px</strong> 28px</td><td class="match">24px <strong>16px</strong> 28px</td></tr>
   </table>
-  <p>For comparison, every platform below shows three frames: a reference .lh topic card (top) showing the target edges, the current library state (middle, with dashed orange guides at the target edges), and the proposed library state (bottom) flush with those guides.</p>
-  <p class="status"><strong>PROPOSED</strong> — not yet live.</p>
+  <p>Internal topic-card padding (<code>.pdf-topic</code> 20px 24px 18px) left untouched — that's the card's own breathing room, not a width-restrictor. The dashed orange guides on the CURRENT frames mark the target inner edge (where the PROPOSED layout will sit).</p>
+  <p class="status"><strong>PROPOSED</strong> — not yet live. CURRENT (top, with guides) vs PROPOSED (bottom) per platform.</p>
 </div>
 
 <!-- iPhone -->
 <div class="platform-section">
-  <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px</p></div>
+  <div class="platform-header"><p class="platform-label">iPhone portrait · 390 px — biggest impact</p></div>
 
   <div class="frame-row">
-    <p class="row-label ref"><span class="tag">REF</span><span class="detail">briefing topic card .lh — the width target</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device w-iphone">
-        <div class="sa">
-          <div class="lh" style="--lh-cat:#ff6600"><div class="lh-cat">Leadership</div><div class="lh-title">Why ambiguity training beats clarity training</div><div class="lh-hl">Teams who tolerate ambiguity outperform peers under volatile conditions.</div></div>
-          <div class="lh" style="--lh-cat:#1e3a8a"><div class="lh-cat">Markets</div><div class="lh-title">Disinflation is a regime, not a moment</div><div class="lh-hl">Three indicators to watch when sentiment turns.</div></div>
-        </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">.wk margin:0 12px → 12px narrower per side; dashed orange = topic-card edge</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF horizontal padding — dashed orange = target edge (16 px in)</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-iphone">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Tech</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Tech</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Tech</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">.wk margin:0 → flush with .sa padding, same edges as .lh</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal — matches live site .sa padding</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-iphone">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Tech</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Tech</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Tech</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
@@ -142,38 +141,30 @@
   <div class="platform-header"><p class="platform-label">iPad portrait · 820 px</p></div>
 
   <div class="frame-row">
-    <p class="row-label ref"><span class="tag">REF</span><span class="detail">briefing topic card .lh — the width target</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device w-ipad-p">
-        <div class="sa">
-          <div class="lh" style="--lh-cat:#ff6600"><div class="lh-cat">Leadership</div><div class="lh-title">Why ambiguity training beats clarity training</div><div class="lh-hl">Teams who tolerate ambiguity outperform peers under volatile conditions.</div></div>
-          <div class="lh" style="--lh-cat:#1e3a8a"><div class="lh-cat">Markets</div><div class="lh-title">Disinflation is a regime, not a moment</div><div class="lh-hl">Three indicators to watch when sentiment turns.</div></div>
-        </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">.wk margin:0 12px — dashed orange guides at .lh edge</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF padding — dashed orange = target edge</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-ipad-p">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">.wk margin:0 → flush, matches .lh width above</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal — matches live site .sa padding</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-ipad-p">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
@@ -182,41 +173,33 @@
 
 <!-- iPad landscape -->
 <div class="platform-section">
-  <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px</p></div>
+  <div class="platform-header"><p class="platform-label">iPad landscape · 1180 px — PDF page max-width 820, centred</p></div>
 
   <div class="frame-row">
-    <p class="row-label ref"><span class="tag">REF</span><span class="detail">briefing topic card .lh — the width target</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device w-ipad-l">
-        <div class="sa">
-          <div class="lh" style="--lh-cat:#ff6600"><div class="lh-cat">Leadership</div><div class="lh-title">Why ambiguity training beats clarity training</div><div class="lh-hl">Teams who tolerate ambiguity outperform peers under volatile conditions.</div></div>
-          <div class="lh" style="--lh-cat:#1e3a8a"><div class="lh-cat">Markets</div><div class="lh-title">Disinflation is a regime, not a moment</div><div class="lh-hl">Three indicators to watch when sentiment turns.</div></div>
-        </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">.wk margin:0 12px — dashed orange guides at .lh edge</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF padding — dashed guides at target edge</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-ipad-l">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">.wk margin:0 → flush, matches .lh width above</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-ipad-l">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
@@ -225,41 +208,33 @@
 
 <!-- Desktop -->
 <div class="platform-section">
-  <div class="platform-header"><p class="platform-label">Desktop · 1280 px</p></div>
+  <div class="platform-header"><p class="platform-label">Desktop · 1280 px — PDF page max-width 820, centred</p></div>
 
   <div class="frame-row">
-    <p class="row-label ref"><span class="tag">REF</span><span class="detail">briefing topic card .lh — the width target</span></p>
-    <div class="scroll-row"><div class="row-inner">
-      <div class="frame"><div class="device w-desktop">
-        <div class="sa">
-          <div class="lh" style="--lh-cat:#ff6600"><div class="lh-cat">Leadership</div><div class="lh-title">Why ambiguity training beats clarity training</div><div class="lh-hl">Teams who tolerate ambiguity outperform peers under volatile conditions.</div></div>
-          <div class="lh" style="--lh-cat:#1e3a8a"><div class="lh-cat">Markets</div><div class="lh-title">Disinflation is a regime, not a moment</div><div class="lh-hl">Three indicators to watch when sentiment turns.</div></div>
-        </div>
-      </div></div>
-    </div></div>
-  </div>
-
-  <div class="frame-row">
-    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">.wk margin:0 12px — dashed orange guides at .lh edge (matches your screenshot)</span></p>
+    <p class="row-label"><span class="tag">CURRENT</span><span class="detail">40 px PDF padding — dashed guides at target edge</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device cur w-desktop">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
   </div>
 
   <div class="frame-row">
-    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">.wk margin:0 → flush, matches .lh width above</span></p>
+    <p class="row-label new"><span class="tag">PROPOSED</span><span class="detail">16 px horizontal</span></p>
     <div class="scroll-row"><div class="row-inner">
       <div class="frame"><div class="device new w-desktop">
-        <div class="sa">
-          <div class="wk"><div class="wk-header"><div><div class="wk-label current">2026 · Week 23 · Mon, 1 Jun</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 22 · Mon, 25 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
-          <div class="wk"><div class="wk-header"><div><div class="wk-label">2026 · Week 21 · Mon, 18 May</div><div class="wk-meta">24 topics across Leadership, Markets, Psychology, Technology, Geopolitics, Philosophy</div></div><div class="wk-right"><button class="wk-pdf">PDF</button><button class="wk-toggle">+</button></div></div></div>
+        <div class="pdf-page">
+          <div class="pdf-header"><div class="pdf-logo">π</div><div class="pdf-pi"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="pdf-wb">Weekly Briefing</div><div class="pdf-meta">Wednesday, 3 June 2026 · Week 23</div></div>
+          <div class="pdf-cat-title">Leadership</div>
+          <div class="pdf-cat-body">
+            <div class="pdf-topic"><div class="pdf-topic-head"><div class="pdf-topic-num">01</div><h3 class="pdf-topic-title">The 50-Year Career Problem</h3></div><p class="pdf-topic-hl">Midcareer professionals are running 50-year careers on systems designed for 30-year working lives, and burnout is the first symptom.</p><div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">Lynda Gratton's new HBR research, drawn from a study of professionals in their 40s, argues that midcareer burnout is structural rather than individual - workers are navigating long careers using outdated assumptions about pacing and reward.</div></div><div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"We have a problem. Burnout is becoming a real issue."</div></div></div></div>
+          </div>
         </div>
       </div></div>
     </div></div>
