@@ -353,16 +353,22 @@ html.login-active{background:var(--orange)}
    Cascade trap previously bit twice (pdf-topic-hl indent +
    pdf-cat-title padding) — keep media queries below defaults
    for any future .pdf-* additions too.
+
+   Left-edge rail at 14px (matches .pdf-header padding) so that
+   date, WEEK 23, every cat-title (LEADERSHIP / MARKETS /
+   PSYCHOLOGY / TECH / GEOPOLITICS / PHILOSOPHY), AND each
+   topic-card's orange left border all line up on one vertical
+   line. One rail = no visible drift.
    ============================================================ */
 @media(max-width:640px){
-  .pdf-cat-title{padding:14px 16px;font-size:12px}
-  .pdf-cat-body{padding:18px 16px 22px}
+  .pdf-cat-title{padding:14px 14px;font-size:12px}
+  .pdf-cat-body{padding:18px 14px 22px}
   .pdf-topic{padding:20px 18px 18px}
 }
 @media(min-width:641px) and (max-width:1024px){
   .pdf-week-label{padding:18px 0 14px}
-  .pdf-cat-title{padding:16px 16px}
-  .pdf-cat-body{padding:24px 16px 28px}
+  .pdf-cat-title{padding:16px 14px}
+  .pdf-cat-body{padding:24px 14px 28px}
   .pdf-topic{padding:20px 18px 18px}
 }
 /* Phone + iPad portrait: drop the 30px left indent on .pdf-topic body
