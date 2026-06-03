@@ -3,39 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A vs B at native widths — all platforms</title>
+<title>Label position based on tab overflow — all platforms</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box}
   body{font-family:'IBM Plex Serif',Georgia,serif;background:#e8e4dc;color:#1a1a1a;margin:0;padding:24px 0 64px;-webkit-font-smoothing:antialiased}
-
   .intro{max-width:760px;margin:0 auto 24px;padding:0 16px}
   .intro h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 8px}
   .intro p{font-family:'Inter',sans-serif;font-size:14px;color:#555;margin:0 0 8px;line-height:1.5}
-  .intro .live{font-family:'Inter',sans-serif;font-size:13px;color:#15803d;font-weight:600;margin:8px 0 0;padding:8px 12px;background:rgba(21,128,61,.08);border-left:3px solid #15803d}
+  .rule{font-family:'Inter',sans-serif;font-size:13px;color:#15803d;font-weight:600;margin:8px 0 0;padding:10px 14px;background:rgba(21,128,61,.08);border-left:3px solid #15803d;line-height:1.5}
+  .rule strong{display:block;margin-bottom:4px;font-size:14px}
 
   .platform-section{margin:48px 0 0}
   .platform-header{max-width:760px;margin:0 auto 16px;padding:0 16px}
   .platform-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#ff6600;margin:0 0 4px}
   .platform-sub{font-family:'Inter',sans-serif;font-size:13px;color:#666;margin:0;line-height:1.45}
+  .behaviour-tag{display:inline-block;font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#fff;background:#1a1a1a;padding:2px 8px;border-radius:3px;margin-left:8px;vertical-align:middle}
+  .behaviour-tag.flush{background:#15803d}
+  .behaviour-tag.axis{background:#ff6600}
 
-  /* Horizontal scroll wrapper — if user's viewport is narrower than the
-     mockup width, this specific row scrolls horizontally */
   .scroll-row{overflow-x:auto;padding:16px 0;-webkit-overflow-scrolling:touch}
   .scroll-row::-webkit-scrollbar{height:8px}
   .scroll-row::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:4px}
-
-  .row-inner{display:flex;gap:16px;padding:0 16px;width:max-content}
-
-  .variant{display:flex;flex-direction:column;gap:8px}
-  .variant-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#666;margin:0;padding:0 4px}
-  .variant-label .accent{color:#ff6600}
-  .variant-label .accent-live{color:#15803d}
+  .row-inner{display:flex;padding:0 16px;width:max-content}
 
   .frame{background:#1a1a1a;border-radius:14px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.18);flex-shrink:0}
   .device{background:#faf8f5;border-radius:10px;overflow:hidden;position:relative}
 
-  /* Native widths */
   .w-iphone{width:390px}
   .w-ipad-p{width:820px}
   .w-ipad-l{width:1180px}
@@ -77,9 +71,10 @@
   .w-ipad-p .eyebrow .intel, .w-ipad-l .eyebrow .intel, .w-desktop .eyebrow .intel{letter-spacing:.32em}
   .w-ipad-p .wordmark, .w-ipad-l .wordmark, .w-desktop .wordmark{font-size:36px}
 
-  /* Tabs ribbon */
-  .ribbon{background:#ff6600;border-top:1px solid rgba(255,255,255,.12)}
-  .w-iphone .ribbon{padding:10px 14px;text-align:left;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Tab ribbon */
+  .ribbon{background:#ff6600;border-top:1px solid rgba(255,255,255,.12);overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ribbon::-webkit-scrollbar{display:none}
+  .w-iphone .ribbon{padding:10px 14px;text-align:left}
   .w-ipad-p .ribbon, .w-ipad-l .ribbon, .w-desktop .ribbon{padding:14px 28px;text-align:center}
   .tabs{display:inline-flex}
   .w-iphone .tabs{gap:6px}
@@ -90,18 +85,14 @@
   .tab.on{background:#ff6600;color:#fff;border-color:rgba(255,255,255,.9)}
 
   /* Category band */
-  .ci{background:#ff6600;color:#fff;overflow:hidden;position:relative}
-  .w-iphone .ci{padding:12px 0}
-  .w-ipad-p .ci, .w-ipad-l .ci, .w-desktop .ci{padding:12px 0}
-  .ci .label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap}
+  .ci{background:#ff6600;color:#fff;overflow:hidden;position:relative;padding:12px 0}
+  .ci .label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;white-space:nowrap;display:inline-block}
 
-  /* Option A: axis-aligned (current behaviour on phone, was problematic on wider) */
-  .opt-a .ci .label{display:inline-block;position:relative;left:var(--axis,50%);transform:translateX(-50%)}
-
-  /* Option B: phone axis-aligned (same as A); wider gets flush-left padding-left:16px-28px */
-  .opt-b.w-iphone .ci .label{display:inline-block;position:relative;left:var(--axis,50%);transform:translateX(-50%)}
-  .opt-b.w-ipad-p .ci, .opt-b.w-ipad-l .ci, .opt-b.w-desktop .ci{padding:12px 28px}
-  .opt-b.w-ipad-p .ci .label, .opt-b.w-ipad-l .ci .label, .opt-b.w-desktop .ci .label{display:block;text-align:left}
+  /* JS sets .ci-flush class when all tabs fit; otherwise default axis behaviour */
+  .ci .label{position:relative;left:var(--axis,50%);transform:translateX(-50%)}
+  .ci-flush{padding:12px 28px}
+  .w-iphone .ci-flush{padding:12px 16px}
+  .ci-flush .label{position:static;transform:none;left:auto;display:block;text-align:left}
 
   /* Content peek */
   .content{background:#faf8f5}
@@ -124,151 +115,108 @@
 <body>
 
 <div class="intro">
-  <h1>A vs B at native widths — all platforms</h1>
-  <p>Each frame below is at exactly the width of its target platform. If your current viewport is narrower than a given frame, that row scrolls horizontally. <strong>Scroll right within each row</strong> to see the full frame.</p>
-  <p class="live">✓ Option B is currently live on the production site (commit ae4b01d).</p>
+  <h1>Label position — dynamic based on tab overflow</h1>
+  <p>Each frame at native platform width. Scroll right within rows if needed.</p>
+  <p class="rule"><strong>The new rule:</strong>Tabs overflow (scrollable) → label centred on Leadership pill axis<br>Tabs all fit (no scroll) → label flush-left to page margin</p>
+  <p style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px"><strong style="color:#1a1a1a">PROPOSED</strong> — not yet live. Confirm before implementation.</p>
 </div>
 
 <!-- iPhone -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">iPhone portrait · 390 px</p>
-    <p class="platform-sub">At phone width, A and B render identically — tab strip left-aligned, label axis-aligned to Leadership pill.</p>
+    <p class="platform-label">iPhone portrait · 390 px <span class="behaviour-tag axis">tabs overflow → axis-centred</span></p>
+    <p class="platform-sub">All 6 tabs don't fit at 390px. Strip scrolls horizontally. Label centred on Leadership pill.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="variant">
-      <p class="variant-label"><span class="accent">A</span> · Current (axis-aligned)</p>
-      <div class="frame"><div class="device opt-a w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Tech</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
-    <div class="variant">
-      <p class="variant-label"><span class="accent-live">B (LIVE)</span> · Flush-left on wider</p>
-      <div class="frame"><div class="device opt-b w-iphone">
-        <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Tech</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
+    <div class="frame"><div class="device w-iphone">
+      <div class="masthead"><div class="utility"><div class="util-date">Tue, 2 Jun 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      <div class="ci" data-ci><div class="label">Leadership</div></div>
+      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+    </div></div>
   </div></div>
 </div>
 
 <!-- iPad portrait -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">iPad portrait · 820 px</p>
-    <p class="platform-sub">A floats the label mid-band. B sits it flush-left to the topic-card x-position.</p>
+    <p class="platform-label">iPad portrait · 820 px <span class="behaviour-tag flush">tabs fit → flush-left</span></p>
+    <p class="platform-sub">All 6 tabs fit comfortably at 820px. Label flush-left to topic-card margin.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="variant">
-      <p class="variant-label"><span class="accent">A</span> · Current (axis-aligned)</p>
-      <div class="frame"><div class="device opt-a w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
-    <div class="variant">
-      <p class="variant-label"><span class="accent-live">B (LIVE)</span> · Flush-left on wider</p>
-      <div class="frame"><div class="device opt-b w-ipad-p">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
+    <div class="frame"><div class="device w-ipad-p">
+      <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      <div class="ci" data-ci><div class="label">Leadership</div></div>
+      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+    </div></div>
   </div></div>
 </div>
 
 <!-- iPad landscape -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">iPad landscape · 1180 px</p>
-    <p class="platform-sub">The width from your original screenshot — A vs B difference is sharpest here.</p>
+    <p class="platform-label">iPad landscape · 1180 px <span class="behaviour-tag flush">tabs fit → flush-left</span></p>
+    <p class="platform-sub">Plenty of room for all 6 tabs. Label flush-left.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="variant">
-      <p class="variant-label"><span class="accent">A</span> · Current (axis-aligned)</p>
-      <div class="frame"><div class="device opt-a w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
-    <div class="variant">
-      <p class="variant-label"><span class="accent-live">B (LIVE)</span> · Flush-left on wider</p>
-      <div class="frame"><div class="device opt-b w-ipad-l">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
+    <div class="frame"><div class="device w-ipad-l">
+      <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      <div class="ci" data-ci><div class="label">Leadership</div></div>
+      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+    </div></div>
   </div></div>
 </div>
 
 <!-- Desktop -->
 <div class="platform-section">
   <div class="platform-header">
-    <p class="platform-label">Desktop · 1280 px</p>
-    <p class="platform-sub">Widest view. Empty space in A is most visible here.</p>
+    <p class="platform-label">Desktop · 1280 px <span class="behaviour-tag flush">tabs fit → flush-left</span></p>
+    <p class="platform-sub">Widest viewport. Label flush-left.</p>
   </div>
   <div class="scroll-row"><div class="row-inner">
-    <div class="variant">
-      <p class="variant-label"><span class="accent">A</span> · Current (axis-aligned)</p>
-      <div class="frame"><div class="device opt-a w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
-    <div class="variant">
-      <p class="variant-label"><span class="accent-live">B (LIVE)</span> · Flush-left on wider</p>
-      <div class="frame"><div class="device opt-b w-desktop">
-        <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
-        <div class="ribbon"><div class="tabs"><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
-        <div class="ci" data-ci><div class="label">Leadership</div></div>
-        <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
-      </div></div>
-    </div>
+    <div class="frame"><div class="device w-desktop">
+      <div class="masthead"><div class="utility"><div class="util-date">Tuesday, 2 June 2026</div><div class="util-right"><div class="avatar">J</div><button class="ham">≡</button></div></div><div class="identity"><div class="pi-logo">π</div><div class="eyebrow"><span class="perf">Performance</span><span class="intel">Intelligence</span></div><div class="wordmark">Weekly Briefing</div></div></div>
+      <div class="ribbon" data-ribbon><div class="tabs" data-tabs><span class="tab on" style="--col:#ff6600">Leadership</span><span class="tab" style="--col:#1e3a8a">Markets</span><span class="tab" style="--col:#c8102e">Psychology</span><span class="tab" style="--col:#0891b2">Technology</span><span class="tab" style="--col:#7c3aed">Geopolitics</span><span class="tab" style="--col:#15803d">Philosophy</span></div></div>
+      <div class="ci" data-ci><div class="label">Leadership</div></div>
+      <div class="content"><div class="card"><div class="num">01</div><div><div class="title">The 50-Year Career Problem</div><div class="summary">Midcareer professionals running 50-year careers on systems designed for 30-year working lives.</div></div></div></div>
+    </div></div>
   </div></div>
 </div>
 
 <script>
-  // Set axis for Option A so label sits at Leadership pill's centre
-  function setAxes(){
-    document.querySelectorAll('.opt-a [data-ci]').forEach(function(ci){
-      var ribbon = ci.previousElementSibling;
-      var firstTab = ribbon.querySelector('.tab');
-      if(!firstTab) return;
-      var tabRect = firstTab.getBoundingClientRect();
-      var ciRect = ci.getBoundingClientRect();
-      var axis = (tabRect.left + tabRect.width/2) - ciRect.left;
-      ci.style.setProperty('--axis', axis + 'px');
-    });
-    // Also B at phone width uses axis
-    document.querySelectorAll('.opt-b.w-iphone [data-ci]').forEach(function(ci){
-      var ribbon = ci.previousElementSibling;
-      var firstTab = ribbon.querySelector('.tab');
-      if(!firstTab) return;
-      var tabRect = firstTab.getBoundingClientRect();
-      var ciRect = ci.getBoundingClientRect();
-      var axis = (tabRect.left + tabRect.width/2) - ciRect.left;
-      ci.style.setProperty('--axis', axis + 'px');
+  // Decide per-frame whether to use flush-left or axis-centred based on
+  // whether the tab strip overflows (i.e. scrollWidth > clientWidth)
+  function decideLabelPosition(){
+    document.querySelectorAll('[data-ci]').forEach(function(ci){
+      var device = ci.closest('.device');
+      var ribbon = device.querySelector('[data-ribbon]');
+      var tabs = device.querySelector('[data-tabs]');
+      var firstTab = tabs.querySelector('.tab');
+      if(!ribbon || !tabs || !firstTab) return;
+
+      // Does the tab strip overflow? Compare its scroll width to its visible width
+      var overflows = tabs.scrollWidth > ribbon.clientWidth;
+
+      if(overflows){
+        // Axis-aligned to Leadership pill centre
+        ci.classList.remove('ci-flush');
+        var tabRect = firstTab.getBoundingClientRect();
+        var ciRect = ci.getBoundingClientRect();
+        var axisX = (firstTab.offsetLeft + firstTab.offsetWidth / 2)
+                  + (ribbon.getBoundingClientRect().left - ciRect.left);
+        ci.style.setProperty('--axis', axisX + 'px');
+      } else {
+        // Flush-left
+        ci.classList.add('ci-flush');
+      }
     });
   }
-  window.addEventListener('load', setAxes);
-  window.addEventListener('resize', setAxes);
-  // Also recompute after horizontal scroll within a row (in case the user scrolls into view)
+  window.addEventListener('load', decideLabelPosition);
+  window.addEventListener('resize', decideLabelPosition);
   document.querySelectorAll('.scroll-row').forEach(function(r){
-    r.addEventListener('scroll', function(){ requestAnimationFrame(setAxes); });
+    r.addEventListener('scroll', function(){ requestAnimationFrame(decideLabelPosition); });
   });
 </script>
 
