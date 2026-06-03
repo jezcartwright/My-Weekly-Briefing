@@ -486,6 +486,8 @@ body.text-xlarge .ne-quote{font-size:15px}
           <button class="mi" id="btn-notes" onclick="showView('notes')"><span class="ico">✏️</span>My Notes</button>
           <button class="mi" id="btn-likes" onclick="showView('likes')"><span class="ico">♥</span>Liked</button>
           <button class="mi" id="btn-lib" onclick="showView('library')"><span class="ico">◫</span>Library</button>
+          <div class="mi-divider"></div>
+          <button class="mi" id="btn-textsize" onclick="toggleTextSize()" aria-label="Text size"><span class="ico ico-aa">Aa</span>Text size</button>
         </div>
       </div>
     </div>
@@ -499,7 +501,6 @@ body.text-xlarge .ne-quote{font-size:15px}
   <div id="vt">
     <div class="cat-band">
       <div id="tabs"></div>
-      <div id="ci-host"></div>
     </div>
     <div class="sa" id="ts"></div>
   </div>
@@ -1276,14 +1277,6 @@ window.addEventListener('resize', function(){ requestAnimationFrame(setLabelAxis
 function rto(){
   var tops=gt(ac.id);
   var darkColor = ac.color;  // Unified: labels and numbers use banner colour, not colorDark
-  // Determine current text-size state so the new in-banner Aa toggle reflects it
-  var aaClass='';
-  if(document.body.classList.contains('text-xlarge')) aaClass=' on on-xl';
-  else if(document.body.classList.contains('text-large')) aaClass=' on';
-  document.getElementById('ci-host').innerHTML=
-    '<div class="ci">'+
-    '<button type="button" class="aa-toggle'+aaClass+'" onclick="toggleTextSize()" id="btn-textsize" aria-label="Text size">Aa</button>'+
-    '</div>';
   document.getElementById('ts').innerHTML=
     '<div class="tl">'+tops.map(function(t,i){
       var liked=isLiked(ac.id,t.title);
