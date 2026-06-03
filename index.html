@@ -62,19 +62,24 @@ html.login-active{background:var(--orange)}
 .util-date{color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;line-height:1}
 .util-right{display:flex;align-items:center;gap:6px;position:relative}
 .avatar-btn{
-  width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.25);
+  width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.25);
   display:flex;align-items:center;justify-content:center;color:#fff;
-  font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;
   border:1.5px solid transparent;transition:border-color .15s;overflow:hidden;
 }
 .avatar-btn:hover,.avatar-btn.active{border-color:rgba(255,255,255,0.6)}
 .avatar-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .hamburger-btn{
-  width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.18);
+  width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.18);
   color:#fff;border:none;display:inline-flex;align-items:center;justify-content:center;
-  font-size:16px;line-height:1;font-weight:300;cursor:pointer;transition:background .15s;
+  font-size:18px;line-height:1;font-weight:300;cursor:pointer;transition:background .15s;
 }
 .hamburger-btn:hover,.hamburger-btn.active{background:rgba(255,255,255,0.32)}
+/* iPad+ sizes — slight bump for larger screens */
+@media(min-width:720px){
+  .avatar-btn{width:34px;height:34px;font-size:13px}
+  .hamburger-btn{width:36px;height:36px;font-size:20px}
+}
 
 .identity{display:flex;flex-direction:column;align-items:center;margin-top:6px;padding-bottom:6px}
 .pi-logo{margin-bottom:5px}
