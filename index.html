@@ -151,13 +151,11 @@ html.login-active{background:var(--orange)}
 .tab .tab-ico{display:none}
 .sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px calc(var(--sb) + 18px);background:var(--bg)}
 /* Category banner — coloured band per category (set inline via background) */
-.ci{margin:-18px -16px 16px;padding:14px 0;background:var(--cat-color,#EFE9DD);color:#fff;overflow:hidden;position:relative}
+.ci{margin:-18px -16px 16px;padding:14px 16px;background:var(--cat-color,#EFE9DD);color:#fff;overflow:hidden;position:relative;text-align:right}
 .ci .ico{display:none}
-.ci-text{display:block}
-.ci-text .cl{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;display:inline-block;position:relative;left:var(--label-axis-x,50%);transform:translateX(-50%);white-space:nowrap}
-/* Wider screens: label flush-left to topic-card edge, not axis-aligned to Leadership pill */
+.ci .cw{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#fff;margin:0;display:inline-block;white-space:nowrap}
 @media(min-width:720px){
-  .ci-text .cl{display:block;position:static;transform:none;left:auto;padding-left:16px;text-align:left}
+  .ci{padding:14px 28px}
 }
 .tl{display:flex;flex-direction:column;gap:14px}
 /* Topic cards — editorial white cards with category-coloured left edge */
@@ -1178,7 +1176,7 @@ function rto(){
   var darkColor = ac.color;  // Unified: labels and numbers use banner colour, not colorDark
   document.getElementById('ts').innerHTML=
     '<div class="ci" style="--cat-color:'+ac.color+'">'+
-    '<div class="ci-text"><div class="cl">'+ac.label+'</div></div></div>'+
+    '<div class="cw">Week '+getWeekNumber()+'</div></div>'+
     '<div class="tl">'+tops.map(function(t,i){
       var liked=isLiked(ac.id,t.title);
       var hasNote=hasTopicNote(ac.id,t.title);
