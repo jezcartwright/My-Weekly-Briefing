@@ -219,7 +219,8 @@ html.login-active{background:var(--orange)}
 .topic-notes-footer{display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid var(--lh-cat,var(--orange))}
 .topic-notes-hint{font-size:10px;color:var(--t);font-family:'Inter',sans-serif}
 .topic-notes-clear{font-size:10px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
-.view-top{padding:14px 16px 10px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white)}
+.view-top{padding:14px 16px 10px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white);display:flex;align-items:flex-start;justify-content:space-between}
+.view-close{font-size:24px;line-height:20px;color:#ff6600;cursor:pointer;padding:0 4px;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 .view-title{font-family:'Inter',sans-serif;font-size:20px;font-weight:700;color:var(--t)}
 .view-sub{font-family:'Inter',sans-serif;font-size:11px;color:var(--t2);margin-top:3px}
 .wk{background:var(--white);border:1px solid var(--b);border-radius:8px;margin:0 0 10px;overflow:hidden}
@@ -495,7 +496,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="sa" id="ts"></div>
   </div>
   <div id="vl">
-    <div class="view-top"><div class="view-title">Briefing Library</div><div class="view-sub" id="lce"></div></div>
+    <div class="view-top"><div><div class="view-title">Briefing Library</div><div class="view-sub" id="lce"></div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
     <div class="search-bar">
       <input class="search-input" id="lib-search" placeholder="Search library..." oninput="rl()">
       <button class="search-clear" onclick="clearLibSearch()">✕</button>
@@ -503,7 +504,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="sa" id="ls"></div>
   </div>
   <div id="vk">
-    <div class="view-top"><div class="view-title">♥ Liked Briefings</div><div class="view-sub" id="kce"></div></div>
+    <div class="view-top"><div><div class="view-title">♥ Liked Briefings</div><div class="view-sub" id="kce"></div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
     <div class="search-bar">
       <input class="search-input" id="liked-search" placeholder="Search liked topics..." oninput="rk()">
       <button class="search-clear" onclick="clearLikedSearch()">✕</button>
@@ -525,10 +526,8 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="sa" id="ks"></div>
   </div>
   <div id="vn">
-    <div class="view-top">
-      <div class="view-title">✏ My Notes</div>
-      <div class="view-sub" id="nce">No notes yet</div>
-    </div>
+    <div class="view-top"><div><div class="view-title">✏ My Notes</div>
+      <div class="view-sub" id="nce">No notes yet</div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
     <div class="filter-row">
       <div class="filter-tabs" id="nf"></div>
     </div>
