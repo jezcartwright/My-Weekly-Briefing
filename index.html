@@ -681,6 +681,19 @@ auth.getRedirectResult().then(function(result) {
 
 // Handle email link sign-in on page load
 if(firebase.auth().isSignInWithEmailLink(window.location.href)) {
+  // Cross-device fallback: if the user opened this link on a different
+  // device/browser than where they signed up, localStorage won't have
+  // nameForSignIn. sendMagicLink also encodes fn/ln in the continueUrl
+  // for exactly this case — read those params and seed localStorage
+  // so the existing post-sign-in profile-save flow picks them up.
+  try {
+    if(!localStorage.getItem('nameForSignIn')) {
+      var _p = new URLSearchParams(window.location.search);
+      var _fn = _p.get('fn');
+      var _ln = _p.get('ln');
+      if(_fn) localStorage.setItem('nameForSignIn', JSON.stringify({first: _fn, last: _ln || ''}));
+    }
+  } catch(e) {}
   var emailFromStorage = localStorage.getItem('emailForSignIn');
   if(!emailFromStorage) emailFromStorage = window.prompt('Please enter your email to confirm sign-in:');
   if(emailFromStorage) {
@@ -714,8 +727,12 @@ window.sendMagicLink = function() {
     msg.textContent = 'Please complete the security check above.'; return;
   }
   msg.textContent = 'Sending...';
+  // Encode name in the continueUrl so cross-device sign-in still captures
+  // it (the landing code falls back to these params when localStorage is empty).
+  var _contUrl = ACTION_URL + '?fn=' + encodeURIComponent(fname) +
+                 (lname ? '&ln=' + encodeURIComponent(lname) : '');
   auth.sendSignInLinkToEmail(email, {
-    url: ACTION_URL,
+    url: _contUrl,
     handleCodeInApp: true
   }).then(function() {
     localStorage.setItem('emailForSignIn', email);

@@ -87,6 +87,25 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
 #detail .panel header{background:var(--orange);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 #detail .panel header .h-name{font-family:'IBM Plex Serif',Georgia,'Times New Roman',serif;font-size:22px;font-weight:600;color:#fff;line-height:1.1;letter-spacing:-0.01em}
 #detail .panel header .h-email{font-size:11px;opacity:.85;margin-top:3px;color:#fff}
+/* Inline name-edit affordance on the detail header.
+   Selectors carry an extra .h-name-row / .h-name-edit class so they
+   out-specify '#detail .panel header button' which forces 32×32 on every header button. */
+#detail .h-name-row{display:flex;align-items:center;gap:8px}
+#detail .h-name-row .h-edit-btn{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);color:#fff;border-radius:5px;width:28px;height:28px;cursor:pointer;font-size:13px;line-height:1;flex-shrink:0;padding:0;opacity:.85;transition:opacity .12s}
+#detail .h-name-row .h-edit-btn:hover{opacity:1;background:rgba(255,255,255,0.28)}
+#detail .h-name-edit{display:none;flex-direction:column;gap:8px;width:100%}
+#detail .h-name-edit.show{display:flex}
+#detail .h-name-edit .h-edit-inputs{display:flex;gap:6px}
+#detail .h-name-edit .h-edit-input{flex:1;min-width:0;border:1px solid rgba(255,255,255,0.4);border-radius:5px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:13px;background:rgba(255,255,255,0.12);color:#fff;outline:none;width:auto;height:auto}
+#detail .h-name-edit .h-edit-input::placeholder{color:rgba(255,255,255,0.65)}
+#detail .h-name-edit .h-edit-input:focus{background:rgba(255,255,255,0.22);border-color:#fff}
+#detail .h-name-edit .h-edit-actions{display:flex;gap:6px;align-items:center}
+#detail .h-name-edit .h-edit-save{background:#fff;color:var(--orange);border:none;border-radius:5px;padding:6px 14px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;width:auto;height:auto;flex-shrink:0}
+#detail .h-name-edit .h-edit-save:hover{background:#fff7f0}
+#detail .h-name-edit .h-edit-save:disabled{opacity:.5;cursor:not-allowed}
+#detail .h-name-edit .h-edit-cancel{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.5);border-radius:5px;padding:6px 12px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;cursor:pointer;width:auto;height:auto;flex-shrink:0}
+#detail .h-name-edit .h-edit-cancel:hover{background:rgba(255,255,255,0.12)}
+#detail .h-name-edit .h-edit-msg{font-size:11px;color:#fff;opacity:.9;min-height:14px}
 #detail .panel header button{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:6px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;flex-shrink:0}
 #detail .body{padding:22px;flex:1}
 #detail .meta-row{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:13px;margin-bottom:24px}
@@ -325,8 +344,22 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
 <div id="detail" onclick="if(event.target.id==='detail')closeDetail()">
   <div class="panel">
     <header>
-      <div>
-        <div class="h-name" id="d-name">—</div>
+      <div style="flex:1;min-width:0">
+        <div class="h-name-row">
+          <div class="h-name" id="d-name">—</div>
+          <button class="h-edit-btn" id="edit-name-btn" onclick="openEditName()" title="Edit name" aria-label="Edit name">✎</button>
+        </div>
+        <div class="h-name-edit" id="edit-name-form">
+          <div class="h-edit-inputs">
+            <input type="text" class="h-edit-input" id="edit-first" placeholder="First name" autocomplete="off">
+            <input type="text" class="h-edit-input" id="edit-last" placeholder="Last name" autocomplete="off">
+          </div>
+          <div class="h-edit-actions">
+            <button class="h-edit-save" id="edit-save-btn" onclick="saveEditName()">Save</button>
+            <button class="h-edit-cancel" onclick="cancelEditName()">Cancel</button>
+            <div class="h-edit-msg" id="edit-msg" style="margin-left:auto;align-self:center"></div>
+          </div>
+        </div>
         <div class="h-email" id="d-email">—</div>
       </div>
       <button onclick="closeDetail()" aria-label="Close">✕</button>
@@ -534,9 +567,12 @@ document.getElementById('sort').addEventListener('change', function(e) {
 });
 
 // --- Detail drawer ---
+var currentDetailUid = null;
 window.openDetail = function(uid) {
   var s = allSubs.find(function(x) { return x.uid === uid; });
   if (!s) return;
+  currentDetailUid = uid;
+  cancelEditName();  // make sure no stale edit form is open
   document.getElementById('d-name').textContent = s.name;
   document.getElementById('d-email').textContent = s.email || '(no email)';
   document.getElementById('d-uid').textContent = s.uid;
@@ -587,6 +623,61 @@ window.openDetail = function(uid) {
 };
 window.closeDetail = function() {
   document.getElementById('detail').classList.remove('show');
+  cancelEditName();
+  currentDetailUid = null;
+};
+
+// --- Inline name editing on the detail drawer ---
+window.openEditName = function() {
+  if(!currentDetailUid) return;
+  var s = allSubs.find(function(x){ return x.uid === currentDetailUid; });
+  if(!s) return;
+  document.getElementById('edit-first').value = s.firstName || '';
+  document.getElementById('edit-last').value = s.lastName || '';
+  document.getElementById('edit-msg').textContent = '';
+  document.getElementById('d-name').style.display = 'none';
+  document.getElementById('edit-name-btn').style.display = 'none';
+  document.getElementById('edit-name-form').classList.add('show');
+  document.getElementById('edit-first').focus();
+};
+window.cancelEditName = function() {
+  var dn = document.getElementById('d-name');
+  var bt = document.getElementById('edit-name-btn');
+  var fm = document.getElementById('edit-name-form');
+  if(dn) dn.style.display = '';
+  if(bt) bt.style.display = '';
+  if(fm) fm.classList.remove('show');
+};
+window.saveEditName = function() {
+  if(!currentDetailUid) return;
+  var first = (document.getElementById('edit-first').value||'').trim();
+  var last = (document.getElementById('edit-last').value||'').trim();
+  var msg = document.getElementById('edit-msg');
+  var saveBtn = document.getElementById('edit-save-btn');
+  if(!first && !last){ msg.textContent = 'Enter a first or last name.'; return; }
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+  msg.textContent = '';
+  db.collection('users').doc(currentDetailUid).set({
+    profile: { firstName: first, lastName: last }
+  }, { merge: true }).then(function(){
+    // Update the in-memory cache so the row + drawer reflect immediately
+    var s = allSubs.find(function(x){ return x.uid === currentDetailUid; });
+    if(s){
+      s.firstName = first;
+      s.lastName = last;
+      s.name = [first, last].filter(Boolean).join(' ').trim() || s.displayName || '(no name)';
+      document.getElementById('d-name').textContent = s.name;
+    }
+    renderRows();
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
+    cancelEditName();
+  }).catch(function(e){
+    msg.textContent = 'Save failed: ' + (e.message || e);
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
+  });
 };
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeDetail();
