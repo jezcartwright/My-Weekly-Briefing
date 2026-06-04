@@ -220,7 +220,9 @@ html.login-active{background:var(--orange)}
 .topic-notes-hint{font-size:10px;color:var(--t);font-family:'Inter',sans-serif}
 .topic-notes-clear{font-size:10px;color:var(--t3);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
 .view-top{padding:14px 16px 10px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--white);display:flex;align-items:center;justify-content:space-between}
-.view-close{font-size:24px;line-height:20px;color:#ff6600;cursor:pointer;padding:0 4px;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.view-close{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;color:#ff6600;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.view-right{display:flex;align-items:center;gap:14px}
+#vl .view-sub,#vk .view-sub,#vn .view-sub{margin-top:0}
 #vl .view-top,#vk .view-top,#vn .view-top{background:#ff6600;border-bottom:none}
 #vl .view-title,#vk .view-title,#vn .view-title{color:#fff}
 #vl .view-sub,#vk .view-sub,#vn .view-sub{color:rgba(255,255,255,0.85)}
@@ -268,7 +270,7 @@ html.login-active{background:var(--orange)}
 .filter-row{display:flex;align-items:center;gap:8px;padding:8px 12px;overflow:visible;flex-shrink:0}
 .filter-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px;flex:1;min-width:0}
 .sort-wrap{flex-shrink:0;margin-left:auto;position:relative}
-.sort-btn{box-sizing:border-box;height:32px;width:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;border:1.5px solid #ff6600;background:#fff;color:#ff6600;font-size:17px;cursor:pointer;line-height:1;padding:0}
+.sort-btn{box-sizing:border-box;align-self:stretch;width:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1.5px solid #ff6600;background:#fff;color:#ff6600;font-size:17px;cursor:pointer;line-height:1;padding:0}
 .sort-btn .chev{font-family:'Inter',sans-serif;font-size:9px;opacity:0.6;transition:transform .15s}
 .sort-btn.open .chev{transform:rotate(180deg)}
 .sort-btn .label-strong{font-family:'Inter',sans-serif;color:var(--t)}
@@ -507,7 +509,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="sa" id="ts"></div>
   </div>
   <div id="vl">
-    <div class="view-top"><div><div class="view-title">Briefing Library</div><div class="view-sub" id="lce"></div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
+    <div class="view-top"><div class="view-title">Briefing Library</div><div class="view-right"><div class="view-sub" id="lce"></div><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
     <div class="search-bar">
       <div class="search-field"><input class="search-input" id="lib-search" placeholder="Search library..." oninput="rl()">
       <button class="search-clear" onclick="clearLibSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button></div>
@@ -515,7 +517,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="sa" id="ls"></div>
   </div>
   <div id="vk">
-    <div class="view-top"><div><div class="view-title">♥ Liked Briefings</div><div class="view-sub" id="kce"></div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
+    <div class="view-top"><div class="view-title">♥ Liked Topics</div><div class="view-right"><div class="view-sub" id="kce"></div><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
     <div class="search-bar">
       <div class="search-field"><input class="search-input" id="liked-search" placeholder="Search liked topics..." oninput="rk()">
       <button class="search-clear" onclick="clearLikedSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button></div>
@@ -531,8 +533,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="sa" id="ks"></div>
   </div>
   <div id="vn">
-    <div class="view-top"><div><div class="view-title">✏ My Notes</div>
-      <div class="view-sub" id="nce">No notes yet</div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
+    <div class="view-top"><div class="view-title">✏ My Notes</div><div class="view-right"><div class="view-sub" id="nce">No notes yet</div><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
     <div class="search-bar">
       <div class="search-field"><input class="search-input" id="notes-search" placeholder="Search notes..." oninput="rn()">
       <button class="search-clear" onclick="clearNotesSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button></div>
@@ -1421,7 +1422,7 @@ function rl(){
     });
   });
   var weekCount=Object.keys(groups).length;
-  document.getElementById('lce').textContent=weekCount+' week'+(weekCount!==1?'s':'')+' saved';
+  document.getElementById('lce').textContent=weekCount+(weekCount!==1?' Weeks Saved':' Week Saved');
 
   var ls=document.getElementById('ls');
   ls.innerHTML='';
@@ -1533,7 +1534,7 @@ function rk(){
       return oa-ob; // stable: preserves newest-first within a category
     });
   }
-  document.getElementById('kce').textContent=filtered.length+' liked topic'+(filtered.length!==1?'s':'');
+  document.getElementById('kce').textContent=filtered.length+(filtered.length!==1?' Liked Topics':' Liked Topic');
   var cats=[{id:'all',label:'All',color:'#FF6600'}].concat(CATS.map(function(c){return{id:c.id,label:c.label,color:c.color};}));
   var kfEl=document.getElementById('kf'); if(kfEl)kfEl.innerHTML=cats.map(function(c){var on=kf_val===c.id;return'<div class="ftab'+(on?' on':'')+'" style="--ftab-c:'+c.color+'" onclick="skf(\''+c.id+'\')">'+c.label+'</div>';}).join('');
   // Sync sort button + menu
@@ -1608,7 +1609,7 @@ function rn(){
   if(nq){Object.keys(groups).forEach(function(cid){groups[cid]=groups[cid].filter(function(e){return (e.title||'').toLowerCase().indexOf(nq)>-1||(e.note||'').toLowerCase().indexOf(nq)>-1;});if(!groups[cid].length)delete groups[cid];});}
   var total=Object.values(groups).reduce(function(a,g){return a+g.length;},0);
   var filtered=nf==='all'?total:(groups[nf]?groups[nf].length:0);
-  document.getElementById('nce').textContent=total===0?'No notes yet':filtered+' note'+(filtered!==1?'s':'')+(nf!=='all'?' in '+(catMeta[nf]?catMeta[nf].label:''):'');
+  document.getElementById('nce').textContent=total===0?'No notes yet':filtered+(filtered!==1?' Notes':' Note')+(nf!=='all'?' in '+(catMeta[nf]?catMeta[nf].label:''):'');
   var sc=document.getElementById('ns'); if(!sc)return;
   if(total===0){sc.innerHTML='<div class="empty"><span class="empty-icon">\u270F</span><div class="empty-title">No notes yet</div><div class="empty-sub">Expand any topic and add your thoughts.</div></div>';return;}
   var html='';
