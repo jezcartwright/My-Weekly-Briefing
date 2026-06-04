@@ -518,9 +518,6 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="search-bar">
       <input class="search-input" id="liked-search" placeholder="Search liked topics..." oninput="rk()">
       <button class="search-clear" onclick="clearLikedSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
-    </div>
-    <div class="filter-row">
-      <div class="filter-tabs" id="kf"></div>
       <div class="sort-wrap" id="sort-wrap">
         <button class="sort-btn" id="sort-btn" onclick="toggleSortMenu(event)" aria-label="Sort"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 L7 20 M7 4 L3.5 7.5 M7 4 L10.5 7.5"/><path d="M17 20 L17 4 M17 20 L13.5 16.5 M17 20 L20.5 16.5"/></svg></button>
         <div class="sort-menu" id="sort-menu" style="display:none">
@@ -538,9 +535,6 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="search-bar">
       <input class="search-input" id="notes-search" placeholder="Search notes..." oninput="rn()">
       <button class="search-clear" onclick="clearNotesSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
-    </div>
-    <div class="filter-row">
-      <div class="filter-tabs" id="nf"></div>
     </div>
     <div class="sa" id="ns"></div>
   </div>
@@ -1540,7 +1534,7 @@ function rk(){
   }
   document.getElementById('kce').textContent=filtered.length+' liked topic'+(filtered.length!==1?'s':'');
   var cats=[{id:'all',label:'All',color:'#FF6600'}].concat(CATS.map(function(c){return{id:c.id,label:c.label,color:c.color};}));
-  document.getElementById('kf').innerHTML=cats.map(function(c){var on=kf_val===c.id;return'<div class="ftab'+(on?' on':'')+'" style="--ftab-c:'+c.color+'" onclick="skf(\''+c.id+'\')">'+c.label+'</div>';}).join('');
+  var kfEl=document.getElementById('kf'); if(kfEl)kfEl.innerHTML=cats.map(function(c){var on=kf_val===c.id;return'<div class="ftab'+(on?' on':'')+'" style="--ftab-c:'+c.color+'" onclick="skf(\''+c.id+'\')">'+c.label+'</div>';}).join('');
   // Sync sort button + menu
   var sortLabels={newest:'Newest first',oldest:'Oldest first',category:'By category'};
   var sc=document.getElementById('sort-current'); if(sc)sc.textContent=sortLabels[likedSort]||'Newest first';
