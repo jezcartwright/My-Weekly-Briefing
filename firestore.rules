@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin allow-list. Edit to add admins.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'jc@jezcartwright.com'
+        ];
+    }
+
+    // Validate that a write only touches the unsubscribe fields and
+    // doesn't change anything else. Used to allow anonymous unsubscribes.
+    function isUnsubscribeOnlyWrite() {
+      let changedKeys = request.resource.data.diff(resource.data).changedKeys();
+      return changedKeys.hasOnly(['unsubscribed', 'unsubscribedAt'])
+        && request.resource.data.unsubscribed == true;
+    }
+
+    match /users/{uid} {
+  allow read, write: if request.auth != null && (
+    request.auth.uid == uid ||
+    request.auth.token.email == 'jc@jezcartwright.com'
+  );
+}
+
+
+    // Admin-only send job queue
+    match /adminSends/{jobId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      // Update allowed by service-account worker (which doesn't go through
+      // these client rules — it uses IAM) and by admin (who can edit/abort).
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}

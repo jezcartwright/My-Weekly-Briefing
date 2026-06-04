@@ -1,0 +1,57 @@
+name: Deploy Firestore Rules
+
+# Deploys firestore.rules to Firebase project pi-briefing-38ddc whenever
+# the rules file (or its config / this workflow) changes on main.
+#
+# IMPORTANT: this is now the source of truth for Firestore security rules.
+# Do NOT edit the rules in the Firebase Console directly — changes there
+# will be silently overwritten by the next deploy from this workflow.
+# Edit firestore.rules in the repo, commit to main, and the workflow
+# republishes the rules within ~30 seconds.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'firestore.rules'
+      - 'firebase.json'
+      - '.github/workflows/deploy-firestore-rules.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Write service account credentials
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA_JSON" ]; then
+            echo "ERROR: FIREBASE_SERVICE_ACCOUNT secret is not set."
+            exit 1
+          fi
+          echo "$SA_JSON" > "$RUNNER_TEMP/firebase-sa.json"
+          chmod 600 "$RUNNER_TEMP/firebase-sa.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
+
+      - name: Deploy Firestore rules
+        run: |
+          firebase deploy \
+            --only firestore:rules \
+            --project pi-briefing-38ddc \
+            --non-interactive
