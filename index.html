@@ -263,7 +263,7 @@ html.login-active{background:var(--orange)}
 .search-input{flex:1;border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;color:var(--t);outline:none;background:var(--bg)}
 .search-bar{position:relative}
 .search-input{padding-right:34px}
-.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#ff6600;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;z-index:2}
+.search-clear{position:absolute;right:8px;top:0;bottom:0;margin:auto 0;height:24px;width:24px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:0;z-index:2}
 .filter-row{display:flex;align-items:center;gap:8px;padding:8px 12px;overflow:visible;flex-shrink:0}
 .filter-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px;flex:1;min-width:0}
 .sort-wrap{flex-shrink:0;margin-left:auto;position:relative}
@@ -508,7 +508,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="view-top"><div><div class="view-title">Briefing Library</div><div class="view-sub" id="lce"></div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
     <div class="search-bar">
       <input class="search-input" id="lib-search" placeholder="Search library..." oninput="rl()">
-      <button class="search-clear" onclick="clearLibSearch()">✕</button>
+      <button class="search-clear" onclick="clearLibSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
     </div>
     <div class="sa" id="ls"></div>
   </div>
@@ -516,12 +516,12 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="view-top"><div><div class="view-title">♥ Liked Briefings</div><div class="view-sub" id="kce"></div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
     <div class="search-bar">
       <input class="search-input" id="liked-search" placeholder="Search liked topics..." oninput="rk()">
-      <button class="search-clear" onclick="clearLikedSearch()">✕</button>
+      <button class="search-clear" onclick="clearLikedSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
     </div>
     <div class="filter-row">
       <div class="filter-tabs" id="kf"></div>
       <div class="sort-wrap" id="sort-wrap">
-        <button class="sort-btn" id="sort-btn" onclick="toggleSortMenu(event)" aria-label="Sort">⇅</button>
+        <button class="sort-btn" id="sort-btn" onclick="toggleSortMenu(event)" aria-label="Sort"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4 L7 20 M7 4 L3.5 7.5 M7 4 L10.5 7.5"/><path d="M17 20 L17 4 M17 20 L13.5 16.5 M17 20 L20.5 16.5"/></svg></button>
         <div class="sort-menu" id="sort-menu" style="display:none">
           <div class="sort-item" data-sort="newest" onclick="setSort('newest')">Newest first<span class="tick">✓</span></div>
           <div class="sort-item" data-sort="oldest" onclick="setSort('oldest')">Oldest first<span class="tick">✓</span></div>
@@ -536,7 +536,7 @@ body.text-xlarge .ne-quote{font-size:15px}
       <div class="view-sub" id="nce">No notes yet</div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
     <div class="search-bar">
       <input class="search-input" id="notes-search" placeholder="Search notes..." oninput="rn()">
-      <button class="search-clear" onclick="clearNotesSearch()">✕</button>
+      <button class="search-clear" onclick="clearNotesSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6600" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
     </div>
     <div class="filter-row">
       <div class="filter-tabs" id="nf"></div>
