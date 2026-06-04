@@ -534,6 +534,10 @@ body.text-xlarge .ne-quote{font-size:15px}
   <div id="vn">
     <div class="view-top"><div><div class="view-title">✏ My Notes</div>
       <div class="view-sub" id="nce">No notes yet</div></div><div class="view-close" onclick="showView('today')" aria-label="Close">✕</div></div>
+    <div class="search-bar">
+      <input class="search-input" id="notes-search" placeholder="Search notes..." oninput="rn()">
+      <button class="search-clear" onclick="clearNotesSearch()">✕</button>
+    </div>
     <div class="filter-row">
       <div class="filter-tabs" id="nf"></div>
     </div>
@@ -1578,6 +1582,7 @@ document.addEventListener('click',function(e){
 function tklike(i){ ok=ok===i?null:i; rk(); }
 function skf(id){ kf_val=id; rk(); }
 function clearLikedSearch(){ document.getElementById('liked-search').value=''; rk(); }
+function clearNotesSearch(){ var el=document.getElementById('notes-search'); if(el)el.value=''; rn(); }
 
 // ── Notes library ──
 var nf='all';
@@ -1594,6 +1599,8 @@ function rn(){
   var catMeta={leadership:{label:'Leadership',icon:'\u25C8',color:'#FF6600'},markets:{label:'Markets',icon:'\u25CE',color:'#0E3A7B'},psychology:{label:'Psychology',icon:'\u25C9',color:'#C8243C'},technology:{label:'Technology',icon:'\u25C7',color:'#0096D6'},geopolitics:{label:'Geopolitics',icon:'\u25C6',color:'#6B2DA8'},philosophy:{label:'Philosophy',icon:'\u25CB',color:'#2E7A3E'}};
   var groups={};
   Object.keys(allNotes).forEach(function(k){if(!allNotes[k])return;var parts=k.split('::');if(parts.length<2)return;var cid=parts[0];var title=parts.slice(1).join('::');if(!groups[cid])groups[cid]=[];groups[cid].push({catId:cid,title:title,note:allNotes[k]});});
+  var nq=((document.getElementById('notes-search')||{}).value||'').toLowerCase();
+  if(nq){Object.keys(groups).forEach(function(cid){groups[cid]=groups[cid].filter(function(e){return (e.title||'').toLowerCase().indexOf(nq)>-1||(e.note||'').toLowerCase().indexOf(nq)>-1;});if(!groups[cid].length)delete groups[cid];});}
   var total=Object.values(groups).reduce(function(a,g){return a+g.length;},0);
   var filtered=nf==='all'?total:(groups[nf]?groups[nf].length:0);
   document.getElementById('nce').textContent=total===0?'No notes yet':filtered+' note'+(filtered!==1?'s':'')+(nf!=='all'?' in '+(catMeta[nf]?catMeta[nf].label:''):'');
