@@ -261,11 +261,13 @@ html.login-active{background:var(--orange)}
 .search-bar{padding:10px 12px;border-bottom:1px solid var(--b);flex-shrink:0;display:flex;gap:8px;background:var(--white)}
 #vl .search-bar,#vk .search-bar,#vn .search-bar{background:#ff6600;border-bottom:none;padding-top:0}
 .search-input{flex:1;border:1px solid var(--b);border-radius:6px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;color:var(--t);outline:none;background:var(--bg)}
-.search-clear{background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;padding:0 4px}
+.search-bar{position:relative}
+.search-input{padding-right:34px}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#ff6600;font-size:16px;cursor:pointer;padding:0 4px;line-height:1;z-index:2}
 .filter-row{display:flex;align-items:center;gap:8px;padding:8px 12px;overflow:visible;flex-shrink:0}
 .filter-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px;flex:1;min-width:0}
 .sort-wrap{flex-shrink:0;margin-left:auto;position:relative}
-.sort-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:3px;border:1px solid var(--b);background:var(--white);color:var(--t2);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;line-height:1}
+.sort-btn{box-sizing:border-box;height:32px;width:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:3px;border:1.5px solid #ff6600;background:#fff;color:#ff6600;font-size:17px;cursor:pointer;line-height:1;padding:0}
 .sort-btn .chev{font-family:'Inter',sans-serif;font-size:9px;opacity:0.6;transition:transform .15s}
 .sort-btn.open .chev{transform:rotate(180deg)}
 .sort-btn .label-strong{font-family:'Inter',sans-serif;color:var(--t)}
@@ -279,7 +281,7 @@ html.login-active{background:var(--orange)}
 .ftab{padding:9px 16px;border-radius:3px;border:1.5px solid var(--ftab-c,#888);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ftab-c,#888);cursor:pointer;white-space:nowrap;background:#fff;transition:all .15s;line-height:1}
 .ftab.on{color:#fff;background:var(--ftab-c,#888);border-color:rgba(255,255,255,0.9)}
 #vn .filter-row{background:var(--strip-c,#ff6600);padding:12px 16px}
-@media(min-width:720px){#vn .filter-tabs{justify-content:center}}
+@media(min-width:720px){#vn .filter-tabs,#vk .filter-tabs{justify-content:center}}
 .ng{margin-bottom:14px}
 .ng-header{display:flex;align-items:center;gap:6px;padding:6px 2px;margin-bottom:6px}
 .ng-icon{font-size:12px}
@@ -519,10 +521,7 @@ body.text-xlarge .ne-quote{font-size:15px}
     <div class="filter-row">
       <div class="filter-tabs" id="kf"></div>
       <div class="sort-wrap" id="sort-wrap">
-        <button class="sort-btn" id="sort-btn" onclick="toggleSortMenu(event)">
-          <span>Sort: <span class="label-strong" id="sort-current">Newest first</span></span>
-          <span class="chev">▼</span>
-        </button>
+        <button class="sort-btn" id="sort-btn" onclick="toggleSortMenu(event)" aria-label="Sort">⇅</button>
         <div class="sort-menu" id="sort-menu" style="display:none">
           <div class="sort-item" data-sort="newest" onclick="setSort('newest')">Newest first<span class="tick">✓</span></div>
           <div class="sort-item" data-sort="oldest" onclick="setSort('oldest')">Oldest first<span class="tick">✓</span></div>
