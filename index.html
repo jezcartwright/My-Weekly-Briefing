@@ -498,10 +498,10 @@ body.text-xlarge .ne-quote{font-size:15px}
       <div class="eyebrow"><span class="eb-perf">Performance</span><span class="eb-intel">Intelligence</span></div>
       <div class="weekly">Weekly Briefing</div>
     </div>
+    <div id="tabs"></div>
   </div>
 
   <div id="vt">
-    <div id="tabs"></div>
     <div class="sa" id="ts"></div>
   </div>
   <div id="vl">
@@ -1636,6 +1636,7 @@ function showView(v){
   if(cv===v&&v!=='today')v='today';
   cv=v;
   document.getElementById('vt').style.display=v==='today'?'flex':'none';
+  var t_=document.getElementById('tabs'); if(t_)t_.style.display=v==='today'?'flex':'none';
   document.getElementById('vl').style.display=v==='library'?'flex':'none';
   document.getElementById('vk').style.display=v==='likes'?'flex':'none';
   document.getElementById('vn').style.display=v==='notes'?'flex':'none';
