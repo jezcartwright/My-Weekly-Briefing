@@ -1,14 +1,12 @@
 name: Process Admin Send Jobs
 
 # Polls the adminSends Firestore collection for queued jobs and processes
-# them. Runs every 5 minutes (so admin UI shows "~5 min queue time") plus
-# on workflow_dispatch for instant trigger.
-#
-# Cron is COMMENTED OUT initially while we test. Enable after first
-# successful manual run.
+# them. Runs every 5 minutes (so the admin UI shows "~5 min queue time")
+# plus on workflow_dispatch for an instant manual trigger from the
+# Actions tab.
 
 on:
-schedule:
+  schedule:
     - cron: '*/5 * * * *'   # every 5 minutes
   workflow_dispatch:
 
