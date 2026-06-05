@@ -314,7 +314,7 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
       </div>
 
       <div id="send-progress" class="send-progress" style="display:none">
-        <h3>Sending…</h3>
+        <h3 id="send-progress-h">Sending…</h3>
         <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
         <div class="progress-text" id="progress-text">Preparing…</div>
         <ul class="progress-log" id="progress-log"></ul>
@@ -916,6 +916,19 @@ function watchSendJob(jobId) {
           : d.status === 'error'
             ? 'Error: ' + (d.error||'unknown')
             : d.status;
+    var hEl = document.getElementById('send-progress-h');
+    if (d.status === 'done') {
+      var okN = d.successCount||0, failN = d.failureCount||0, totN = d.recipientCount||done;
+      hEl.textContent = failN ? 'Sent \u2014 ' + okN + ' of ' + totN + ' delivered, ' + failN + ' failed'
+                              : 'Sent \u2014 ' + okN + ' of ' + totN + ' delivered';
+      fill.style.background = failN ? '#C28A00' : '#2E7A3E';
+    } else if (d.status === 'error') {
+      hEl.textContent = 'Send failed'; fill.style.background = '#c00';
+    } else if (d.status === 'queued') {
+      hEl.textContent = 'Queued\u2026'; fill.style.background = '';
+    } else {
+      hEl.textContent = 'Sending\u2026'; fill.style.background = '';
+    }
     if (d.log && d.log.length) {
       log.innerHTML = d.log.slice(-50).map(function(l) {
         var cls = l.ok ? 'ok' : 'fail';
