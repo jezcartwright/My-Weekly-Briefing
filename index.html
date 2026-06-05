@@ -36,7 +36,7 @@ html.login-active{background:var(--orange)}
 #login-screen{position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;height:100dvh;min-height:100vh;min-height:100dvh;background:var(--orange);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:2000;padding:calc(env(safe-area-inset-top,20px) + 24px) 24px calc(env(safe-area-inset-bottom,20px) + 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box}
 #login-screen.hidden{display:none}
 .login-logo{width:72px;height:72px;margin-bottom:16px;object-fit:contain;flex-shrink:0}
-#login-screen .wordmark{width:min(68vw,260px);margin:0 auto 18px}
+#login-screen .wordmark{flex-shrink:0;width:min(68vw,260px);margin:0 auto 18px}
 /* Login PERFORMANCE / INTELLIGENCE eyebrow — matches masthead style, two lines */
 .login-eyebrow{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.35;text-align:center;margin-bottom:14px;font-size:22px}
 .login-eyebrow span{display:block}
