@@ -293,7 +293,7 @@ html.login-active{background:var(--orange)}
 .ne-title{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:var(--t);margin-bottom:2px}
 .ne-hl{font-size:8px;color:var(--t2);margin-bottom:4px;line-height:1.4}
 .ne-date{font-family:'Inter',sans-serif;font-size:9px;color:var(--t3)}
-.ne-preview{font-size:8.5px;color:var(--t2);line-height:1.6;padding:8px 12px;background:#fffdf9;border-top:1px solid #f0e8d0;border-left:3px solid #C9A84C}
+.ne-preview{font-size:8.5px;color:var(--t2);line-height:1.6;padding:8px 12px;background:#fffdf9;border-top:1px solid #f0e8d0}
 .ne-body{display:none;padding:10px 12px;border-top:1px solid var(--b);background:var(--bg)}
 .ne-body.show{display:block}
 .ne-why{font-size:8.5px;color:var(--t2);line-height:1.65;margin-bottom:8px}
@@ -1232,7 +1232,7 @@ function bh(t,catId,color,colorDark){
   ta.className='topic-notes-ta';
   ta.id=taId;
   ta.placeholder='Add your thoughts, reflections or coaching ideas here...';
-  ta.value=saved;
+  ta.textContent=saved;
   ta.setAttribute('oninput','noteInput(this,\''+catId.replace(/'/g,"\\'")+"','"+t.title.replace(/'/g,"\\'")+"')");
   var notesHtml='<div class="topic-notes" style="--lh-cat:'+colorDark+'" onclick="event.stopPropagation()">'+
     '<div class="topic-notes-label">\u270F My Notes on this topic</div>'+
@@ -1622,7 +1622,7 @@ function rn(){
       var uid=cid+'_ne_'+ei;
       var safeNote=e.note.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       var previewNote=e.note.length>100?e.note.slice(0,100)+'\u2026':e.note;
-      html+='<div class="ne"><div class="ne-head" onclick="tne(\''+uid+'\')">'+
+      html+='<div class="ne" style="border-left:4px solid '+meta.color+'"><div class="ne-head" onclick="tne(\''+uid+'\')">'+
         '<div class="ne-title">'+e.title.replace(/&/g,'&amp;')+'</div>';
       if(topicData)html+='<div class="ne-hl">'+topicData.headline+'</div>';
       html+='</div><div class="ne-preview">'+previewNote.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
