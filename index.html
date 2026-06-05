@@ -1627,9 +1627,10 @@ function rn(){
       if(topicData)html+='<div class="ne-hl">'+topicData.headline+'</div>';
       html+='</div><div class="ne-preview">'+previewNote.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'+
         '<div class="ne-body" id="ne-'+uid+'">';
-      if(topicData){html+='<div class="lbl" style="margin-bottom:6px">Why It Matters</div><div class="ne-why">'+topicData.why+'</div>'+'<div class="ne-quote" style="border-color:'+meta.color+'">&ldquo;'+topicData.insight+'&rdquo;<div class="ne-attr" style="color:'+meta.color+'">&mdash; '+topicData.attribution+'</div></div>';}
-      html+='<div class="ne-edit"><div class="ne-edit-label">\u270F My Note</div>'+
-        '<textarea class="ne-edit-ta" oninput="saveTopicNote(\''+cid+'\',\''+e.title.replace(/'/g,"\\'")+'\',this.value)">'+safeNote+'</textarea></div></div></div>';
+      if(topicData){ html+=bh(topicData,cid,meta.color,meta.color); }
+      else { html+='<div class="ne-edit"><div class="ne-edit-label">\u270F My Note</div>'+
+        '<textarea class="ne-edit-ta" oninput="saveTopicNote(\''+cid+'\',\''+e.title.replace(/'/g,"\\'")+'\',this.value)">'+safeNote+'</textarea></div>'; }
+      html+='</div></div>';
     });
     html+='</div>';
   });
