@@ -11,10 +11,10 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico?v=2">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png?v=2">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon-512x512.png?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -272,9 +272,6 @@ html.login-active{background:var(--orange)}
 .filter-tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:6px;flex:1;min-width:0}
 .sort-wrap{flex-shrink:0;margin-left:auto;position:relative}
 .sort-btn{box-sizing:border-box;height:38px;width:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;border:1.5px solid var(--strip-c,#ff6600);background:#fff;color:var(--strip-c,#ff6600);font-size:17px;cursor:pointer;line-height:1;padding:0}
-.sort-btn .chev{font-family:'Inter',sans-serif;font-size:9px;opacity:0.6;transition:transform .15s}
-.sort-btn.open .chev{transform:rotate(180deg)}
-.sort-btn .label-strong{font-family:'Inter',sans-serif;color:var(--t)}
 .sort-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:200px;background:var(--white);border:1px solid var(--b);border-radius:4px;box-shadow:0 12px 28px -12px rgba(0,0,0,0.22);overflow:hidden;z-index:50}
 .sort-item{padding:11px 16px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;color:var(--t);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--b2)}
 .sort-item:last-child{border-bottom:none}
@@ -1212,6 +1209,7 @@ function tk(){
   return mon.getFullYear()+'-'+String(mon.getMonth()+1).padStart(2,'0')+'-'+String(mon.getDate()).padStart(2,'0');
 }
 function gt(id){ var sets=D[id]; if(!sets||!sets.length)return[]; return sets[0]; }
+function findTopicByTitle(cid,title){ var sets=D[cid]; if(!sets||!sets.length)return null; for(var i=0;i<sets.length;i++){ var s=sets[i]; if(!s)continue; for(var j=0;j<s.length;j++){ if(s[j]&&s[j].title===title)return s[j]; } } return null; }
 function linkify(text,url){ if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
 
 // ── Clear note ──
@@ -1359,7 +1357,7 @@ function doToggleLike(catId,title,btn){
   var idx=l.findIndex(function(x){return x.id===id;});
   if(idx>=0){ l.splice(idx,1); }
   else{
-    var tops=gt(catId); var t=tops.find(function(x){return x.title===title;});
+    var t=findTopicByTitle(catId,title);
     if(t)l.unshift({id:id,catId:catId,title:title,headline:t.headline,why:t.why,insight:t.insight,attribution:t.attribution,deeper:t.deeper,date:tk()});
   }
   saveLikes(l);
@@ -1620,8 +1618,7 @@ function rn(){
     var meta=catMeta[cid];
     html+='<div class="ng"><div class="ng-header"><span class="ng-icon" style="color:'+meta.color+'">'+meta.icon+'</span><span class="ng-name" style="color:'+meta.color+'">'+meta.label+'</span><span class="ng-count">'+entries.length+' note'+(entries.length!==1?'s':'')+'</span></div>';
     entries.forEach(function(e,ei){
-      var topicData=null;var catTopics=gt(cid);
-      if(catTopics)topicData=catTopics.find(function(t){return t.title===e.title;});
+      var topicData=findTopicByTitle(cid,e.title);
       var uid=cid+'_ne_'+ei;
       var safeNote=e.note.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       var previewNote=e.note.length>100?e.note.slice(0,100)+'\u2026':e.note;
