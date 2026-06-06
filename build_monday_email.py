@@ -91,15 +91,15 @@ def build(path, preview_url=""):
     note = ""
     if preview_url:
         note = ('<tr><td data-strip-on-send="true" style="padding:16px 32px 0;"><div style="background:#fff8ee;border:1px solid #f0e8d0;padding:12px 14px;font:400 12.5px Arial,sans-serif;color:#8a6d3b;line-height:1.5;">Draft for your weekend edit &mdash; tweak the synopsis below; this note won&rsquo;t be sent. Preview the site: <a href="%s" style="color:#a0530b;">%s</a></div></td></tr>' % (esc(preview_url), esc(preview_url)))
-    return """<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+    return """<!DOCTYPE html><html><head><meta charset="utf-8"><style>@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap');</style></head>
 <body style="margin:0;background:#f2efe9;">
 <table width="100%%" cellpadding="0" cellspacing="0" border="0" style="background:#f2efe9;padding:24px 0;"><tr><td align="center">
 <table width="100%%" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:600px;border:1px solid #e8e4df;">
   <tr><td style="background:#ff6600;padding:26px 28px 22px;text-align:center;">
-    <img src="%(logo)s" width="42" height="42" alt="PI" style="display:block;margin:0 auto 8px;border:0;">
-    <div style="font:700 21px Georgia,serif;color:#fff;letter-spacing:6px;">PERFORMANCE</div>
-    <div style="font:700 21px Georgia,serif;color:#fff;letter-spacing:6px;">INTELLIGENCE</div>
-    <div style="font:600 11px Georgia,serif;color:#fff;letter-spacing:5px;padding-top:6px;">WEEKLY BRIEFING</div>
+    <img src="%(logo)s" width="32" height="32" alt="PI" style="display:block;margin:0 auto 8px;border:0;">
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:5.9px;margin-right:-5.9px;line-height:1.05;">PERFORMANCE</div>
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:3.45px;margin-right:-3.45px;line-height:1.05;margin-top:6px;">INTELLIGENCE</div>
+    <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;font-weight:600;color:#fff;letter-spacing:6px;margin-right:-6px;line-height:1.05;margin-top:6px;">WEEKLY BRIEFING</div>
   </td></tr>
   %(note)s
   <tr><td style="padding:16px 32px 2px;font:400 12px Arial,sans-serif;color:#8E857C;letter-spacing:.05em;">%(date)s</td></tr>
