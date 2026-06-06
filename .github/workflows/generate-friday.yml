@@ -82,9 +82,9 @@ jobs:
         run: |
           echo "$PREVIEW_URL" > .preview-url
           git add .preview-url
-          git commit -m "Record preview URL for staging"
-          git push origin staging
-          echo "✓ Saved preview URL to staging branch: $PREVIEW_URL"
+          git commit -m "Record preview URL for staging" || echo "  (.preview-url unchanged — nothing to commit, continuing)"
+          git push origin staging || echo "  (nothing new to push)"
+          echo "✓ Preview URL step done: $PREVIEW_URL"
 
       - name: Build Monday invitation email (chatty synopsis) from staging index.html
         id: build_email
