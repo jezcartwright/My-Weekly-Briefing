@@ -97,7 +97,7 @@ def build(path, preview_url=""):
 <table width="100%%" cellpadding="0" cellspacing="0" border="0" style="background:#fff;max-width:600px;border:1px solid #e8e4df;">
   <tr><td style="background:#ff6600;padding:26px 28px 22px;text-align:center;">
     <img src="%(logo)s" width="42" height="42" alt="PI" style="display:block;margin:0 auto 8px;border:0;">
-    <img src="https://weeklybriefing.jezcartwright.com/email-wordmark.png" width="260" alt="Performance Intelligence Weekly Briefing" style="display:block;margin:0 auto">
+    <img src="https://weeklybriefing.jezcartwright.com/email-wordmark.png" height="70" alt="Performance Intelligence Weekly Briefing" style="display:block;margin:0 auto">
   </td></tr>
   %(note)s
   <tr><td style="padding:16px 32px 2px;font:400 12px Arial,sans-serif;color:#8E857C;letter-spacing:.05em;">%(date)s</td></tr>
