@@ -38,6 +38,17 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Conversation threads: subscriber owns theirs; admin can access all.
+    match /threads/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create, update: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      match /messages/{msgId} {
+        allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+        allow create: if request.auth != null && (request.auth.uid == uid || isAdmin());
+        allow update, delete: if isAdmin();
+      }
+    }
+
     // Admin-only send job queue
     match /adminSends/{jobId} {
       allow read: if isAdmin();
