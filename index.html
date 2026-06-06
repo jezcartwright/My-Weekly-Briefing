@@ -1816,7 +1816,7 @@ function sendContactMessage(){
     var u=firebase.auth().currentUser;if(!u)return;
     ta.value='';
     var ref=db.collection('threads').doc(u.uid);
-    ref.set({uid:u.uid,name:uname(),email:u.email||null,lastText:text,lastFrom:'user',lastAt:firebase.firestore.FieldValue.serverTimestamp(),adminUnread:firebase.firestore.FieldValue.increment(1),userUnread:0,updatedAt:new Date().toISOString()},{merge:true});
+    ref.set({uid:u.uid,name:uname(),email:u.email||null,lastText:text,lastFrom:'user',pendingNotify:true,lastAt:firebase.firestore.FieldValue.serverTimestamp(),adminUnread:firebase.firestore.FieldValue.increment(1),userUnread:0,updatedAt:new Date().toISOString()},{merge:true});
     ref.collection('messages').add({from:'user',text:text,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(e){console.error('usend',e);});
   }
 
