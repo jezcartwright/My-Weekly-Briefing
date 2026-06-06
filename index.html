@@ -341,6 +341,28 @@ html.login-active{background:var(--orange)}
 .pdf-di::before{content:"";display:inline-block;width:6px;height:6px;background:var(--bullet,var(--orange));flex-shrink:0;margin-top:6px}
 .pdf-di a{color:#A0530B;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:0.5px}
 .pdf-footer{text-align:center;padding:16px 40px 20px;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;color:#8E857C;border-top:1px solid #E0D8CB;background:#FBF8F2}
+/* paginated A4 PDF sheets */
+#pdf-scroll{background:#cfcdc7}
+.sheet{box-sizing:border-box;width:210mm;height:297mm;background:#FBF8F2;margin:0 auto 22px;box-shadow:0 8px 24px rgba(0,0,0,.22);padding:16mm 15mm 22mm;position:relative;display:flex;flex-direction:column;overflow:hidden}
+.sheet-body{flex:1;overflow:hidden}
+.sheet .pdf-header{margin:0 0 14px}
+.run-head{display:flex;align-items:center;border-bottom:1px solid #E0D8CB;padding-bottom:8px;margin-bottom:14px}
+.rh-name{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.14em;font-size:12px;color:#ff6600}
+.rh-sub{margin-left:auto;font-size:10px;color:#8E857C;letter-spacing:.04em}
+.run-foot{position:absolute;left:15mm;right:15mm;bottom:11mm;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-top:1px solid #E0D8CB;padding-top:8px}
+.foot-logo{grid-column:2;justify-self:center;height:22px;width:auto}
+.foot-page{grid-column:3;justify-self:end;font-size:9pt;color:#8E857C;letter-spacing:.04em}
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body>*{display:none!important}
+  #pdf-view{display:block!important;position:static!important;overflow:visible!important;background:#fff!important}
+  .pdf-toolbar{display:none!important}
+  #pdf-scroll{background:#fff!important;overflow:visible!important;padding:0!important}
+  #pdf-mast-src{display:none!important}
+  .sheet{box-shadow:none!important;margin:0!important;break-after:page;page-break-after:always}
+  .sheet:last-child{break-after:auto;page-break-after:auto}
+}
 /* ============================================================
    PHONE + iPAD PORTRAIT OVERRIDES
    Placed AFTER all .pdf-* defaults so they win the cascade.
@@ -557,7 +579,7 @@ body.text-xlarge .ne-preview{font-size:15px}
       <button class="pdf-tbtn" onclick="hidePDF()">✕ Close</button>
     </div>
   </div>
-  <div class="pdf-scroll"><div class="pdf-page">
+  <div class="pdf-scroll" id="pdf-scroll"><div class="pdf-page" id="pdf-mast-src" style="display:none">
     <div class="pdf-header">
       <div class="utility">
         <div class="util-date" id="pdf-date"></div>
@@ -1657,41 +1679,73 @@ function showView(v){
 }
 
 // ── PDF ──
+var PI_ORANGE='data:image/png;base64,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';
+function pdfTopicHTML(t,i,color){
+  var refHtml=t.ref&&t.ref.text?'<div class="ref" style="--ref:'+color+'">'+linkify(t.ref.text,t.ref.url)+'</div>':'';
+  var deeperHtml=(t.deeper||[]).map(function(x){return '<div class="pdf-di" style="--bullet:'+color+';--link:'+color+'">'+linkify(x.text,x.url)+'</div>';}).join('');
+  return '<div class="pdf-topic" style="border-left-color:'+color+'">'+
+    '<div class="pdf-topic-head"><div class="pdf-topic-num" style="color:'+color+'">0'+(i+1)+'</div><div class="pdf-topic-title">'+t.title+'</div></div>'+
+    '<div class="pdf-topic-hl">'+t.headline+'</div>'+
+    '<div class="pdf-two"><div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">'+t.why+'</div>'+refHtml+'</div>'+
+    '<div><div class="pdf-lbl">Key Insight</div><div class="pdf-it">"'+t.insight+'"<span class="pdf-attr">\u2014 '+t.attribution+'</span></div></div></div>'+
+    '<div class="pdf-deeper"><div class="pdf-dlbl" style="color:'+color+'">Go Deeper \u2192</div>'+deeperHtml+'</div>'+
+  '</div>';
+}
+function pdfRunHead(dateStr){ return '<div class="run-head"><span class="rh-name">PERFORMANCE INTELLIGENCE</span><span class="rh-sub">Weekly Briefing \u00B7 '+dateStr+'</span></div>'; }
+function pdfFoot(){ return '<div class="run-foot"><span></span><img class="foot-logo" src="'+PI_ORANGE+'" alt="Performance Intelligence"><span class="foot-page"></span></div>'; }
 function generateCurrentPDF(){
+  var view=document.getElementById('pdf-view'); view.classList.add('show'); view.scrollTop=0;
   var d=new Date();
-  document.getElementById('pdf-date').textContent=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  var content=document.getElementById('pdf-content');content.innerHTML='';
+  var dateStr=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var src=document.getElementById('pdf-date'); if(src)src.textContent=dateStr;
+  var scroll=document.getElementById('pdf-scroll');
+  var old=scroll.querySelectorAll('.sheet'); for(var i=0;i<old.length;i++)old[i].remove();
+  var fr=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); }catch(e){ pdfFallback(scroll,dateStr); } });
+}
+function pdfCollect(){
+  var blocks=[];
   CATS.forEach(function(cat){
-    var tops=gt(cat.id);if(!tops.length)return;
-    var darkColor = cat.color;  // Unified: labels use banner colour, not colorDark
-    var sec=document.createElement('div');sec.className='pdf-cat-section';
-    sec.style.setProperty('--cat-color', cat.color);
-    // Category banner — coloured band, white text
-    sec.innerHTML='<div class="pdf-cat-title">'+cat.label+'</div>';
-    var body=document.createElement('div');body.className='pdf-cat-body';
-    tops.forEach(function(t,i){
-      var refHtml=t.ref&&t.ref.text?'<div class="ref" style="--ref:'+cat.color+'">'+linkify(t.ref.text,t.ref.url)+'</div>':'';
-      var deeperHtml=(t.deeper||[]).map(function(d){return'<div class="pdf-di" style="--bullet:'+cat.color+';--link:'+cat.color+'">'+linkify(d.text,d.url)+'</div>';}).join('');
-      var topic=document.createElement('div');topic.className='pdf-topic';
-      topic.style.borderLeftColor=cat.color;
-      topic.innerHTML='<div class="pdf-topic-head">'+
-        '<div class="pdf-topic-num" style="color:'+darkColor+'">0'+(i+1)+'</div>'+
-        '<div class="pdf-topic-title">'+t.title+'</div>'+
-        '</div>'+
-        '<div class="pdf-topic-hl">'+t.headline+'</div>'+
-        '<div class="pdf-two">'+
-        '<div><div class="pdf-lbl">Why It Matters</div><div class="pdf-bt">'+t.why+'</div>'+refHtml+'</div>'+
-        '<div><div class="pdf-lbl">Key Insight</div>'+
-        '<div class="pdf-it">"'+t.insight+'"<span class="pdf-attr">\u2014 '+t.attribution+'</span></div></div>'+
-        '</div>'+
-        '<div class="pdf-deeper"><div class="pdf-dlbl" style="color:'+darkColor+'">Go Deeper \u2192</div>'+deeperHtml+'</div>';
-      body.appendChild(topic);
-    });
-    sec.appendChild(body);
-    content.appendChild(sec);
+    var tops=gt(cat.id); if(!tops||!tops.length)return;
+    blocks.push('<div class="pdf-cat-title" style="background:'+cat.color+'">'+cat.label+'</div>');
+    tops.forEach(function(t,i){ blocks.push(pdfTopicHTML(t,i,cat.color)); });
   });
-  document.getElementById('pdf-footer').textContent='Performance Intelligence Weekly Briefing \u00B7 '+d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  var view=document.getElementById('pdf-view');view.classList.add('show');view.scrollTop=0;
+  return blocks;
+}
+function pdfBuildSheets(scroll,dateStr){
+  var blocks=pdfCollect();
+  var mastSrc=document.querySelector('#pdf-mast-src .pdf-header');
+  var sheet=null, body=null;
+  function newSheet(first){
+    sheet=document.createElement('div'); sheet.className='sheet';
+    if(first&&mastSrc){ var m=mastSrc.cloneNode(true); var dd=m.querySelector('#pdf-date'); if(dd)dd.removeAttribute('id'); sheet.appendChild(m); }
+    else { var h=document.createElement('div'); h.innerHTML=pdfRunHead(dateStr); sheet.appendChild(h.firstElementChild); }
+    body=document.createElement('div'); body.className='sheet-body'; sheet.appendChild(body);
+    var f=document.createElement('div'); f.innerHTML=pdfFoot(); sheet.appendChild(f.firstElementChild);
+    scroll.appendChild(sheet);
+  }
+  newSheet(true);
+  for(var k=0;k<blocks.length;k++){
+    var holder=document.createElement('div'); holder.innerHTML=blocks[k]; var node=holder.firstElementChild; if(!node)continue;
+    body.appendChild(node);
+    if(body.scrollHeight>body.clientHeight+1 && body.children.length>1){
+      body.removeChild(node);
+      var last=body.lastElementChild, movedBand=null;
+      if(last&&last.classList&&last.classList.contains('pdf-cat-title')){ movedBand=last; body.removeChild(last); }
+      newSheet(false);
+      if(movedBand)body.appendChild(movedBand);
+      body.appendChild(node);
+    }
+  }
+  var sheets=scroll.querySelectorAll('.sheet'), total=sheets.length;
+  for(var s=0;s<sheets.length;s++){ var p=sheets[s].querySelector('.foot-page'); if(p)p.textContent='Page '+(s+1)+' of '+total; }
+}
+function pdfFallback(scroll,dateStr){
+  var sheet=document.createElement('div'); sheet.className='sheet'; sheet.style.height='auto';
+  var mastSrc=document.querySelector('#pdf-mast-src .pdf-header'); if(mastSrc){ var m=mastSrc.cloneNode(true); var dd=m.querySelector('#pdf-date'); if(dd)dd.removeAttribute('id'); sheet.appendChild(m); }
+  var body=document.createElement('div'); body.className='sheet-body'; body.style.overflow='visible'; body.innerHTML=pdfCollect().join(''); sheet.appendChild(body);
+  var f=document.createElement('div'); f.innerHTML=pdfFoot(); sheet.appendChild(f.firstElementChild);
+  scroll.appendChild(sheet);
 }
 function hidePDF(){ document.getElementById('pdf-view').classList.remove('show'); }
 
