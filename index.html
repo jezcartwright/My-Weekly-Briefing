@@ -174,8 +174,8 @@ html.login-active{background:var(--orange)}
 /* .user-avatar class kept on element for backward compat with JS; styling now fully delegated to .avatar-btn */
 
 /* Views */
-#vt,#vl,#vk,#vn{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-#vl,#vk,#vn{display:none}
+#vt,#vl,#vk,#vn,#vc{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+#vl,#vk,#vn,#vc{display:none}
 
 /* Tabs — category-coloured horizontal pill strip */
 #tabs{display:flex;gap:8px;overflow-x:auto;flex-shrink:0;background:var(--strip-c,#ff6600);scrollbar-width:none;padding:12px 16px;margin:0 -14px;justify-content:flex-start}
@@ -227,12 +227,23 @@ html.login-active{background:var(--orange)}
 .view-close{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;color:#ff6600;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 .view-right{display:flex;align-items:center;gap:14px}
 #vl .view-sub,#vk .view-sub,#vn .view-sub{margin-top:0}
-#vl .view-top,#vk .view-top,#vn .view-top{background:var(--strip-c,#ff6600);border-bottom:none}
-#vl .view-title,#vk .view-title,#vn .view-title{color:#fff}
+#vl .view-top,#vk .view-top,#vn .view-top,#vc .view-top{background:var(--strip-c,#ff6600);border-bottom:none}
+#vl .view-title,#vk .view-title,#vn .view-title,#vc .view-title{color:#fff}
 #vl .view-sub,#vk .view-sub,#vn .view-sub{color:rgba(255,255,255,0.85)}
-#vl .view-close,#vk .view-close,#vn .view-close{color:#fff}
+#vl .view-close,#vk .view-close,#vn .view-close,#vc .view-close{color:#fff}
 .view-title{font-family:'Inter',sans-serif;font-size:20px;font-weight:700;color:var(--t)}
 .view-sub{font-family:'Inter',sans-serif;font-size:11px;color:var(--t2);margin-top:3px}
+.contact-wrap{max-width:420px;margin:0 auto;padding:8px 2px}
+.contact-photo{width:84px;height:84px;border-radius:50%;margin:6px auto 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:30px;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15);background:linear-gradient(135deg,#ffb27a,#ff6600);object-fit:cover}
+.contact-greeting{font-family:'IBM Plex Serif',Georgia,serif;font-size:19px;font-weight:600;color:var(--t);text-align:center;margin:0 0 4px}
+.contact-sign{font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;font-weight:600;color:var(--t);text-align:center;margin:0 0 22px}
+.contact-ta{width:100%;box-sizing:border-box;min-height:140px;border:1.5px solid var(--orange);border-radius:8px;padding:12px 13px;font-family:'Inter',sans-serif;font-size:14px;color:var(--t);outline:none;background:#fff;resize:vertical;line-height:1.5}
+.contact-send{width:100%;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:14px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.05em;cursor:pointer;margin-top:16px}
+.contact-send:disabled{opacity:.55;cursor:default}
+.contact-status{font-family:'Inter',sans-serif;font-size:12px;color:var(--orange);text-align:center;margin-top:12px;min-height:16px;font-weight:600}
+.contact-sent{text-align:center;padding:42px 22px;max-width:420px;margin:0 auto}
+.contact-sent .ck{font-size:44px;margin-bottom:16px}
+.contact-sent h3{font-family:'IBM Plex Serif',Georgia,serif;font-size:18px;font-weight:600;color:var(--t);margin:0 0 12px;line-height:1.4}
 .wk{background:var(--white);border:1px solid var(--b);border-radius:8px;margin:0 0 10px;overflow:hidden}
 .wk-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;-webkit-user-select:none;user-select:none}
 .wk-label-wrap{flex:1;cursor:pointer;min-width:0}
@@ -503,6 +514,8 @@ body.text-xlarge .ne-preview{font-size:15px}
           <button class="mi" id="btn-likes" onclick="showView('likes')"><span class="ico">♥</span>Liked</button>
           <button class="mi" id="btn-lib" onclick="showView('library')"><span class="ico">◫</span>Library</button>
           <div class="mi-divider"></div>
+          <button class="mi" id="btn-contact" onclick="showView('contact')"><span class="ico">✉</span>Contact Jez</button>
+          <div class="mi-divider"></div>
           <div class="ts-picker" role="radiogroup" aria-label="Text size">
             <button class="ts-btn" data-size="default" onclick="setTextSize('default')" aria-label="Normal text size"><span class="ts-aa ts-aa-s">Aa</span></button>
             <button class="ts-btn" data-size="large" onclick="setTextSize('large')" aria-label="Large text size"><span class="ts-aa ts-aa-m">Aa</span></button>
@@ -556,6 +569,24 @@ body.text-xlarge .ne-preview{font-size:15px}
       <button class="search-clear" style="color:var(--strip-c,#ff6600)" onclick="clearNotesSearch()" aria-label="Clear"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button></div>
     </div>
     <div class="sa" id="ns"></div>
+  </div>
+  <div id="vc">
+    <div class="view-top"><div class="view-title">✉ Contact Jez</div><div class="view-right"><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
+    <div class="sa">
+      <div id="contact-form" class="contact-wrap">
+        <div class="contact-photo" id="contact-photo">JC</div>
+        <p class="contact-greeting">Hi, how can I help?</p>
+        <p class="contact-sign">Cheers, Jez</p>
+        <textarea class="contact-ta" id="contact-msg" placeholder="Type your message here..."></textarea>
+        <button class="contact-send" id="contact-send" onclick="sendContactMessage()">SEND MESSAGE</button>
+        <div class="contact-status" id="contact-status"></div>
+      </div>
+      <div class="contact-sent" id="contact-sent" style="display:none">
+        <div class="ck">✉️</div>
+        <h3>Thanks for getting in touch &mdash; I&rsquo;ll come back to you as soon as I can.</h3>
+        <p class="contact-sign">Cheers, Jez</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1668,16 +1699,54 @@ function showView(v){
   document.getElementById('vl').style.display=v==='library'?'flex':'none';
   document.getElementById('vk').style.display=v==='likes'?'flex':'none';
   document.getElementById('vn').style.display=v==='notes'?'flex':'none';
+  document.getElementById('vc').style.display=v==='contact'?'flex':'none';
   document.getElementById('btn-lib').classList.toggle('on',v==='library');
   document.getElementById('btn-likes').classList.toggle('on',v==='likes');
   document.getElementById('btn-notes').classList.toggle('on',v==='notes');
+  var _bc=document.getElementById('btn-contact'); if(_bc)_bc.classList.toggle('on',v==='contact');
   if(v==='library')rl();
   else if(v==='likes')rk();
   else if(v==='notes')rn();
+  else if(v==='contact')resetContactView();
   else rt();
   renderBannerTabs();
 }
 
+function resetContactView(){
+  var form=document.getElementById('contact-form'), sent=document.getElementById('contact-sent');
+  if(form)form.style.display='block';
+  if(sent)sent.style.display='none';
+  var ta=document.getElementById('contact-msg'); if(ta)ta.value='';
+  var st=document.getElementById('contact-status'); if(st)st.textContent='';
+  var btn=document.getElementById('contact-send'); if(btn){btn.disabled=false;btn.textContent='SEND MESSAGE';}
+}
+function sendContactMessage(){
+  var ta=document.getElementById('contact-msg');
+  var st=document.getElementById('contact-status');
+  var btn=document.getElementById('contact-send');
+  var text=((ta&&ta.value)||'').trim();
+  if(!text){ if(st)st.textContent='Please type a message first.'; if(ta)ta.focus(); return; }
+  var user=firebase.auth().currentUser;
+  if(!user){ if(st)st.textContent='Please sign in to send a message.'; return; }
+  if(btn){btn.disabled=true;btn.textContent='SENDING\u2026';}
+  if(st)st.textContent='';
+  var nm=user.displayName||null;
+  if(!nm&&window._fb_profile){ var f=(window._fb_profile.firstName||''),l=(window._fb_profile.lastName||''); nm=(f+' '+l).trim()||null; }
+  db.collection('messages').add({
+    uid:user.uid, name:nm, email:user.email||null, text:text,
+    status:'unread', notified:false,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    createdAtISO:new Date().toISOString()
+  }).then(function(){
+    var form=document.getElementById('contact-form'), sent=document.getElementById('contact-sent');
+    if(form)form.style.display='none';
+    if(sent)sent.style.display='block';
+  }).catch(function(e){
+    console.error('Message send error:',e);
+    if(st)st.textContent='Something went wrong \u2014 please try again.';
+    if(btn){btn.disabled=false;btn.textContent='SEND MESSAGE';}
+  });
+}
 // ── PDF ──
 var PI_ORANGE='data:image/png;base64,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';
 function pdfTopicHTML(t,i,color){

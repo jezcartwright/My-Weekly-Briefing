@@ -27,6 +27,17 @@ service cloud.firestore {
 }
 
 
+    // Contact-form messages: any signed-in user can create their own;
+    // only the admin can read or manage them.
+    match /messages/{msgId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 5000;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Admin-only send job queue
     match /adminSends/{jobId} {
       allow read: if isAdmin();
