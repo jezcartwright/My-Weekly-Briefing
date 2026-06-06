@@ -244,6 +244,7 @@ html.login-active{background:var(--orange)}
 .row.me{align-self:flex-end;flex-direction:row-reverse}
 .row.them{align-self:flex-start}
 .cav{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#ffb27a,#ff6600);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px}
+.cav.jez{background-image:url('jez-photo.jpg?v=1');background-size:cover;background-position:center top;color:transparent;font-size:0}
 .cav.big{width:42px;height:42px;font-size:16px}
 .bub{padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.45;font-family:'IBM Plex Serif',Georgia,serif;word-wrap:break-word;overflow-wrap:anywhere}
 .them .bub{background:#fff;border:1px solid var(--b);color:var(--t);border-bottom-left-radius:4px}
@@ -1806,8 +1807,8 @@ function sendContactMessage(){
   }
   function renderUserChat(snap){
     var box=document.getElementById('uchat');if(!box)return;
-    var h='<div class="row them"><div class="cav">JC</div><div><div class="bub">'+esc(GREETING)+'</div></div></div>';
-    snap.forEach(function(d){var m=d.data();if(m.from==='user'){h+='<div class="row me"><div><div class="bub">'+esc(m.text)+'</div><div class="ctime">'+ftime(m.at)+'</div></div></div>';}else{h+='<div class="row them"><div class="cav">JC</div><div><div class="bub">'+esc(m.text)+'</div><div class="ctime">'+ftime(m.at)+'</div></div></div>';}});
+    var h='<div class="row them"><div class="cav jez"></div><div><div class="bub">'+esc(GREETING)+'</div></div></div>';
+    snap.forEach(function(d){var m=d.data();if(m.from==='user'){h+='<div class="row me"><div><div class="bub">'+esc(m.text)+'</div><div class="ctime">'+ftime(m.at)+'</div></div></div>';}else{h+='<div class="row them"><div class="cav jez"></div><div><div class="bub">'+esc(m.text)+'</div><div class="ctime">'+ftime(m.at)+'</div></div></div>';}});
     box.innerHTML=h;box.scrollTop=box.scrollHeight;
   }
   function sendUserMessage(){
