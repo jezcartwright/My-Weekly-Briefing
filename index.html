@@ -1789,7 +1789,7 @@ function sendContactMessage(){
 /* ===== In-app messaging ===== */
 (function(){
   var ADMIN_EMAIL='jc@jezcartwright.com';
-  var GREETING='Hi, how can I help? Cheers, Jez';
+  var GREETING='Hi, how can I help?';
   var _chatUnsub=null,_inboxUnsub=null,_threadUnsub=null,_markerUnsub=null,_adminMarkerUnsub=null;
   var _openThreadUid=null,_openThreadInit='';
   function admin(){var u=firebase.auth().currentUser;return !!(u&&u.email===ADMIN_EMAIL);}
