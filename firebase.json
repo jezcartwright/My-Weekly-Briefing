@@ -7,10 +7,10 @@
       "**/.*",
       "**/node_modules/**",
       ".github/**",
-      "*.md"
+      "*.md",
+      "functions/**"
     ]
   },
-  "firestore": {
-    "rules": "firestore.rules"
-  }
+  "functions": { "source": "functions" },
+  "firestore": { "rules": "firestore.rules" }
 }
