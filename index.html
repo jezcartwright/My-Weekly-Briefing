@@ -65,6 +65,10 @@ html.login-active{background:var(--orange)}
 .google-btn{width:100%;background:#fff;color:var(--t);border:1px solid var(--b);border-radius:8px;padding:12px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .google-btn:active{background:var(--bg)}
 .login-msg{font-family:'Inter',sans-serif;font-size:13px;text-align:center;margin-top:12px;min-height:20px;color:var(--orange);font-weight:600;line-height:1.4;word-wrap:break-word;max-width:100%}
+.consent-row{display:flex;gap:9px;align-items:flex-start;text-align:left;margin:2px 0 12px;font-family:'Inter',sans-serif;font-size:11.5px;color:#555;line-height:1.45;cursor:pointer}
+.consent-row input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--orange);flex-shrink:0;cursor:pointer}
+.consent-row a{color:var(--orange);font-weight:600}
+.login-btn.btn-locked,.google-btn.btn-locked{opacity:.45;pointer-events:none}
 .login-sent{text-align:center;padding:20px 0}
 .login-sent .check{font-size:40px;margin-bottom:12px}
 .login-sent h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:var(--t);margin-bottom:8px}
@@ -540,9 +544,10 @@ body.text-xlarge .ne-preview{font-size:15px}
     <!-- Cloudflare Turnstile widget. Site key set at runtime; if empty,
          the widget is skipped (graceful degradation for local dev). -->
     <div id="turnstile-widget" style="margin:10px 0;display:none;text-align:center"></div>
-    <button class="login-btn" onclick="sendMagicLink()">Send sign-in link</button>
+    <label class="consent-row"><input type="checkbox" id="consent-box" onchange="consentChanged()"><span>I agree to the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and to receiving the weekly briefing by email. You can unsubscribe anytime.</span></label>
+    <button class="login-btn btn-locked" onclick="sendMagicLink()">Send sign-in link</button>
     <div class="login-divider">or</div>
-    <button class="google-btn" onclick="signInGoogle()">
+    <button class="google-btn btn-locked" onclick="signInGoogle()">
       <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Sign in with Google
     </button>
@@ -830,6 +835,7 @@ if(firebase.auth().isSignInWithEmailLink(window.location.href)) {
 }
 
 // Send magic link
+window.consentChanged = function(){ var ok=(document.getElementById('consent-box')||{}).checked; var b1=document.querySelector('.login-btn'), b2=document.querySelector('.google-btn'); if(b1)b1.classList.toggle('btn-locked',!ok); if(b2)b2.classList.toggle('btn-locked',!ok); };
 window.sendMagicLink = function() {
   var fname = (document.getElementById('login-fname').value||'').trim();
   var lname = (document.getElementById('login-lname').value||'').trim();
@@ -840,6 +846,7 @@ window.sendMagicLink = function() {
   if(hp){ msg.textContent = 'Something went wrong. Please reload and try again.'; return; }
   if(!fname){ msg.textContent = 'Please enter your first name.'; return; }
   if(!email || !email.includes('@')){ msg.textContent = 'Please enter a valid email.'; return; }
+  if(!(document.getElementById('consent-box')||{}).checked){ msg.textContent = 'Please agree to the Privacy Policy to continue.'; return; }
   // Turnstile: require a valid token if site key is configured AND Turnstile
   // didn't gracefully fail (script load error, timeout, or widget error). Honeypot
   // field above still blocks simple bots even in fallback.
@@ -871,6 +878,7 @@ window.sendMagicLink = function() {
 window.signInGoogle = function() {
   var msg = document.getElementById('login-msg');
   function show(t, color){ msg.textContent = t; msg.style.color = color || ''; }
+  if(!(document.getElementById('consent-box')||{}).checked){ show('Please agree to the Privacy Policy to continue.','red'); return; }
   try {
     if(typeof firebase === 'undefined' || !firebase.auth) {
       show('Firebase did not load. Please refresh the page.', 'red');
