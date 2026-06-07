@@ -69,6 +69,21 @@ html.login-active{background:var(--orange)}
 .consent-row input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--orange);flex-shrink:0;cursor:pointer}
 .consent-row a{color:var(--orange);font-weight:600}
 .login-btn.btn-locked,.google-btn.btn-locked{opacity:.45;pointer-events:none}
+.acct-sep{height:1px;background:var(--b);margin:12px 0}
+.acct-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none;border:none;padding:10px 4px;border-radius:7px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:var(--t);cursor:pointer}
+.acct-item:active{background:var(--bg)}
+.acct-item svg{width:17px;height:17px;flex-shrink:0;color:var(--t3)}
+.acct-item.danger{color:#E8443B}.acct-item.danger svg{color:#E8443B}
+.acct-modal{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:24px}
+.acct-card{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:300px}
+.acct-card h3{font-family:'Inter',sans-serif;font-size:17px;font-weight:700;margin:0 0 8px;color:var(--t)}
+.acct-card h3.red{color:#E8443B}
+.acct-card p{font-family:'Inter',sans-serif;font-size:13px;color:#555;line-height:1.5;margin:0 0 8px}
+.acct-card p.strong{font-weight:600;color:var(--t)}
+.acct-card ul{margin:6px 0 12px;padding-left:18px}.acct-card li{font-family:'Inter',sans-serif;font-size:12.5px;color:#555;margin:3px 0}
+.acct-row{display:flex;gap:10px;margin-top:8px}
+.acct-b{flex:1;border-radius:9px;padding:11px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;border:none;cursor:pointer}
+.acct-b.cancel{background:#f0ece6;color:var(--t)}.acct-b.go{background:var(--orange);color:#fff}.acct-b.del{background:#E8443B;color:#fff}
 .login-sent{text-align:center;padding:20px 0}
 .login-sent .check{font-size:40px;margin-bottom:12px}
 .login-sent h3{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:var(--t);margin-bottom:8px}
@@ -662,10 +677,15 @@ body.text-xlarge .ne-preview{font-size:15px}
     <div style="font-size:11px;color:var(--t3);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase">Signed in as</div>
     <div style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:4px;font-family:'Inter',sans-serif" id="menu-name"></div>
     <div style="font-size:11px;color:var(--t3);margin-bottom:16px;word-break:break-all" id="menu-email"></div>
+    <div class="acct-sep"></div>
+    <button class="acct-item" onclick="openPrivacy()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacy Policy</button>
+    <button class="acct-item" onclick="openUnsub()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Unsubscribe</button>
     <div style="height:1px;background:var(--b);margin-bottom:12px"></div>
     <button onclick="signOut()" style="width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Sign out</button>
   </div>
 </div>
+
+<div id="unsub-dlg" class="acct-modal"><div class="acct-card"><h3>Unsubscribe from emails?</h3><p>You will stop receiving the weekly briefing by email. Your account, notes and liked topics stay as they are — you can re-subscribe anytime by emailing us.</p><div class="acct-row"><button class="acct-b cancel" onclick="closeAcctModals()">Cancel</button><button class="acct-b go" onclick="doUnsub()">Unsubscribe</button></div></div></div>
 
 <!-- PDF overlay -->
 <div id="pdf-view">
@@ -920,6 +940,10 @@ window.signOut = function() {
 };
 window.showUserMenu = function() { document.getElementById('user-menu').style.display = 'block'; };
 window.hideUserMenu = function() { document.getElementById('user-menu').style.display = 'none'; };
+window.openPrivacy = function(){ hideUserMenu(); window.open('/privacy.html','_blank'); };
+window.openUnsub = function(){ hideUserMenu(); var d=document.getElementById('unsub-dlg'); if(d) d.style.display='flex'; };
+window.closeAcctModals = function(){ ['unsub-dlg','delete-dlg'].forEach(function(id){ var d=document.getElementById(id); if(d) d.style.display='none'; }); };
+window.doUnsub = function(){ var u=firebase.auth().currentUser; if(!u){ closeAcctModals(); return; } db.collection('users').doc(u.uid).set({unsubscribed:true, unsubscribedAt:new Date().toISOString()},{merge:true}).then(function(){ closeAcctModals(); alert('You have unsubscribed. You will no longer receive the weekly briefing by email.'); }).catch(function(e){ alert('Could not unsubscribe: '+e.message); }); };
 
 // User data
 var userUid = null;
