@@ -680,12 +680,14 @@ body.text-xlarge .ne-preview{font-size:15px}
     <div class="acct-sep"></div>
     <button class="acct-item" onclick="openPrivacy()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Privacy Policy</button>
     <button class="acct-item" onclick="openUnsub()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>Unsubscribe</button>
+    <button class="acct-item danger" onclick="openDelete()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete my account</button>
     <div style="height:1px;background:var(--b);margin-bottom:12px"></div>
     <button onclick="signOut()" style="width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Sign out</button>
   </div>
 </div>
 
 <div id="unsub-dlg" class="acct-modal"><div class="acct-card"><h3>Unsubscribe from emails?</h3><p>You will stop receiving the weekly briefing by email. Your account, notes and liked topics stay as they are — you can re-subscribe anytime by emailing us.</p><div class="acct-row"><button class="acct-b cancel" onclick="closeAcctModals()">Cancel</button><button class="acct-b go" onclick="doUnsub()">Unsubscribe</button></div></div></div>
+<div id="delete-dlg" class="acct-modal"><div class="acct-card"><h3 class="red">Delete your account?</h3><p>This permanently removes:</p><ul><li>Your profile &amp; sign-in</li><li>Saved notes &amp; liked topics</li><li>All messages &amp; videos</li></ul><p class="strong">This can't be undone.</p><div class="acct-row"><button class="acct-b cancel" onclick="closeAcctModals()">Cancel</button><button class="acct-b del" id="del-confirm" onclick="doDelete()">Delete</button></div></div></div>
 
 <!-- PDF overlay -->
 <div id="pdf-view">
@@ -944,6 +946,8 @@ window.openPrivacy = function(){ hideUserMenu(); window.open('/privacy.html','_b
 window.openUnsub = function(){ hideUserMenu(); var d=document.getElementById('unsub-dlg'); if(d) d.style.display='flex'; };
 window.closeAcctModals = function(){ ['unsub-dlg','delete-dlg'].forEach(function(id){ var d=document.getElementById(id); if(d) d.style.display='none'; }); };
 window.doUnsub = function(){ var u=firebase.auth().currentUser; if(!u){ closeAcctModals(); return; } db.collection('users').doc(u.uid).set({unsubscribed:true, unsubscribedAt:new Date().toISOString()},{merge:true}).then(function(){ closeAcctModals(); alert('You have unsubscribed. You will no longer receive the weekly briefing by email.'); }).catch(function(e){ alert('Could not unsubscribe: '+e.message); }); };
+window.openDelete = function(){ hideUserMenu(); var d=document.getElementById('delete-dlg'); if(d) d.style.display='flex'; };
+window.doDelete = function(){ var u=firebase.auth().currentUser; if(!u){ closeAcctModals(); return; } var btn=document.getElementById('del-confirm'); if(btn){ btn.disabled=true; btn.textContent='Deleting…'; } db.collection('deletionRequests').doc(u.uid).set({ requestedAt:new Date().toISOString(), email:u.email||null }).then(function(){ setTimeout(function(){ firebase.auth().signOut().catch(function(){}); alert('Your account and all of your data are being permanently deleted. You have been signed out.'); location.reload(); }, 2500); }).catch(function(e){ if(btn){ btn.disabled=false; btn.textContent='Delete'; } alert('Could not start deletion: '+e.message); }); };
 
 // User data
 var userUid = null;
