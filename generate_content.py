@@ -34,8 +34,11 @@ intellectually rich content from the past week across business, science, psychol
 and global affairs.
 
 Use web search to find current stories, papers, research and commentary published 
-in the last 7 days. Prioritise: HBR, McKinsey, FT, WSJ, The Economist, Nature, 
-academic journals, and respected thought leaders.
+in the last 7 days. Draw from a BROAD range of credible sources. Favour the 
+suggested publications provided for each category, alongside mainstays like HBR, 
+the FT, The Economist and Nature. Deliberately vary the outlets you cite from week 
+to week so the briefing never leans on the same few publications; a mix of essay 
+outlets, research journals and serious journalism is ideal.
 
 Each topic must have:
 - title: Short compelling title (4-7 words)
@@ -101,7 +104,10 @@ Return a JSON array of exactly 4 topic objects:
   ...
 ]
 
-Focus specifically on {category_focus}."""
+Focus specifically on {category_focus}.
+
+Favour these publications where they have relevant, recent material (not exclusively; a strong current piece from elsewhere is always welcome, and do not force a source in if it has nothing timely): {category_sources}.
+Across any category you may also draw from: {cross_cutting}."""
 
 CATEGORY_FOCUS = {
     "leadership": "leadership, management, organisational behaviour, executive performance, team dynamics, strategy and decision-making",
@@ -111,6 +117,17 @@ CATEGORY_FOCUS = {
     "geopolitics": "global affairs, international relations, supply chains, geopolitical risk, trade and government policy",
     "philosophy": "philosophy, ethics, meaning, first principles thinking, Stoicism and the examined life as applied to leadership",
 }
+
+CATEGORY_SOURCES = {
+    "leadership": "Harvard Business Review, MIT Sloan Management Review, McKinsey Quarterly, Korn Ferry Institute, Egon Zehnder Insights, The Leadership Quarterly, First Round Review",
+    "markets": "The Economist, Financial Times (Lex and Alphaville), Howard Marks's Oaktree Capital memos, NBER working papers, Marginal Revolution, the Journal of Finance, the Review of Financial Studies",
+    "psychology": "Behavioral Scientist, Psyche, Nature Human Behaviour, Psychological Science, the Annual Review of Psychology, Trends in Cognitive Sciences",
+    "technology": "MIT Technology Review, IEEE Spectrum, Stratechery, The Information, arXiv (cs.AI and cs.LG), Quanta Magazine, Communications of the ACM",
+    "geopolitics": "Foreign Affairs, Foreign Policy, War on the Rocks, Chatham House, Brookings, CSIS, the Carnegie Endowment, International Security, the Journal of Democracy",
+    "philosophy": "Aeon, the Stanford Encyclopedia of Philosophy, The Point, The New Atlantis, Mind, the Journal of Philosophy",
+}
+
+CROSS_CUTTING = "Noema, Nautilus, Works in Progress, Asterisk, Farnam Street and The Marginalian"
 
 
 def parse_topics_json(raw: str, label: str) -> list:
@@ -354,6 +371,8 @@ def generate_category_content(
         today=today,
         category=cat["label"],
         category_focus=CATEGORY_FOCUS[cat["id"]],
+        category_sources=CATEGORY_SOURCES[cat["id"]],
+        cross_cutting=CROSS_CUTTING,
     )
 
     # Append the anti-repetition block if we have history for this category.
