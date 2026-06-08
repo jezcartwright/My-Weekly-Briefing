@@ -299,15 +299,16 @@ html.login-active{background:var(--orange)}
 #vv .view-close{color:#fff}
 .vidlib-sub{flex-shrink:0;background:#fff;border-bottom:1px solid var(--b,#e8e4df);padding:10px 16px;font:600 11px 'Inter',sans-serif;letter-spacing:.04em;color:var(--t3,#8E857C)}
 .vidlib-sub:empty{display:none}
-.vidlib{flex:1;overflow-y:auto;padding:14px}
+.vidlib{flex:1;overflow-y:auto;padding:14px;max-width:760px;width:100%;margin:0 auto}
 .vidlib-empty{text-align:center;color:var(--t3,#8E857C);padding:42px 20px;font:400 14px 'Inter',sans-serif;line-height:1.6}
 .daygroup{margin-bottom:8px}
 .dayhdr{font:700 10px 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t3,#8E857C);margin:6px 2px 10px}
-.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:18px}
 .vtile{background:#fff;border:1px solid var(--b,#e8e4df);border-radius:12px;overflow:hidden}
-.vthumb{position:relative;width:100%;height:150px;background:#161618 url('https://weeklybriefing.jezcartwright.com/jez-photo.jpg') center top/cover;cursor:pointer}
-.vthumb.playing{height:auto;background:#000;cursor:default}
-.vthumb video{width:100%;display:block;max-height:340px;background:#000}
+.vthumb{position:relative;width:100%;height:150px;background:#000;cursor:pointer}
+.vthumb.playing{height:auto;cursor:default}
+.vthumb.playing video{height:auto;max-height:360px;object-fit:contain}
+.vthumb video{width:100%;height:150px;object-fit:cover;display:block;background:#000}
 .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
 .vthumb.playing .vplay,.vthumb.playing .vdur,.vthumb.playing .vdl{display:none}
 .vdur{position:absolute;bottom:6px;right:7px;background:rgba(0,0,0,.65);color:#fff;font:600 10px 'Inter',sans-serif;padding:2px 6px;border-radius:7px}
@@ -1895,7 +1896,7 @@ function sendContactMessage(){
   function durstr(s){s=Math.round(s||0);var m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x;}
   function vsize(b){b=b||0;if(b>=1048576)return (b/1048576).toFixed(1)+' MB';if(b>=1024)return Math.round(b/1024)+' KB';return b+' B';}
   function vdaykey(ts){try{var d=ts&&ts.toDate?ts.toDate():new Date(ts);var n=new Date();var a=new Date(d.getFullYear(),d.getMonth(),d.getDate()),b=new Date(n.getFullYear(),n.getMonth(),n.getDate());var diff=Math.round((b-a)/86400000);var dm=d.toLocaleDateString('en-GB',{day:'numeric',month:'long'});if(diff<=0)return 'Today \u00B7 '+dm;if(diff===1)return 'Yesterday \u00B7 '+dm;return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}catch(e){return 'Earlier';}}
-  function playVid(el){var u=el.getAttribute('data-url');if(!u)return;el.classList.add('playing');el.innerHTML='<video class="vidmsg" src="'+u+'" controls autoplay playsinline></video>';}
+  function playVid(el){if(!el||el.classList.contains('playing'))return;var vid=el.querySelector('video');if(!vid)return;el.classList.add('playing');vid.controls=true;vid.muted=false;try{vid.currentTime=0;}catch(e){}vid.play();}
   window.playVid=playVid;
   function loadVideos(){
     var box=document.getElementById('vidlib-list'),sub=document.getElementById('vidlib-sub');if(!box)return;
@@ -1909,7 +1910,8 @@ function sendContactMessage(){
         h+='<div class="daygroup"><div class="dayhdr">'+esc(key)+'</div><div class="vgrid">';
         groups[key].forEach(function(m){
           var who=esc(m.name||m.email||'Subscriber'),url=esc(m.videoUrl||'');
-          h+='<div class="vtile"><div class="vthumb" data-url="'+url+'" onclick="playVid(this)">'
+          h+='<div class="vtile"><div class="vthumb" onclick="playVid(this)">'
+            +'<video src="'+url+'#t=0.1" preload="metadata" muted playsinline></video>'
             +'<a class="vdl" href="'+url+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" aria-label="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg></a>'
             +'<div class="vplay"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>'
             +'<div class="vdur">'+esc(durstr(m.dur))+'</div></div>'
