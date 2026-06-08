@@ -293,6 +293,28 @@ html.login-active{background:var(--orange)}
 .cam-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,102,0,.1);color:var(--orange);border:1.5px solid rgba(255,102,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
 .vid-bub{width:180px;border-radius:14px;overflow:hidden;background:#000}
 .vidmsg{width:100%;display:block;max-height:320px;background:#000}
+#vv{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+#vv .view-top{background:var(--strip-c,#ff6600);border-bottom:none}
+#vv .view-title{color:#fff;font-family:'Inter',sans-serif;font-size:20px;font-weight:700}
+#vv .view-close{color:#fff}
+.vidlib-sub{flex-shrink:0;background:#fff;border-bottom:1px solid var(--b,#e8e4df);padding:10px 16px;font:600 11px 'Inter',sans-serif;letter-spacing:.04em;color:var(--t3,#8E857C)}
+.vidlib-sub:empty{display:none}
+.vidlib{flex:1;overflow-y:auto;padding:14px}
+.vidlib-empty{text-align:center;color:var(--t3,#8E857C);padding:42px 20px;font:400 14px 'Inter',sans-serif;line-height:1.6}
+.daygroup{margin-bottom:8px}
+.dayhdr{font:700 10px 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t3,#8E857C);margin:6px 2px 10px}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.vtile{background:#fff;border:1px solid var(--b,#e8e4df);border-radius:12px;overflow:hidden}
+.vthumb{position:relative;width:100%;height:150px;background:#161618 url('https://weeklybriefing.jezcartwright.com/jez-photo.jpg') center top/cover;cursor:pointer}
+.vthumb.playing{height:auto;background:#000;cursor:default}
+.vthumb video{width:100%;display:block;max-height:340px;background:#000}
+.vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.vthumb.playing .vplay,.vthumb.playing .vdur,.vthumb.playing .vdl{display:none}
+.vdur{position:absolute;bottom:6px;right:7px;background:rgba(0,0,0,.65);color:#fff;font:600 10px 'Inter',sans-serif;padding:2px 6px;border-radius:7px}
+.vdl{position:absolute;top:6px;right:7px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+.vmeta{padding:8px 10px}
+.vmeta .vwho{font:700 12px 'Inter',sans-serif;color:var(--t,#1a1a1a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vmeta .vwhen{font:400 10px 'Inter',sans-serif;color:var(--t3,#8E857C);margin-top:2px}
 #vrec{position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column}
 .vr-feed-wrap{flex:1;position:relative;overflow:hidden}
 #vr-feed{width:100%;height:100%;object-fit:cover;background:#000}
@@ -593,6 +615,7 @@ body.text-xlarge .ne-preview{font-size:15px}
           <div class="mi-divider"></div>
           <button class="mi" id="btn-contact" onclick="showView('contact')"><span class="ico">✉</span>Contact Jez<span class="mi-count" id="contact-count"></span></button>
           <button class="mi" id="btn-messages" onclick="showView('messages')" style="display:none"><span class="ico">✉</span>Messages<span class="mi-count" id="messages-count"></span></button>
+          <button class="mi" id="btn-videos" onclick="showView('videos')" style="display:none"><span class="ico">▶</span>Video Library</button>
           <div class="mi-divider"></div>
           <div class="ts-picker" role="radiogroup" aria-label="Text size">
             <button class="ts-btn" data-size="default" onclick="setTextSize('default')" aria-label="Normal text size"><span class="ts-aa ts-aa-s">Aa</span></button>
@@ -668,6 +691,11 @@ body.text-xlarge .ne-preview{font-size:15px}
         <div class="composer"><button class="cam-btn" onclick="VID.open()" aria-label="Record video"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button><textarea class="cin" id="thread-input" rows="1" placeholder="Reply…"></textarea><button class="cbtn" onclick="MSG.sendAdminReply()" aria-label="Send">↑</button></div>
       </div>
     </div>
+  </div>
+  <div id="vv">
+    <div class="view-top"><div class="view-title">▶ Video Library</div><div class="view-right"><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
+    <div class="vidlib-sub" id="vidlib-sub"></div>
+    <div class="vidlib" id="vidlib-list"></div>
   </div>
 </div>
 
@@ -1800,16 +1828,19 @@ function showView(v){
   document.getElementById('vn').style.display=v==='notes'?'flex':'none';
   document.getElementById('vc').style.display=v==='contact'?'flex':'none';
   document.getElementById('vm').style.display=v==='messages'?'flex':'none';
+  var _vv=document.getElementById('vv'); if(_vv)_vv.style.display=v==='videos'?'flex':'none';
   document.getElementById('btn-lib').classList.toggle('on',v==='library');
   document.getElementById('btn-likes').classList.toggle('on',v==='likes');
   document.getElementById('btn-notes').classList.toggle('on',v==='notes');
   var _bc=document.getElementById('btn-contact'); if(_bc)_bc.classList.toggle('on',v==='contact');
   var _bm=document.getElementById('btn-messages'); if(_bm)_bm.classList.toggle('on',v==='messages');
+  var _bv=document.getElementById('btn-videos'); if(_bv)_bv.classList.toggle('on',v==='videos');
   if(v==='library')rl();
   else if(v==='likes')rk();
   else if(v==='notes')rn();
   else if(v==='contact'){if(window.MSG)MSG.openUserChat();}
   else if(v==='messages'){if(window.MSG)MSG.openInbox();}
+  else if(v==='videos'){if(window.loadVideos)loadVideos();}
   else rt();
   renderBannerTabs();
 }
@@ -1861,6 +1892,36 @@ function sendContactMessage(){
   function ftime(ts){try{var d=ts&&ts.toDate?ts.toDate():(ts?new Date(ts):new Date());var n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});if((n-d)/86400000<7)return d.toLocaleDateString('en-GB',{weekday:'short'});return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){return '';}}
   function inits(name,email){var s=(name||'').trim();if(s){var p=s.split(/\s+/);return ((p[0][0]||'')+(p.length>1?(p[p.length-1][0]||''):'')).toUpperCase();}return ((email||'?')[0]||'?').toUpperCase();}
   function vbub(u){return '<div class="vid-bub"><video class="vidmsg" src="'+u+'" controls playsinline preload="metadata"></video></div>';}
+  function durstr(s){s=Math.round(s||0);var m=Math.floor(s/60),x=s%60;return m+':'+(x<10?'0':'')+x;}
+  function vsize(b){b=b||0;if(b>=1048576)return (b/1048576).toFixed(1)+' MB';if(b>=1024)return Math.round(b/1024)+' KB';return b+' B';}
+  function vdaykey(ts){try{var d=ts&&ts.toDate?ts.toDate():new Date(ts);var n=new Date();var a=new Date(d.getFullYear(),d.getMonth(),d.getDate()),b=new Date(n.getFullYear(),n.getMonth(),n.getDate());var diff=Math.round((b-a)/86400000);var dm=d.toLocaleDateString('en-GB',{day:'numeric',month:'long'});if(diff<=0)return 'Today \u00B7 '+dm;if(diff===1)return 'Yesterday \u00B7 '+dm;return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}catch(e){return 'Earlier';}}
+  function playVid(el){var u=el.getAttribute('data-url');if(!u)return;el.classList.add('playing');el.innerHTML='<video class="vidmsg" src="'+u+'" controls autoplay playsinline></video>';}
+  window.playVid=playVid;
+  function loadVideos(){
+    var box=document.getElementById('vidlib-list'),sub=document.getElementById('vidlib-sub');if(!box)return;
+    box.innerHTML='<div class="vidlib-empty">Loading\u2026</div>';
+    db.collection('videos').orderBy('at','desc').get().then(function(snap){
+      if(snap.empty){box.innerHTML='<div class="vidlib-empty">No videos yet.<br>Record one from a conversation in Messages.</div>';if(sub)sub.textContent='';return;}
+      var groups={},order=[],total=0;
+      snap.forEach(function(doc){var m=doc.data();total+=(m.size||0);var key=vdaykey(m.at);if(!groups[key]){groups[key]=[];order.push(key);}groups[key].push(m);});
+      var h='';
+      order.forEach(function(key){
+        h+='<div class="daygroup"><div class="dayhdr">'+esc(key)+'</div><div class="vgrid">';
+        groups[key].forEach(function(m){
+          var who=esc(m.name||m.email||'Subscriber'),url=esc(m.videoUrl||'');
+          h+='<div class="vtile"><div class="vthumb" data-url="'+url+'" onclick="playVid(this)">'
+            +'<a class="vdl" href="'+url+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" aria-label="Download"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg></a>'
+            +'<div class="vplay"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>'
+            +'<div class="vdur">'+esc(durstr(m.dur))+'</div></div>'
+            +'<div class="vmeta"><div class="vwho">'+who+'</div><div class="vwhen">'+esc(ftime(m.at))+'</div></div></div>';
+        });
+        h+='</div></div>';
+      });
+      box.innerHTML=h;
+      if(sub)sub.textContent=snap.size+' VIDEO'+(snap.size===1?'':'S')+' \u00B7 '+vsize(total);
+    }).catch(function(e){box.innerHTML='<div class="vidlib-empty">Could not load videos.<br><small>'+esc(e&&e.message||e)+'</small></div>';});
+  }
+  window.loadVideos=loadVideos;
   function uname(){var u=firebase.auth().currentUser;var nm=u&&u.displayName||null;if(!nm&&window._fb_profile){var f=(window._fb_profile.firstName||''),l=(window._fb_profile.lastName||'');nm=(f+' '+l).trim()||null;}return nm;}
 
   function openUserChat(){
@@ -1958,7 +2019,7 @@ function sendContactMessage(){
   function setUserMarker(n){badge('contact-count',n);hamDot();}
   function setAdminMarker(n){badge('messages-count',n);hamDot();}
   function hamDot(){var c=document.getElementById('contact-count'),m=document.getElementById('messages-count');var any=(c&&c.style.display!=='none')||(m&&m.style.display!=='none');var d=document.getElementById('ham-dot');if(d)d.style.display=any?'block':'none';}
-  function applyAdminUI(){var mi=document.getElementById('btn-messages');if(mi)mi.style.display=admin()?'flex':'none';}
+  function applyAdminUI(){var d=admin()?'flex':'none';var mi=document.getElementById('btn-messages');if(mi)mi.style.display=d;var bv=document.getElementById('btn-videos');if(bv)bv.style.display=d;}
 
   if(window.firebase&&firebase.auth){
     firebase.auth().onAuthStateChanged(function(u){if(u){applyAdminUI();startMarkers();}else{stopMarkers();}});
