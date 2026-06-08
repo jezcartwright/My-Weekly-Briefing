@@ -1,15 +1,15 @@
 name: Monday Publish — Promote Staging + Send Email
 
-# Monday 06:17 GMT auto-run promotes the staging branch to main (which triggers
+# Monday 08:00 London (07:00 UTC) auto-run promotes staging to main (which triggers
 # the existing deploy-firebase.yml workflow to push live) and sends the Gmail
 # draft prepared on Friday.
 #
-# The cron is COMMENTED OUT initially — workflow_dispatch only — for dry-run.
-# Uncomment when ready for Monday 9 June (the Monday after first Friday run).
+# Schedule is ENABLED: runs every Monday at 07:00 UTC = 08:00 London (BST).
+# In winter (GMT) change the cron to '0 8 * * 1'. Also runnable via workflow_dispatch.
 
 on:
-  # schedule:
-  #   - cron: '17 6 * * 1'   # 06:17 UTC every Monday
+  schedule:
+    - cron: '0 7 * * 1'   # 07:00 UTC Mon = 08:00 London (BST). In winter (GMT) change to '0 8 * * 1'.
   workflow_dispatch:
     inputs:
       abort:
