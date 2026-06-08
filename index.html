@@ -1953,7 +1953,7 @@ function sendContactMessage(){
     _markerUnsub=db.collection('threads').doc(u.uid).onSnapshot(function(s){setUserMarker(s.exists?((s.data().userUnread)||0):0);},function(){});
     if(admin()){_adminMarkerUnsub=db.collection('threads').where('adminUnread','>',0).onSnapshot(function(snap){setAdminMarker(snap.size);},function(){});}
   }
-  function stopMarkers(){if(_markerUnsub){_markerUnsub();_markerUnsub=null;}if(_adminMarkerUnsub){_adminMarkerUnsub();_adminMarkerUnsub=null;}}
+  function stopMarkers(){if(_markerUnsub){_markerUnsub();_markerUnsub=null;}if(_adminMarkerUnsub){_adminMarkerUnsub();_adminMarkerUnsub=null;}setUserMarker(0);setAdminMarker(0);}
   function badge(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':n;el.style.display='inline-flex';}else{el.textContent='';el.style.display='none';}}
   function setUserMarker(n){badge('contact-count',n);hamDot();}
   function setAdminMarker(n){badge('messages-count',n);hamDot();}
