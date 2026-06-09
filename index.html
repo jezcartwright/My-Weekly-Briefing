@@ -1553,7 +1553,7 @@ function bookToAmazon(url){
   var m=/bookshop\.org\/beta-search\?keywords=([^&#]+)/.exec(url||'');
   if(!m)return url;
   var kw=''; try{kw=decodeURIComponent(m[1].replace(/\+/g,' '));}catch(e){kw=m[1];}
-  return 'https://'+amazonHost()+'/s?k='+encodeURIComponent(kw);
+  return 'https://'+amazonHost()+'/s?k='+encodeURIComponent(kw)+'&i=stripbooks';
 }
 function linkify(text,url){ url=bookToAmazon(url); if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
 
