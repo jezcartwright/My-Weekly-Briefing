@@ -364,6 +364,7 @@ def generate_category_content(
     cat: dict,
     today: str,
     recent_topics: dict = None,
+    extra_avoid: list = None,
 ) -> list:
     """Call Claude API with web search to generate content for one category."""
 
@@ -381,6 +382,14 @@ def generate_category_content(
         if avoid_block:
             prompt = prompt + "\n" + avoid_block
     
+    if extra_avoid:
+        _av = ["", "YOU JUST PROPOSED THE FOLLOWING AND THEY REPEAT RECENT "
+               "WEEKS - do NOT propose them or any close variant again:"]
+        for _t in extra_avoid:
+            _av.append("- " + _t.get("title", "") + " - " + _t.get("headline", ""))
+        _av.append("")
+        prompt = prompt + "\n" + "\n".join(_av)
+
     print(f"  Generating {cat['label']} content...")
     
     response = client.messages.create(
@@ -768,6 +777,43 @@ def check_for_overlap(new_content: dict, recent_topics: dict) -> list:
     return warnings
 
 
+def _topic_clashes(new_topic, recent_list):
+    """Return a recent topic that a new topic repeats, else None.
+
+    Catches near-identical titles AND same-subject pieces wearing a reworded
+    headline. recent_list includes last week at set_index 0, so a category that
+    silently keeps last week's set is caught here too.
+    """
+    nt_title = set(_normalise_for_compare(new_topic.get("title", "")).split())
+    nt_full = set(_normalise_for_compare(
+        new_topic.get("title", "") + " " + new_topic.get("headline", "")).split())
+    if len(nt_title) < 2:
+        return None
+    for rt in recent_list:
+        rt_title = set(_normalise_for_compare(rt.get("title", "")).split())
+        rt_full = set(_normalise_for_compare(
+            rt.get("title", "") + " " + rt.get("headline", "")).split())
+        if rt_title:
+            ratio = len(nt_title & rt_title) / min(len(nt_title), len(rt_title))
+            if ratio >= 0.6:
+                return rt
+        if len(nt_full) >= 4 and len(rt_full) >= 4:
+            ratio = len(nt_full & rt_full) / min(len(nt_full), len(rt_full))
+            if ratio >= 0.5:
+                return rt
+    return None
+
+
+def find_category_overlaps(new_topics, recent_list):
+    """Return the subset of new_topics that repeat recent content."""
+    clashes = []
+    for nt in new_topics:
+        if _topic_clashes(nt, recent_list):
+            clashes.append({"title": nt.get("title", ""),
+                            "headline": nt.get("headline", "")})
+    return clashes
+
+
 def main():
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     github_token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
@@ -808,46 +854,53 @@ def main():
     # If one category fails (bad JSON from the model, etc.) we skip THAT
     # category and keep the rest, rather than losing the entire week.
     all_content = {}
-    failures = []
-    print("\n3. Generating content via Claude API with web search...")
+    hard_failures = []
+    MAX_ATTEMPTS = 3
+    print("\n3. Generating content (blocking anti-repetition gate)...")
     for cat in CATEGORIES:
-        try:
-            topics = generate_category_content(client, cat, today, recent_topics)
-            all_content[cat["id"]] = topics
-        except Exception as e:
-            print(f"  ✗ {cat['label']} FAILED: {e}")
-            print(f"    Skipping {cat['label']} this week, continuing with the others.")
-            failures.append(cat["label"])
+        cat_id = cat["id"]
+        recents = recent_topics.get(cat_id, [])
+        extra_avoid = []
+        produced = None
+        for attempt in range(1, MAX_ATTEMPTS + 1):
+            try:
+                topics = generate_category_content(
+                    client, cat, today, recent_topics, extra_avoid)
+            except Exception as e:
+                print("  x %s attempt %d/%d failed: %s"
+                      % (cat["label"], attempt, MAX_ATTEMPTS, e))
+                continue
+            clashes = find_category_overlaps(topics, recents)
+            if not clashes:
+                produced = topics
+                print("  OK %s fresh (attempt %d)" % (cat["label"], attempt))
+                break
+            print("  REGEN %s attempt %d: %d topic(s) repeat recent weeks:"
+                  % (cat["label"], attempt, len(clashes)))
+            for c in clashes:
+                print("        - %s" % c["title"])
+            extra_avoid.extend(clashes)
+        if produced is not None:
+            all_content[cat_id] = produced
+        else:
+            hard_failures.append(cat["label"])
 
-    # Safety floor: if too few categories succeeded, abort rather than
-    # publish a gutted briefing that would also push good older content
-    # down the 4-week history.
-    MIN_CATEGORIES = 4
-    if len(all_content) < MIN_CATEGORIES:
+    # Hard gate: every category must produce fresh, non-repeating content. If any
+    # can't, abort WITHOUT committing so nothing stale or duplicated is published;
+    # the outer handler emails the failure for a human re-run. (The old code
+    # silently kept last week's set for a failed category - the exact path by
+    # which a repeated week reached production.)
+    if hard_failures or len(all_content) < len(CATEGORIES):
+        missing = hard_failures or [c["label"] for c in CATEGORIES
+                                    if c["id"] not in all_content]
         raise RuntimeError(
-            f"Only {len(all_content)} of {len(CATEGORIES)} categories succeeded "
-            f"(failed: {', '.join(failures) or 'none'}). "
-            f"Below the safety floor of {MIN_CATEGORIES}; aborting without committing "
-            f"so existing content is preserved. Re-run the workflow to try again."
+            "Could not produce fresh, non-repeating content for: "
+            + ", ".join(missing)
+            + ". Aborting without committing so no stale or duplicated content is "
+            "published. Re-run the workflow to retry."
         )
 
-    if failures:
-        print(f"\n  Note: proceeding with {len(all_content)} categories; "
-              f"{len(failures)} skipped this week ({', '.join(failures)}).")
-
-    # 3. Post-generation overlap check — warn (not fail) if any new title
-    # closely matches a recent one. This is a tripwire, not a hard gate;
-    # Claude is usually obedient with the "do not repeat" instruction, but
-    # if it slips we want to know so the prompt can be tightened.
-    print("\n4. Checking new content against recent for overlap...")
-    overlaps = check_for_overlap(all_content, recent_topics)
-    if overlaps:
-        print(f"  ! {len(overlaps)} possible overlap(s) detected:")
-        for o in overlaps:
-            print(f"    - {o}")
-        print("  (continuing — review on staging before Monday merge)")
-    else:
-        print("  ✓ No overlaps with recent content")
+    print("\n4. All six categories produced fresh, non-repeating content.")
 
     # 4. Update the HTML
     print("\n5. Updating content in index.html...")
