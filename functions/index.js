@@ -1,4 +1,4 @@
-const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 
 admin.initializeApp();
@@ -15,34 +15,40 @@ async function deleteQueryInChunks(query) {
   }
 }
 
-// Callable: a signed-in user deletes their own account and all associated data.
-exports.deleteMyAccount = onCall(async (request) => {
-  const uid = request.auth && request.auth.uid;
-  if (!uid) {
-    throw new HttpsError("unauthenticated", "You must be signed in.");
-  }
-  const db = admin.firestore();
+// Triggered when a user requests deletion by creating deletionRequests/{uid}.
+// Runs with admin privileges; erases all of that user's data and their login.
+exports.processAccountDeletion = onDocumentCreated(
+    "deletionRequests/{uid}", async (event) => {
+      const uid = event.params.uid;
+      const db = admin.firestore();
 
-  // 1. Storage: every video stored under this user's folder
-  try {
-    await admin.storage().bucket(BUCKET).deleteFiles({prefix: `videos/${uid}/`});
-  } catch (e) {
-    console.error("storage delete failed:", e);
-  }
+      // 1. Storage: every video stored under this user's folder
+      try {
+        await admin.storage().bucket(BUCKET)
+            .deleteFiles({prefix: `videos/${uid}/`});
+      } catch (e) {
+        console.error("storage delete failed:", e);
+      }
 
-  // 2. Video-library index entries for this user
-  await deleteQueryInChunks(db.collection("videos").where("threadUid", "==", uid));
+      // 2. Video-library index entries for this user
+      await deleteQueryInChunks(
+          db.collection("videos").where("threadUid", "==", uid));
 
-  // 3. Thread messages, then the thread document
-  await deleteQueryInChunks(
-      db.collection("threads").doc(uid).collection("messages"));
-  await db.collection("threads").doc(uid).delete().catch(() => {});
+      // 3. Thread messages, then the thread document
+      await deleteQueryInChunks(
+          db.collection("threads").doc(uid).collection("messages"));
+      await db.collection("threads").doc(uid).delete().catch(() => {});
 
-  // 4. User profile (includes saved notes + liked topics)
-  await db.collection("users").doc(uid).delete().catch(() => {});
+      // 4. User profile (includes saved notes + liked topics)
+      await db.collection("users").doc(uid).delete().catch(() => {});
 
-  // 5. The sign-in account itself
-  await admin.auth().deleteUser(uid);
+      // 5. The sign-in account itself
+      try {
+        await admin.auth().deleteUser(uid);
+      } catch (e) {
+        console.error("auth delete failed:", e);
+      }
 
-  return {ok: true};
-});
+      // 6. Clean up the request document
+      await db.collection("deletionRequests").doc(uid).delete().catch(() => {});
+    });
