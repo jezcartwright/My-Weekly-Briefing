@@ -224,7 +224,7 @@ html.login-active{background:var(--orange)}
 .tw{flex:1;min-width:0}
 .tt{font-family:'IBM Plex Serif',Georgia,'Times New Roman',serif;font-size:15px;font-weight:600;color:var(--t);margin-bottom:4px;line-height:1.2;letter-spacing:-0.005em}
 .thl{font-family:'IBM Plex Serif',Georgia,'Times New Roman',serif;font-size:12px;color:var(--t2);line-height:1.45;font-weight:500}
-.has-note-pill{font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:3px;background:#fff8ee;border:1px solid #f0e8d0;border-radius:10px;padding:2px 7px;font-size:9px;color:#C9A84C;font-weight:700;margin-top:6px}
+.has-note-pill{font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:3px;background:var(--orange-light);border:1px solid var(--orange-mid);border-radius:10px;padding:2px 7px;font-size:9px;color:var(--orange);font-weight:700;margin-top:6px}
 .th-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .like-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;font-size:20px;color:var(--t3);cursor:pointer;background:none;border:none;padding:0;margin:0;line-height:1;transition:color .15s,transform .1s;font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 .like-btn.liked{color:#e25555}
@@ -1531,7 +1531,7 @@ function bh(t,catId,color,colorDark){
   ta.textContent=saved;
   ta.setAttribute('oninput','noteInput(this,\''+catId.replace(/'/g,"\\'")+"','"+t.title.replace(/'/g,"\\'")+"')");
   var notesHtml='<div class="topic-notes" style="--lh-cat:'+colorDark+'" onclick="event.stopPropagation()">'+
-    '<div class="topic-notes-label">\u270F My Notes on this topic</div>'+
+    '<div class="topic-notes-label">\u270F My note on this topic</div>'+
     ta.outerHTML+
     '<div class="topic-notes-footer">'+
     '<span class="topic-notes-hint">Saved to your account</span>'+
