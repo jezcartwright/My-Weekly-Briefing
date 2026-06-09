@@ -149,7 +149,10 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
 .radio-group{display:flex;flex-direction:column;gap:8px;padding:6px 0}
 .radio-group-inline{flex-direction:row;flex-wrap:wrap;gap:18px}
 .radio{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
-.radio input{accent-color:var(--orange);cursor:pointer}
+.radio input{appearance:none;-webkit-appearance:none;width:16px;height:16px;margin:0;flex:0 0 auto;border:1.5px solid var(--b);border-radius:50%;background:var(--paper);cursor:pointer;display:inline-grid;place-content:center}
+.radio input:checked{border-color:var(--orange)}
+.radio input:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.radio input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 .recip-count{color:var(--t);opacity:.55;font-size:12px}
 
 .compose-actions{display:flex;align-items:center;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--b)}
