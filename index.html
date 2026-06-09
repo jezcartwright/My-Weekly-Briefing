@@ -459,7 +459,7 @@ html.login-active{background:var(--orange)}
 .pdf-dlbl{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--orange);margin-bottom:8px}
 .pdf-di{font-size:12px;color:var(--t);margin-bottom:5px;display:flex;gap:10px;line-height:1.5;align-items:flex-start}
 .pdf-di::before{content:"";display:inline-block;width:6px;height:6px;background:var(--bullet,var(--orange));flex-shrink:0;margin-top:6px}
-.pdf-di a{color:#A0530B;text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:0.5px}
+.pdf-di a{color:var(--link,#A0530B);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:0.5px}
 .pdf-footer{text-align:center;padding:16px 40px 20px;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.08em;color:#8E857C;border-top:1px solid #E0D8CB;background:#FBF8F2}
 /* paginated A4 PDF sheets */
 #pdf-scroll{background:#cfcdc7}
@@ -1526,7 +1526,24 @@ function tk(){
 }
 function gt(id){ var sets=D[id]; if(!sets||!sets.length)return[]; return sets[0]; }
 function findTopicByTitle(cid,title){ var sets=D[cid]; if(!sets||!sets.length)return null; for(var i=0;i<sets.length;i++){ var s=sets[i]; if(!s)continue; for(var j=0;j<s.length;j++){ if(s[j]&&s[j].title===title)return s[j]; } } return null; }
-function linkify(text,url){ if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
+function amazonHost(){
+  var tz=''; try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}
+  var tzMap={'Europe/London':'co.uk','Europe/Dublin':'co.uk','Europe/Berlin':'de','Europe/Vienna':'de','Europe/Zurich':'de','Europe/Paris':'fr','Europe/Brussels':'fr','Europe/Luxembourg':'fr','Europe/Madrid':'es','Europe/Rome':'it','Europe/Amsterdam':'nl','Europe/Stockholm':'se','Europe/Warsaw':'pl','Asia/Tokyo':'co.jp','Asia/Kolkata':'in','Asia/Calcutta':'in','Asia/Singapore':'sg','Asia/Dubai':'ae','Australia/Sydney':'com.au','Australia/Melbourne':'com.au','Australia/Perth':'com.au','Australia/Brisbane':'com.au','America/Toronto':'ca','America/Vancouver':'ca','America/Edmonton':'ca','America/Winnipeg':'ca','America/Halifax':'ca','America/Mexico_City':'com.mx','America/Sao_Paulo':'com.br'};
+  if(tzMap[tz])return'www.amazon.'+tzMap[tz];
+  if(tz.indexOf('Australia/')===0)return'www.amazon.com.au';
+  var loc=''; try{loc=(navigator.language||navigator.userLanguage||'');}catch(e){}
+  var reg=(loc.split('-')[1]||'').toUpperCase();
+  var regMap={GB:'co.uk',IE:'co.uk',US:'com',CA:'ca',DE:'de',AT:'de',CH:'de',FR:'fr',BE:'fr',ES:'es',IT:'it',NL:'nl',SE:'se',PL:'pl',JP:'co.jp',IN:'in',SG:'sg',AE:'ae',AU:'com.au',MX:'com.mx',BR:'com.br',TR:'com.tr'};
+  if(regMap[reg])return'www.amazon.'+regMap[reg];
+  return'www.amazon.com';
+}
+function bookToAmazon(url){
+  var m=/bookshop\.org\/beta-search\?keywords=([^&#]+)/.exec(url||'');
+  if(!m)return url;
+  var kw=''; try{kw=decodeURIComponent(m[1].replace(/\+/g,' '));}catch(e){kw=m[1];}
+  return 'https://'+amazonHost()+'/s?k='+encodeURIComponent(kw);
+}
+function linkify(text,url){ url=bookToAmazon(url); if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
 
 // ── Clear note ──
 function clearTopicNote(catId,title){
