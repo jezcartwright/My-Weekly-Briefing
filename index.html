@@ -1552,13 +1552,17 @@ function amazonHost(){
   if(regMap[reg])return'www.amazon.'+regMap[reg];
   return'www.amazon.com';
 }
+// Book "Go Deeper" links -> a Google search of the title/author. A search
+// never dead-ends on a "no results" page the way an Amazon book search
+// can (niche, mis-classified, or non-existent titles), and Google
+// localises results by the reader's region. Name kept for call sites.
 function bookToAmazon(url){
   url=url||'';
   var m=/bookshop\.org\/beta-search\?keywords=([^&#]+)/.exec(url)
      || /google\.[a-z.]+\/books\?q=([^&#]+)/.exec(url);
   if(!m)return url;
   var kw=''; try{kw=decodeURIComponent(m[1].replace(/\+/g,' '));}catch(e){kw=m[1];}
-  return 'https://'+amazonHost()+'/s?k='+encodeURIComponent(kw)+'&i=stripbooks';
+  return 'https://www.google.com/search?q='+encodeURIComponent(kw);
 }
 function linkify(text,url){ url=bookToAmazon(url); if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
 

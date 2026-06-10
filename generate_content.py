@@ -51,10 +51,14 @@ Each topic must have:
   - Item 1: A reflective question or personal challenge (url MUST be null)
   - Item 2: A specific book, article or resource with real URL if available
   - Item 3: A specific book, article or resource with real URL if available
-  - For Items 2 and 3: if it is a BOOK, set url to null UNLESS you are
-    certain of the real publisher/source page. Do NOT invent or guess a
-    URL — a fabricated link is worse than none. The system will add a safe
-    bookshop search link automatically for books left without a URL.
+  - For Items 2 and 3: recommend only books and resources that genuinely
+    EXIST. Make sure the title and author are real and that the author
+    actually wrote that title. Do not invent a title, and do not attach a
+    real author to a book they did not write. If you are not confident a
+    book is real, cite a different verifiable book or a reputable article.
+  - For any BOOK, set url to null. Do NOT output a google.com/books,
+    books.google.com or any guessed link; the system adds a reliable search
+    link for the title and author.
   - When an item is a book, phrase its text as: Title - Author(s)
     (so the title and author can be reliably detected).
 
@@ -504,15 +508,15 @@ def _book_search_url(text: str) -> str:
 
     Uses a search query (not a guessed product page) so it can never
     404 in an embarrassing way — it always lands on results for the
-    title/author. Bookshop.org is used as a reputable, non-Amazon
-    default appropriate for a professional briefing.
+    title/author. A web search is used so the link can never dead-end on a
+    "no results" page the way a product search can.
     """
     import urllib.parse
     # Strip a trailing parenthetical like "(Wiley, 2026)" and tidy dashes
     # so the search query is just title + author.
     q = re.sub(r'\([^)]*\)\s*$', '', text).strip()
     q = q.replace(' - ', ' ').strip(' .')
-    return 'https://bookshop.org/beta-search?keywords=' + urllib.parse.quote(q)
+    return 'https://www.google.com/search?q=' + urllib.parse.quote(q)
 
 
 def topics_to_js(topics: list) -> str:
@@ -538,8 +542,8 @@ def topics_to_js(topics: list) -> str:
             # URL can't 404 embarrassingly the way a guessed publisher link
             # can — worst case it shows results for the right title. We only
             # do this for book-like items, never for the reflective question
-            # (item 1), and never overwrite a real URL the model supplied.
-            if not d_url and _looks_like_book(d_text):
+            # (item 1). For books we deliberately override any model URL.
+            if _looks_like_book(d_text):
                 d_url = _book_search_url(d_text)
 
             deeper_items.append(
