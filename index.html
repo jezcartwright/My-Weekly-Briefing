@@ -1719,7 +1719,7 @@ function doToggleLike(catId,title,btn){
   btn.classList.toggle('liked',nowLiked);
   btn.innerHTML=nowLiked?'\u2665':'\u2661';
 }
-function sc(id){ ac=CATS.find(function(c){return c.id===id;}); oc=null; rt(); rto(); rv(id); renderBannerTabs(); }
+function sc(id){ ac=CATS.find(function(c){return c.id===id;}); oc=null; rt(); rto(); rv(id); renderBannerTabs(); var _ts=document.getElementById('ts'); if(_ts)_ts.scrollTop=0; }
 function rv(id){
   var cat=CATS.find(function(c){return c.id===id;});
   var tops=gt(id); if(!tops.length)return;
@@ -2016,6 +2016,7 @@ function showView(v){
   else if(v==='messages'){if(window.MSG)MSG.openInbox();}
   else if(v==='videos'){if(window.loadVideos)loadVideos();}
   else rt();
+  ['ts','ls','ks','ns'].forEach(function(id){var el=document.getElementById(id); if(el)el.scrollTop=0;});
   renderBannerTabs();
 }
 
