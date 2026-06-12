@@ -2450,9 +2450,9 @@ function pdfFallback(scroll,dateStr){
   var f=document.createElement('div'); f.innerHTML=pdfFoot(); sheet.appendChild(f.firstElementChild);
   scroll.appendChild(sheet);
 }
-function hidePDF(){ document.getElementById('pdf-view').classList.remove('show'); }
+function hidePDF(){ try{resetShare();}catch(e){} document.getElementById('pdf-view').classList.remove('show'); }
 
-var _shareLabel=null,_pdfLibsP=null;
+var _shareLabel=null,_pdfLibsP=null,_pdfFile=null,_pdfBlob=null,_pdfFname=null,_pdfReady=false;
 function pdfDateSlug(){ var d=new Date(); function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function setShareBusy(b){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return;
   if(b){ if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;vertical-align:-2px;margin-right:6px;animation:pdfspin .8s linear infinite"></span>Preparing\u2026'; }
@@ -2466,13 +2466,17 @@ function pdfBuildBlob(scroll){ var jsPDF=window.jspdf.jsPDF; var sheets=scroll.q
   Array.prototype.forEach.call(sheets,function(sh){ chain=chain.then(function(){ return window.html2canvas(sh,{scale:2,useCORS:true,backgroundColor:'#FBF8F2'}).then(function(canvas){ var img=canvas.toDataURL('image/jpeg',0.92); if(!first)doc.addPage(); first=false; doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST'); }); }); });
   return chain.then(function(){ return doc.output('blob'); }); }
 function pdfDownload(blob,fname){ try{ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },4000); }catch(e){ console.error('download',e); } }
-function sharePDF(){ var scroll=document.getElementById('pdf-scroll'); if(!scroll)return; setShareBusy(true);
+function setShareReady(){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return; btn.disabled=false; _pdfReady=true; btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>Tap to send'; btn.style.background='#fff'; btn.style.color='#FF6600'; }
+function resetShare(){ _pdfReady=false; _pdfFile=null; _pdfBlob=null; _pdfFname=null; var btn=document.getElementById('pdf-share-btn'); if(!btn)return; btn.disabled=false; btn.style.background=''; btn.style.color=''; if(_shareLabel!==null){ btn.innerHTML=_shareLabel; _shareLabel=null; } }
+function sharePDF(){ var scroll=document.getElementById('pdf-scroll'); if(!scroll)return;
+  if(_pdfReady&&_pdfFile){ var b=_pdfBlob,fn0=_pdfFname,f0=_pdfFile; navigator.share({files:[f0],title:'Weekly Briefing'}).then(function(){ resetShare(); }).catch(function(e){ if(!(e&&e.name==='AbortError'))pdfDownload(b,fn0); resetShare(); }); return; }
+  setShareBusy(true);
   var fname='Performance-Intelligence-Weekly-Briefing-'+pdfDateSlug()+'.pdf';
   pdfEnsureLibs().then(function(){ pdfUnfit(scroll); return pdfBuildBlob(scroll); }).then(function(blob){ pdfPhoneFit(scroll);
     var file=new File([blob],fname,{type:'application/pdf'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){ return navigator.share({files:[file],title:'Weekly Briefing'}).catch(function(e){ if(e&&e.name==='AbortError')return; pdfDownload(blob,fname); }); }
-    pdfDownload(blob,fname);
-  }).catch(function(e){ console.error('sharePDF',e); try{pdfPhoneFit(scroll);}catch(_){} alert('Sorry \u2014 could not prepare the PDF to share. You can use Save as PDF instead.'); }).then(function(){ setShareBusy(false); }); }
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ _pdfBlob=blob; _pdfFile=file; _pdfFname=fname; setShareReady(); }
+    else { pdfDownload(blob,fname); resetShare(); }
+  }).catch(function(e){ console.error('sharePDF',e); try{pdfPhoneFit(scroll);}catch(_){} alert('Sorry \u2014 could not prepare the PDF to share. You can use Save as PDF instead.'); resetShare(); }); }
 function pdfFitContent(scroll){ var sheets=scroll.querySelectorAll('.sheet'); var minS=1;
   Array.prototype.forEach.call(sheets,function(sh){ var b=sh.querySelector('.sheet-body'); if(!b)return; var bh=b.scrollHeight, ch=b.clientHeight; if(ch>0&&bh>ch+1){ var s=ch/bh; if(s<minS)minS=s; } });
   if(minS<1){ minS=Math.max(0.75,minS); Array.prototype.forEach.call(sheets,function(sh){ var b=sh.querySelector('.sheet-body'); if(!b)return; b.style.transformOrigin='top left'; b.style.transform='scale('+minS.toFixed(4)+')'; b.style.width=(100/minS).toFixed(3)+'%'; }); } }
