@@ -2401,7 +2401,7 @@ function generateCurrentPDF(){
   var scroll=document.getElementById('pdf-scroll');
   var old=scroll.querySelectorAll('.sheet'); for(var i=0;i<old.length;i++)old[i].remove();
   var fr=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
-  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); pdfFitContent(scroll); }catch(e){ pdfFallback(scroll,dateStr); } try{ pdfPhoneFit(scroll); }catch(e2){} });
+  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); pdfFitContent(scroll); }catch(e){ pdfFallback(scroll,dateStr); } try{ pdfPhoneFit(scroll); }catch(e2){} pdfClear(); setTimeout(function(){ pdfPregen(scroll); }, 500); });
 }
 function pdfCollect(){
   var blocks=[];
@@ -2450,9 +2450,9 @@ function pdfFallback(scroll,dateStr){
   var f=document.createElement('div'); f.innerHTML=pdfFoot(); sheet.appendChild(f.firstElementChild);
   scroll.appendChild(sheet);
 }
-function hidePDF(){ try{resetShare();}catch(e){} document.getElementById('pdf-view').classList.remove('show'); }
+function hidePDF(){ try{restoreShareLabel();}catch(e){} try{pdfClear();}catch(e){} document.getElementById('pdf-view').classList.remove('show'); }
 
-var _shareLabel=null,_pdfLibsP=null,_pdfFile=null,_pdfBlob=null,_pdfFname=null,_pdfReady=false;
+var _shareLabel=null,_pdfLibsP=null,_pdfFile=null,_pdfBlob=null,_pdfFname=null,_pdfReady=false,_pdfGenP=null;
 function pdfDateSlug(){ var d=new Date(); function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function setShareBusy(b){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return;
   if(b){ if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,102,0,.3);border-top-color:#FF6600;border-radius:50%;vertical-align:-2px;margin-right:6px;animation:pdfspin .8s linear infinite"></span>Preparing\u2026'; }
@@ -2462,21 +2462,23 @@ function pdfEnsureLibs(){ if(_pdfLibsP)return _pdfLibsP; var jobs=[];
   if(!(window.jspdf&&window.jspdf.jsPDF))jobs.push(pdfLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
   if(!window.html2canvas)jobs.push(pdfLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
   _pdfLibsP=Promise.all(jobs); return _pdfLibsP; }
-function pdfBuildBlob(scroll){ var jsPDF=window.jspdf.jsPDF; var sheets=scroll.querySelectorAll('.sheet'); var doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'}); var chain=Promise.resolve(); var first=true;
-  Array.prototype.forEach.call(sheets,function(sh){ chain=chain.then(function(){ return window.html2canvas(sh,{scale:2,useCORS:true,backgroundColor:'#FBF8F2'}).then(function(canvas){ var img=canvas.toDataURL('image/jpeg',0.92); if(!first)doc.addPage(); first=false; doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST'); }); }); });
-  return chain.then(function(){ return doc.output('blob'); }); }
+function pdfBuildBlob(scroll){ var jsPDF=window.jspdf.jsPDF; var sheets=scroll.querySelectorAll('.sheet'); var doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'}); var stage=document.createElement('div'); stage.style.cssText='position:fixed;left:-100000px;top:0;width:210mm;background:#FBF8F2;z-index:-1;pointer-events:none'; document.body.appendChild(stage); var chain=Promise.resolve(); var first=true;
+  Array.prototype.forEach.call(sheets,function(sh){ chain=chain.then(function(){ var clone=sh.cloneNode(true); clone.style.transform=''; clone.style.margin='0'; stage.innerHTML=''; stage.appendChild(clone); return window.html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#FBF8F2'}).then(function(canvas){ var img=canvas.toDataURL('image/jpeg',0.92); if(!first)doc.addPage(); first=false; doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST'); }); }); });
+  return chain.then(function(){ try{stage.remove();}catch(_){} return doc.output('blob'); }, function(e){ try{stage.remove();}catch(_){} throw e; }); }
 function pdfDownload(blob,fname){ try{ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },4000); }catch(e){ console.error('download',e); } }
-function setShareReady(){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return; btn.disabled=false; _pdfReady=true; btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>Tap to send'; btn.style.background='#fff'; btn.style.color='#FF6600'; }
-function resetShare(){ _pdfReady=false; _pdfFile=null; _pdfBlob=null; _pdfFname=null; var btn=document.getElementById('pdf-share-btn'); if(!btn)return; btn.disabled=false; btn.style.background=''; btn.style.color=''; if(_shareLabel!==null){ btn.innerHTML=_shareLabel; _shareLabel=null; } }
+function setShareReady(){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return; if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=false; btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>Tap to send'; }
+function restoreShareLabel(){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return; btn.disabled=false; if(_shareLabel!==null){ btn.innerHTML=_shareLabel; _shareLabel=null; } }
+function pdfClear(){ _pdfGenP=null; _pdfFile=null; _pdfBlob=null; _pdfFname=null; }
+function pdfGenerate(scroll){ if(_pdfGenP)return _pdfGenP; _pdfGenP=pdfEnsureLibs().then(function(){ return pdfBuildBlob(scroll); }).then(function(blob){ var fname='Performance-Intelligence-Weekly-Briefing-'+pdfDateSlug()+'.pdf'; var file=new File([blob],fname,{type:'application/pdf'}); _pdfBlob=blob; _pdfFile=file; _pdfFname=fname; return {file:file,blob:blob,fname:fname}; }); return _pdfGenP; }
+function pdfPregen(scroll){ try{ pdfGenerate(scroll).catch(function(e){ console.error('pregen',e); _pdfGenP=null; }); }catch(e){} }
+function pdfDeliver(file,blob,fname){ if(navigator.canShare&&navigator.canShare({files:[file]})){ return navigator.share({files:[file],title:'Weekly Briefing'}).catch(function(e){ if(!(e&&e.name==='AbortError'))pdfDownload(blob,fname); }); } pdfDownload(blob,fname); return Promise.resolve(); }
 function sharePDF(){ var scroll=document.getElementById('pdf-scroll'); if(!scroll)return;
-  if(_pdfReady&&_pdfFile){ var b=_pdfBlob,fn0=_pdfFname,f0=_pdfFile; navigator.share({files:[f0],title:'Weekly Briefing'}).then(function(){ resetShare(); }).catch(function(e){ if(!(e&&e.name==='AbortError'))pdfDownload(b,fn0); resetShare(); }); return; }
+  if(_pdfFile){ pdfDeliver(_pdfFile,_pdfBlob,_pdfFname).then(restoreShareLabel); return; }
   setShareBusy(true);
-  var fname='Performance-Intelligence-Weekly-Briefing-'+pdfDateSlug()+'.pdf';
-  pdfEnsureLibs().then(function(){ pdfUnfit(scroll); return pdfBuildBlob(scroll); }).then(function(blob){ pdfPhoneFit(scroll);
-    var file=new File([blob],fname,{type:'application/pdf'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file],title:'Weekly Briefing'}).then(function(){ resetShare(); }).catch(function(e){ if(e&&e.name==='AbortError'){ resetShare(); return; } _pdfBlob=blob; _pdfFile=file; _pdfFname=fname; setShareReady(); }); }
-    else { pdfDownload(blob,fname); resetShare(); }
-  }).catch(function(e){ console.error('sharePDF',e); try{pdfPhoneFit(scroll);}catch(_){} alert('Sorry \u2014 could not prepare the PDF to share. You can use Save as PDF instead.'); resetShare(); }); }
+  pdfGenerate(scroll).then(function(r){ setShareBusy(false);
+    if(navigator.canShare&&navigator.canShare({files:[r.file]})){ navigator.share({files:[r.file],title:'Weekly Briefing'}).then(function(){ restoreShareLabel(); }).catch(function(e){ if(e&&e.name==='AbortError'){ restoreShareLabel(); return; } setShareReady(); }); }
+    else { pdfDownload(r.blob,r.fname); restoreShareLabel(); }
+  }).catch(function(e){ console.error('sharePDF',e); _pdfGenP=null; alert('Sorry \u2014 could not prepare the PDF to share. You can use Save as PDF instead.'); restoreShareLabel(); }); }
 function pdfFitContent(scroll){ var sheets=scroll.querySelectorAll('.sheet'); var minS=1;
   Array.prototype.forEach.call(sheets,function(sh){ var b=sh.querySelector('.sheet-body'); if(!b)return; var bh=b.scrollHeight, ch=b.clientHeight; if(ch>0&&bh>ch+1){ var s=ch/bh; if(s<minS)minS=s; } });
   if(minS<1){ minS=Math.max(0.75,minS); Array.prototype.forEach.call(sheets,function(sh){ var b=sh.querySelector('.sheet-body'); if(!b)return; b.style.transformOrigin='top left'; b.style.transform='scale('+minS.toFixed(4)+')'; b.style.width=(100/minS).toFixed(3)+'%'; }); } }
