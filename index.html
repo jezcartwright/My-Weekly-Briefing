@@ -300,6 +300,7 @@ html.login-active{background:var(--orange)}
 .msg-tab.on{color:var(--orange);border-bottom-color:var(--orange)}
 .msg-tabn{font-size:10px;margin-left:4px}
 .hd-act{background:rgba(255,255,255,.2);color:#fff;border:none;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;padding:6px 12px;border-radius:14px;cursor:pointer}
+.nudge-row{display:flex;align-items:center;gap:9px;padding:9px 14px;border-top:1px solid var(--b);font-family:'Inter',sans-serif;font-size:12.5px;color:var(--t);background:#fff;flex-shrink:0}.nudge-sw{width:34px;height:20px;border-radius:11px;background:#cfc8bb;position:relative;flex-shrink:0;cursor:pointer;transition:background .15s}.nudge-sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}.nudge-sw.on{background:var(--orange)}.nudge-sw.on::after{left:16px}.recip-bcast{display:flex;gap:11px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--b);cursor:pointer;background:#FFF7F1}.recip-bcast .cav{background:var(--orange);color:#fff}.recip-sec{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:10px 16px 6px}.bc-note{background:#FFF7F1;border:1px solid #F3D8C4;color:#8A4A1C;font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.5;border-radius:8px;padding:10px 12px}
 .unarch{font-family:'Inter',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;color:var(--orange);background:rgba(255,102,0,.08);border:1px solid var(--orange);border-radius:14px;padding:6px 12px;cursor:pointer;text-transform:uppercase;flex-shrink:0}
 .cam-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,102,0,.1);color:var(--orange);border:1.5px solid rgba(255,102,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
 .vid-bub{width:180px;border-radius:14px;overflow:hidden;background:#000}
@@ -729,7 +730,7 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
   </div>
   <div id="vm">
     <div id="inbox-list-wrap" style="flex:1;display:flex;flex-direction:column;min-height:0">
-      <div class="view-top"><div class="view-title">✉ Messages</div><div class="view-right"><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
+      <div class="view-top"><div class="view-title">✉ Messages</div><div class="view-right"><button class="hd-act" id="msg-new-btn" onclick="MSG.openCompose()" aria-label="New message">+ New</button><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
       <div class="msg-tabs"><div class="msg-tab on" id="tab-inbox" onclick="MSG.setTab('inbox')">Inbox<span class="msg-tabn" id="tab-inbox-n"></span></div><div class="msg-tab" id="tab-archived" onclick="MSG.setTab('archived')">Archived</div></div>
       <div class="inbox" id="inbox-list"></div>
     </div>
@@ -737,7 +738,21 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
       <div class="view-top"><div class="view-title" style="gap:6px"><span class="t-back" onclick="MSG.showInboxList()">‹</span><div class="t-head"><span id="thread-name">Subscriber</span><small id="thread-email"></small></div></div><div class="view-right"><button class="hd-act" id="thread-arch" onclick="MSG.toggleArchive()">Archive</button><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
       <div class="msg-wrap">
         <div class="chat" id="thread-chat"></div>
+        <div class="nudge-row"><span class="nudge-sw" id="th-nudge-sw" onclick="MSG.toggleNudge('th')"></span><span>Also email a nudge</span></div>
         <div class="composer"><button class="cam-btn" onclick="VID.open()" aria-label="Record video"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></button><textarea class="cin" id="thread-input" rows="1" placeholder="Reply…"></textarea><button class="cbtn" onclick="MSG.sendAdminReply()" aria-label="Send">↑</button></div>
+      </div>
+    </div>
+    <div id="compose-wrap" style="flex:1;display:none;flex-direction:column;min-height:0">
+      <div class="view-top"><div class="view-title" style="gap:6px"><span class="t-back" onclick="MSG.closeCompose()">&lsaquo;</span>New message</div><div class="view-right"><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
+      <div style="padding:12px 14px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--b)"><input id="compose-search" class="cin" style="width:100%;min-height:38px" placeholder="Search subscribers" oninput="MSG.filterRecipients(this.value)"></div>
+      <div class="inbox" id="recipient-list"></div>
+    </div>
+    <div id="broadcast-wrap" style="flex:1;display:none;flex-direction:column;min-height:0">
+      <div class="view-top"><div class="view-title" style="gap:6px"><span class="t-back" onclick="MSG.openCompose()">&lsaquo;</span><div class="t-head"><span>Broadcast</span><small id="broadcast-sub"></small></div></div><div class="view-right"><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
+      <div class="msg-wrap">
+        <div style="flex:1;overflow-y:auto;padding:14px;background:var(--bg)"><div class="bc-note">This message lands in every active subscriber's inbox as a personal message from you. Replies come back to you individually, not as a group.</div></div>
+        <div class="nudge-row"><span class="nudge-sw" id="bc-nudge-sw" onclick="MSG.toggleNudge('bc')"></span><span>Also email everyone a nudge</span></div>
+        <div class="composer"><textarea class="cin" id="broadcast-input" rows="1" placeholder="Write to everyone..."></textarea><button class="cbtn" onclick="MSG.sendBroadcast()" aria-label="Send">&uarr;</button></div>
       </div>
     </div>
   </div>
@@ -2062,6 +2077,7 @@ function sendContactMessage(){
   var GREETING='Hi, how can I help?';
   var _chatUnsub=null,_inboxUnsub=null,_threadUnsub=null,_markerUnsub=null,_adminMarkerUnsub=null;
   var _openThreadUid=null,_openThreadInit='',_openThreadArchived=false,_tab='inbox',_threads=[],_openThread=null;
+  var _recipients=[],_nudgeTh=false,_nudgeBc=false;
   function admin(){var u=firebase.auth().currentUser;return !!(u&&u.email===ADMIN_EMAIL);}
   function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function ftime(ts){try{var d=ts&&ts.toDate?ts.toDate():(ts?new Date(ts):new Date());var n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});if((n-d)/86400000<7)return d.toLocaleDateString('en-GB',{weekday:'short'});return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){return '';}}
@@ -2170,8 +2186,11 @@ function sendContactMessage(){
     var ta=document.getElementById('thread-input');var text=((ta&&ta.value)||'').trim();if(!text)return;
     ta.value='';
     var ref=db.collection('threads').doc(_openThreadUid);
-    ref.set({lastText:text,lastFrom:'admin',lastAt:firebase.firestore.FieldValue.serverTimestamp(),userUnread:firebase.firestore.FieldValue.increment(1),adminUnread:0,updatedAt:new Date().toISOString()},{merge:true});
+    var doc={lastText:text,lastFrom:'admin',lastAt:firebase.firestore.FieldValue.serverTimestamp(),userUnread:firebase.firestore.FieldValue.increment(1),adminUnread:0,updatedAt:new Date().toISOString()};
+    if(_nudgeTh){doc.userNotifyPending=true;doc.userNotifyEmail=((_openThread&&_openThread.email)||null);doc.userNotifyAt=new Date().toISOString();}
+    ref.set(doc,{merge:true});
     ref.collection('messages').add({from:'admin',text:text,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(e){console.error('areply',e);});
+    setNudge('th',false);
   }
   function toggleArchive(){
     if(!_openThreadUid)return;
@@ -2181,8 +2200,68 @@ function sendContactMessage(){
     showInboxList();
   }
   function restoreThread(uid){db.collection('threads').doc(uid).set({archived:false},{merge:true});}
-  function showInboxList(){var l=document.getElementById('inbox-list-wrap'),t=document.getElementById('thread-wrap');if(l)l.style.display='flex';if(t)t.style.display='none';if(_threadUnsub){_threadUnsub();_threadUnsub=null;}}
-  function showThreadView(){var l=document.getElementById('inbox-list-wrap'),t=document.getElementById('thread-wrap');if(l)l.style.display='none';if(t)t.style.display='flex';}
+  function setPane(p){var panes={inbox:'inbox-list-wrap',thread:'thread-wrap',compose:'compose-wrap',broadcast:'broadcast-wrap'};for(var k in panes){var el=document.getElementById(panes[k]);if(el)el.style.display=(k===p?'flex':'none');}}
+  function showInboxList(){setPane('inbox');if(_threadUnsub){_threadUnsub();_threadUnsub=null;}}
+  function showThreadView(){setNudge('th',false);setPane('thread');}
+  function showComposeView(){setPane('compose');}
+  function showBroadcastView(){setPane('broadcast');}
+  function closeCompose(){openInbox();}
+  function setNudge(which,on){if(which==='th'){_nudgeTh=on;}else{_nudgeBc=on;}var el=document.getElementById(which==='th'?'th-nudge-sw':'bc-nudge-sw');if(el)el.classList.toggle('on',!!on);}
+  function toggleNudge(which){setNudge(which,!(which==='th'?_nudgeTh:_nudgeBc));}
+  function nameOf(u){var n=((u.firstName||'')+' '+(u.lastName||'')).trim();return n||u.displayName||u.email||'Subscriber';}
+  function openCompose(){
+    if(!admin())return;
+    var sb=document.getElementById('compose-search');if(sb)sb.value='';
+    showComposeView();
+    var box=document.getElementById('recipient-list');if(box)box.innerHTML='<div class="inbox-empty">Loading subscribers\u2026</div>';
+    db.collection('users').get().then(function(snap){
+      _recipients=[];
+      snap.forEach(function(d){var u=d.data()||{};if(u.unsubscribed===true)return;if(!u.email)return;if(u.email===ADMIN_EMAIL)return;_recipients.push({uid:d.id,name:nameOf(u),email:u.email});});
+      _recipients.sort(function(a,b){return a.name.localeCompare(b.name);});
+      paintRecipients('');
+    }).catch(function(e){if(box)box.innerHTML='<div class="inbox-empty">Could not load subscribers.<br><small>'+esc(e&&e.message||e)+'</small></div>';});
+  }
+  function filterRecipients(q){paintRecipients(q||'');}
+  function paintRecipients(q){
+    var box=document.getElementById('recipient-list');if(!box)return;
+    q=(q||'').trim().toLowerCase();
+    var list=_recipients.filter(function(r){return !q||(r.name.toLowerCase().indexOf(q)>=0)||(r.email.toLowerCase().indexOf(q)>=0);});
+    var h='';
+    if(!q){h+='<div class="recip-bcast" onclick="MSG.openBroadcast()"><div class="cav big"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M4 9v6h3l5 4V5L7 9H4z"/></svg></div><div class="conv-mid"><div class="conv-name">Everyone</div><div class="conv-snip">All '+_recipients.length+' active subscriber'+(_recipients.length===1?'':'s')+'</div></div></div>';}
+    h+='<div class="recip-sec">Individual subscribers</div>';
+    if(!list.length){h+='<div class="inbox-empty">No matching subscribers.</div>';}
+    list.forEach(function(r){h+='<div class="conv" onclick="MSG.startThread(\''+r.uid+'\')"><div class="cav big">'+esc(inits(r.name,r.email))+'</div><div class="conv-mid"><div class="conv-name">'+esc(r.name)+'</div><div class="conv-snip">'+esc(r.email)+'</div></div></div>';});
+    box.innerHTML=h;
+  }
+  function startThread(uid){
+    var r=null;for(var i=0;i<_recipients.length;i++){if(_recipients[i].uid===uid){r=_recipients[i];break;}}
+    if(!r)return;
+    db.collection('threads').doc(uid).set({uid:uid,name:(r.name||null),email:(r.email||null),archived:false},{merge:true}).then(function(){openThread(uid);},function(){openThread(uid);});
+  }
+  function openBroadcast(){
+    if(!admin())return;
+    setNudge('bc',false);
+    var n=_recipients.length;var sub=document.getElementById('broadcast-sub');if(sub)sub.textContent=n+' active subscriber'+(n===1?'':'s');
+    var bi=document.getElementById('broadcast-input');if(bi)bi.value='';
+    showBroadcastView();
+  }
+  function sendBroadcast(){
+    if(!admin())return;
+    var ta=document.getElementById('broadcast-input');var text=((ta&&ta.value)||'').trim();if(!text)return;
+    if(!_recipients.length){alert('No active subscribers to message.');return;}
+    if(!confirm('Send this message to all '+_recipients.length+' active subscribers?'))return;
+    ta.value='';var nudge=_nudgeBc;var stamp=new Date().toISOString();
+    _recipients.forEach(function(r){
+      var ref=db.collection('threads').doc(r.uid);
+      var doc={uid:r.uid,name:(r.name||null),email:(r.email||null),lastText:text,lastFrom:'admin',lastAt:firebase.firestore.FieldValue.serverTimestamp(),userUnread:firebase.firestore.FieldValue.increment(1),adminUnread:0,archived:false,updatedAt:stamp};
+      if(nudge){doc.userNotifyPending=true;doc.userNotifyEmail=(r.email||null);doc.userNotifyAt=stamp;}
+      ref.set(doc,{merge:true});
+      ref.collection('messages').add({from:'admin',text:text,broadcast:true,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(e){console.error('bcast',e);});
+    });
+    setNudge('bc',false);
+    alert('Sent to '+_recipients.length+' subscriber'+(_recipients.length===1?'':'s')+'.');
+    openInbox();
+  }
 
   function startMarkers(){
     stopMarkers();
@@ -2200,7 +2279,7 @@ function sendContactMessage(){
   if(window.firebase&&firebase.auth){
     firebase.auth().onAuthStateChanged(function(u){if(u){applyAdminUI();startMarkers();}else{stopMarkers();}});
   }
-  window.MSG={openUserChat:openUserChat,sendUserMessage:sendUserMessage,openInbox:openInbox,openThread:openThread,sendAdminReply:sendAdminReply,showInboxList:showInboxList,applyAdminUI:applyAdminUI,setTab:setTab,toggleArchive:toggleArchive,restoreThread:restoreThread,currentThread:function(){return _openThreadUid?_openThread:null;}};
+  window.MSG={openUserChat:openUserChat,sendUserMessage:sendUserMessage,openInbox:openInbox,openThread:openThread,sendAdminReply:sendAdminReply,showInboxList:showInboxList,applyAdminUI:applyAdminUI,setTab:setTab,toggleArchive:toggleArchive,restoreThread:restoreThread,openCompose:openCompose,closeCompose:closeCompose,filterRecipients:filterRecipients,startThread:startThread,openBroadcast:openBroadcast,sendBroadcast:sendBroadcast,toggleNudge:toggleNudge,currentThread:function(){return _openThreadUid?_openThread:null;}};
 })();
 
 /* ===== Video messaging (Phase 1a) ===== */
