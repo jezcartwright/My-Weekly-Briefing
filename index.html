@@ -2401,7 +2401,7 @@ function generateCurrentPDF(){
   var scroll=document.getElementById('pdf-scroll');
   var old=scroll.querySelectorAll('.sheet'); for(var i=0;i<old.length;i++)old[i].remove();
   var fr=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
-  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); pdfFitContent(scroll); }catch(e){ pdfFallback(scroll,dateStr); } try{ pdfPhoneFit(scroll); }catch(e2){} pdfClear(); setTimeout(function(){ pdfPregen(scroll); }, 500); });
+  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); pdfFitContent(scroll); }catch(e){ pdfFallback(scroll,dateStr); } try{ pdfPhoneFit(scroll); }catch(e2){} pdfClear(); setTimeout(function(){ pdfPregen(scroll); }, 300); });
 }
 function pdfCollect(){
   var blocks=[];
@@ -2463,7 +2463,7 @@ function pdfEnsureLibs(){ if(_pdfLibsP)return _pdfLibsP; var jobs=[];
   if(!window.html2canvas)jobs.push(pdfLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
   _pdfLibsP=Promise.all(jobs); return _pdfLibsP; }
 function pdfBuildBlob(scroll){ var jsPDF=window.jspdf.jsPDF; var sheets=scroll.querySelectorAll('.sheet'); var doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'}); var stage=document.createElement('div'); stage.style.cssText='position:fixed;left:-100000px;top:0;width:210mm;background:#FBF8F2;z-index:-1;pointer-events:none'; document.body.appendChild(stage); var chain=Promise.resolve(); var first=true;
-  Array.prototype.forEach.call(sheets,function(sh){ chain=chain.then(function(){ var clone=sh.cloneNode(true); clone.style.transform=''; clone.style.margin='0'; stage.innerHTML=''; stage.appendChild(clone); return window.html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#FBF8F2'}).then(function(canvas){ var img=canvas.toDataURL('image/jpeg',0.92); if(!first)doc.addPage(); first=false; doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST'); }); }); });
+  Array.prototype.forEach.call(sheets,function(sh){ chain=chain.then(function(){ var clone=sh.cloneNode(true); clone.style.transform=''; clone.style.margin='0'; stage.innerHTML=''; stage.appendChild(clone); return window.html2canvas(clone,{scale:1.5,useCORS:true,backgroundColor:'#FBF8F2'}).then(function(canvas){ var img=canvas.toDataURL('image/jpeg',0.85); if(!first)doc.addPage(); first=false; doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST'); }); }); });
   return chain.then(function(){ try{stage.remove();}catch(_){} return doc.output('blob'); }, function(e){ try{stage.remove();}catch(_){} throw e; }); }
 function pdfDownload(blob,fname){ try{ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },4000); }catch(e){ console.error('download',e); } }
 function setShareReady(){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return; if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=false; btn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>Tap to send'; }
