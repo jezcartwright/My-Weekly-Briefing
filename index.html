@@ -479,6 +479,9 @@ html.login-active{background:var(--orange)}
 #pdf-scroll{background:#cfcdc7}
 .sheet{box-sizing:border-box;width:210mm;height:297mm;background:#FBF8F2;margin:0 auto 22px;box-shadow:0 8px 24px rgba(0,0,0,.22);padding:16mm 15mm 22mm;position:relative;display:flex;flex-direction:column;overflow:hidden}
 .sheet-body{flex:1;overflow:hidden}
+.sheet-fit{margin:0 auto 14px}
+.pdf-tbtn[disabled]{opacity:.65;cursor:default}
+@keyframes pdfspin{to{transform:rotate(360deg)}}
 .sheet .pdf-header{margin:0 0 14px}
 .run-head{display:flex;align-items:center;border-bottom:1px solid #E0D8CB;padding-bottom:8px;margin-bottom:14px}
 .rh-name{font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.14em;font-size:12px;color:#ff6600}
@@ -496,6 +499,8 @@ html.login-active{background:var(--orange)}
   #pdf-mast-src{display:none!important}
   .sheet{box-shadow:none!important;margin:0!important;break-after:page;page-break-after:always}
   .sheet:last-child{break-after:auto;page-break-after:auto}
+  .sheet-fit{width:auto!important;height:auto!important;overflow:visible!important;margin:0!important}
+  .sheet{transform:none!important}
 }
 /* ============================================================
    PHONE + iPAD PORTRAIT OVERRIDES
@@ -786,6 +791,7 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
   <div class="pdf-toolbar">
     <div class="pdf-toolbar-title">Weekly Briefing</div>
     <div style="display:flex;gap:8px">
+      <button class="pdf-tbtn" id="pdf-share-btn" onclick="sharePDF()" aria-label="Share"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg>Share</button>
       <button class="pdf-tbtn" onclick="window.print()">Save as PDF</button>
       <button class="pdf-tbtn" onclick="hidePDF()">✕ Close</button>
     </div>
@@ -2395,7 +2401,7 @@ function generateCurrentPDF(){
   var scroll=document.getElementById('pdf-scroll');
   var old=scroll.querySelectorAll('.sheet'); for(var i=0;i<old.length;i++)old[i].remove();
   var fr=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
-  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); }catch(e){ pdfFallback(scroll,dateStr); } });
+  fr.then(function(){ try{ pdfBuildSheets(scroll,dateStr); pdfFitContent(scroll); }catch(e){ pdfFallback(scroll,dateStr); } try{ pdfPhoneFit(scroll); }catch(e2){} });
 }
 function pdfCollect(){
   var blocks=[];
@@ -2421,16 +2427,11 @@ function pdfBuildSheets(scroll,dateStr){
     var tops=gt(cat.id); if(!tops||!tops.length)return;
     pageOf[cat.id]=[];
     var bandHtml='<div class="pdf-cat-title" style="background:'+cat.color+'">'+cat.label+'</div>';
-    newContentSheet(bandHtml);
     for(var i=0;i<tops.length;i++){
-      if(perPage>=2) newContentSheet(bandHtml);
+      if(i%2===0) newContentSheet(bandHtml);
       var holder=document.createElement('div'); holder.innerHTML=pdfTopicHTML(tops[i],i,cat.color);
       var node=holder.firstElementChild; if(!node)continue;
       body.appendChild(node);
-      if(body.scrollHeight>body.clientHeight+1 && perPage>=1){
-        body.removeChild(node); newContentSheet(bandHtml); body.appendChild(node);
-      }
-      perPage++;
       pageOf[cat.id][i]=contentSheets.length+1;
     }
   });
@@ -2450,6 +2451,38 @@ function pdfFallback(scroll,dateStr){
   scroll.appendChild(sheet);
 }
 function hidePDF(){ document.getElementById('pdf-view').classList.remove('show'); }
+
+var _shareLabel=null,_pdfLibsP=null;
+function pdfDateSlug(){ var d=new Date(); function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function setShareBusy(b){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return;
+  if(b){ if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;vertical-align:-2px;margin-right:6px;animation:pdfspin .8s linear infinite"></span>Preparing\u2026'; }
+  else { btn.disabled=false; if(_shareLabel!==null){ btn.innerHTML=_shareLabel; _shareLabel=null; } } }
+function pdfLoadScript(src){ return new Promise(function(res,rej){ var sc=document.createElement('script'); sc.src=src; sc.onload=function(){res();}; sc.onerror=function(){rej(new Error('Failed to load '+src));}; document.head.appendChild(sc); }); }
+function pdfEnsureLibs(){ if(_pdfLibsP)return _pdfLibsP; var jobs=[];
+  if(!(window.jspdf&&window.jspdf.jsPDF))jobs.push(pdfLoadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'));
+  if(!window.html2canvas)jobs.push(pdfLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'));
+  _pdfLibsP=Promise.all(jobs); return _pdfLibsP; }
+function pdfBuildBlob(scroll){ var jsPDF=window.jspdf.jsPDF; var sheets=scroll.querySelectorAll('.sheet'); var doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'}); var chain=Promise.resolve(); var first=true;
+  Array.prototype.forEach.call(sheets,function(sh){ chain=chain.then(function(){ return window.html2canvas(sh,{scale:2,useCORS:true,backgroundColor:'#FBF8F2'}).then(function(canvas){ var img=canvas.toDataURL('image/jpeg',0.92); if(!first)doc.addPage(); first=false; doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST'); }); }); });
+  return chain.then(function(){ return doc.output('blob'); }); }
+function pdfDownload(blob,fname){ try{ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },4000); }catch(e){ console.error('download',e); } }
+function sharePDF(){ var scroll=document.getElementById('pdf-scroll'); if(!scroll)return; setShareBusy(true);
+  var fname='Performance-Intelligence-Weekly-Briefing-'+pdfDateSlug()+'.pdf';
+  pdfEnsureLibs().then(function(){ pdfUnfit(scroll); return pdfBuildBlob(scroll); }).then(function(blob){ pdfPhoneFit(scroll);
+    var file=new File([blob],fname,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ return navigator.share({files:[file],title:'Weekly Briefing'}).catch(function(e){ if(e&&e.name==='AbortError')return; pdfDownload(blob,fname); }); }
+    pdfDownload(blob,fname);
+  }).catch(function(e){ console.error('sharePDF',e); try{pdfPhoneFit(scroll);}catch(_){} alert('Sorry \u2014 could not prepare the PDF to share. You can use Save as PDF instead.'); }).then(function(){ setShareBusy(false); }); }
+function pdfFitContent(scroll){ var sheets=scroll.querySelectorAll('.sheet'); var minS=1;
+  Array.prototype.forEach.call(sheets,function(sh){ var b=sh.querySelector('.sheet-body'); if(!b)return; var bh=b.scrollHeight, ch=b.clientHeight; if(ch>0&&bh>ch+1){ var s=ch/bh; if(s<minS)minS=s; } });
+  if(minS<1){ minS=Math.max(0.75,minS); Array.prototype.forEach.call(sheets,function(sh){ var b=sh.querySelector('.sheet-body'); if(!b)return; b.style.transformOrigin='top left'; b.style.transform='scale('+minS.toFixed(4)+')'; b.style.width=(100/minS).toFixed(3)+'%'; }); } }
+function pdfPhoneFit(scroll){ if(!scroll)return; var probe=scroll.querySelector('.sheet'); if(!probe)return; var natW=probe.offsetWidth; if(!natW)return; var avail=scroll.clientWidth-24;
+  if(avail>=natW){ pdfUnfit(scroll); return; } var s=avail/natW;
+  Array.prototype.forEach.call(scroll.querySelectorAll('.sheet'),function(sh){ var nh=sh.offsetHeight; sh.style.transformOrigin='top left'; sh.style.transform='scale('+s.toFixed(4)+')'; sh.style.margin='0';
+    var wrap=sh.parentNode; if(!wrap||!wrap.classList.contains('sheet-fit')){ wrap=document.createElement('div'); wrap.className='sheet-fit'; sh.parentNode.insertBefore(wrap,sh); wrap.appendChild(sh); }
+    wrap.style.cssText='width:'+Math.round(natW*s)+'px;height:'+Math.round(nh*s)+'px;overflow:hidden;margin:0 auto 14px'; }); }
+function pdfUnfit(scroll){ if(!scroll)return; Array.prototype.forEach.call(scroll.querySelectorAll('.sheet'),function(sh){ sh.style.transform=''; sh.style.margin=''; var wrap=sh.parentNode; if(wrap&&wrap.classList.contains('sheet-fit')){ wrap.parentNode.insertBefore(sh,wrap); wrap.remove(); } }); }
+window.addEventListener('resize',function(){ var sc=document.getElementById('pdf-scroll'); var pv=document.getElementById('pdf-view'); if(sc&&pv&&pv.classList.contains('show')){ try{ pdfPhoneFit(sc); }catch(e){} } });
 
 // ── Init (called after Firebase auth) ──
 window.setTextSize=function(state){
