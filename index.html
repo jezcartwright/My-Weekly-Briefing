@@ -2474,7 +2474,7 @@ function sharePDF(){ var scroll=document.getElementById('pdf-scroll'); if(!scrol
   var fname='Performance-Intelligence-Weekly-Briefing-'+pdfDateSlug()+'.pdf';
   pdfEnsureLibs().then(function(){ pdfUnfit(scroll); return pdfBuildBlob(scroll); }).then(function(blob){ pdfPhoneFit(scroll);
     var file=new File([blob],fname,{type:'application/pdf'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){ _pdfBlob=blob; _pdfFile=file; _pdfFname=fname; setShareReady(); }
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ navigator.share({files:[file],title:'Weekly Briefing'}).then(function(){ resetShare(); }).catch(function(e){ if(e&&e.name==='AbortError'){ resetShare(); return; } _pdfBlob=blob; _pdfFile=file; _pdfFname=fname; setShareReady(); }); }
     else { pdfDownload(blob,fname); resetShare(); }
   }).catch(function(e){ console.error('sharePDF',e); try{pdfPhoneFit(scroll);}catch(_){} alert('Sorry \u2014 could not prepare the PDF to share. You can use Save as PDF instead.'); resetShare(); }); }
 function pdfFitContent(scroll){ var sheets=scroll.querySelectorAll('.sheet'); var minS=1;
