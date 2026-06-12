@@ -273,7 +273,7 @@ html.login-active{background:var(--orange)}
 .row{display:flex;gap:8px;align-items:flex-end;max-width:82%}
 .row.me{align-self:flex-end;flex-direction:row-reverse}
 .row.them{align-self:flex-start}
-.cav{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#ffb27a,#ff6600);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px}
+.cav{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px}
 .cav.jez{background-image:url('jez-photo.jpg?v=1');background-size:cover;background-position:center top;color:transparent;font-size:0}
 .cav.big{width:42px;height:42px;font-size:16px}
 .bub{padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.45;font-family:'IBM Plex Serif',Georgia,serif;word-wrap:break-word;overflow-wrap:anywhere}
@@ -345,7 +345,7 @@ html.login-active{background:var(--orange)}
 .vr-retake{background:rgba(255,255,255,.16);color:#fff}
 .vr-send{background:var(--orange);color:#fff}
 .vr-uploading{padding:20px;text-align:center;color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;background:#000}
-.contact-photo{width:84px;height:84px;border-radius:50%;margin:6px auto 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:30px;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15);background:linear-gradient(135deg,#ffb27a,#ff6600);object-fit:cover}
+.contact-photo{width:84px;height:84px;border-radius:50%;margin:6px auto 16px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:30px;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15);background:var(--orange);object-fit:cover}
 .contact-greeting{font-family:'IBM Plex Serif',Georgia,serif;font-size:19px;font-weight:500;color:var(--t);text-align:center;margin:0 0 4px}
 .contact-sign{font-family:'IBM Plex Serif',Georgia,serif;font-size:16px;font-weight:500;color:var(--t);text-align:center;margin:0 0 22px}
 .contact-ta{width:100%;box-sizing:border-box;min-height:140px;border:1.5px solid var(--orange);border-radius:8px;padding:12px 13px;font-family:'Inter',sans-serif;font-size:14px;color:var(--t);outline:none;background:#fff;resize:vertical;line-height:1.5}
@@ -426,7 +426,7 @@ html.login-active{background:var(--orange)}
 #pdf-view.show{display:flex}
 .pdf-toolbar{background:var(--orange);padding:calc(var(--st) + 10px) 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-shrink:0}
 .pdf-toolbar-title{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#fff}
-.pdf-tbtn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;padding:8px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer}
+.pdf-tbtn{background:#fff;border:1px solid #fff;border-radius:6px;padding:8px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--orange);cursor:pointer}
 .pdf-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#F2EFE9}
 .pdf-page{max-width:820px;margin:24px auto 40px;padding:0;background:#FBF8F2;box-shadow:0 1px 0 #E0D8CB,0 20px 40px -24px rgba(0,0,0,0.08);border-radius:2px;overflow:hidden}
 /* Orange editorial header — mirrors landing #hdr layout exactly
@@ -2455,7 +2455,7 @@ function hidePDF(){ try{resetShare();}catch(e){} document.getElementById('pdf-vi
 var _shareLabel=null,_pdfLibsP=null,_pdfFile=null,_pdfBlob=null,_pdfFname=null,_pdfReady=false;
 function pdfDateSlug(){ var d=new Date(); function p(n){return (n<10?'0':'')+n;} return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 function setShareBusy(b){ var btn=document.getElementById('pdf-share-btn'); if(!btn)return;
-  if(b){ if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;vertical-align:-2px;margin-right:6px;animation:pdfspin .8s linear infinite"></span>Preparing\u2026'; }
+  if(b){ if(_shareLabel===null)_shareLabel=btn.innerHTML; btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,102,0,.3);border-top-color:#FF6600;border-radius:50%;vertical-align:-2px;margin-right:6px;animation:pdfspin .8s linear infinite"></span>Preparing\u2026'; }
   else { btn.disabled=false; if(_shareLabel!==null){ btn.innerHTML=_shareLabel; _shareLabel=null; } } }
 function pdfLoadScript(src){ return new Promise(function(res,rej){ var sc=document.createElement('script'); sc.src=src; sc.onload=function(){res();}; sc.onerror=function(){rej(new Error('Failed to load '+src));}; document.head.appendChild(sc); }); }
 function pdfEnsureLibs(){ if(_pdfLibsP)return _pdfLibsP; var jobs=[];
