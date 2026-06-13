@@ -1,0 +1,47 @@
+name: Welcome Email — Test Send
+
+# Manually render the new-subscriber welcome email and send it to one address,
+# so you can check how it lands in a real inbox before wiring the auto-send.
+# Runs via the Actions tab. Uses the same Gmail service account as the briefings.
+
+on:
+  workflow_dispatch:
+    inputs:
+      to:
+        description: 'Recipient email for the test'
+        required: true
+        default: 'jc@akindred.com'
+      first_name:
+        description: 'First name to greet in the email'
+        required: false
+        default: 'Jez'
+
+jobs:
+  welcome-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client
+
+      - name: Render welcome email
+        run: |
+          python build_welcome_email.py "${{ github.event.inputs.first_name }}" > /tmp/welcome.html
+          echo "Rendered welcome email — $(wc -c < /tmp/welcome.html) bytes"
+
+      - name: Send test
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          python -m mailer send \
+            --to "${{ github.event.inputs.to }}" \
+            --subject "Welcome to the Performance Intelligence Weekly Briefing" \
+            --body-file /tmp/welcome.html
+          echo "✅ Welcome test sent to ${{ github.event.inputs.to }}"
