@@ -1,0 +1,35 @@
+name: Welcome Email — Auto Send
+
+# Fired by the onNewSubscriberWelcome Cloud Function (repository_dispatch) the
+# moment a new subscriber's record is created. send_welcome.py looks the user
+# up, sends the welcome once (skipping admin / unsubscribed / already-welcomed),
+# and stamps welcomedAt. Also runnable by hand with a UID.
+
+on:
+  repository_dispatch:
+    types: [welcome-new-user]
+  workflow_dispatch:
+    inputs:
+      uid:
+        description: 'User UID to (re)send the welcome to'
+        required: true
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client google-cloud-firestore
+      - name: Send welcome
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
+          WELCOME_UID: ${{ github.event.client_payload.uid || github.event.inputs.uid }}
+        run: python send_welcome.py
