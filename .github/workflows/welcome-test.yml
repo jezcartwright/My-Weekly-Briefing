@@ -1,8 +1,8 @@
 name: Welcome Email — Test Send
 
-# Manually render the new-subscriber welcome email and send it to one address,
-# so you can check how it lands in a real inbox before wiring the auto-send.
-# Runs via the Actions tab. Uses the same Gmail service account as the briefings.
+# Manually send the welcome email to one address to preview how it lands.
+# Uses the same send path (send_welcome.py) as the real auto-send, so the test
+# reflects the friendly From, footer and one-click List-Unsubscribe header.
 
 on:
   workflow_dispatch:
@@ -23,25 +23,15 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: main
-
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-
       - name: Install dependencies
-        run: pip install google-auth google-api-python-client
-
-      - name: Render welcome email
-        run: |
-          python build_welcome_email.py "${{ github.event.inputs.first_name }}" > /tmp/welcome.html
-          echo "Rendered welcome email — $(wc -c < /tmp/welcome.html) bytes"
-
-      - name: Send test
+        run: pip install google-auth google-api-python-client google-cloud-firestore
+      - name: Send welcome test
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
-        run: |
-          python -m mailer send \
-            --to "${{ github.event.inputs.to }}" \
-            --subject "Welcome to the Performance Intelligence Weekly Briefing" \
-            --body-file /tmp/welcome.html
-          echo "✅ Welcome test sent to ${{ github.event.inputs.to }}"
+          UNSUBSCRIBE_SECRET: ${{ secrets.UNSUBSCRIBE_SECRET }}
+          TEST_EMAIL: ${{ github.event.inputs.to }}
+          TEST_NAME: ${{ github.event.inputs.first_name }}
+        run: python send_welcome.py
