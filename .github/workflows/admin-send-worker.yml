@@ -1,13 +1,16 @@
 name: Process Admin Send Jobs
 
-# Polls the adminSends Firestore collection for queued jobs and processes
-# them. Runs every 5 minutes (so the admin UI shows "~5 min queue time")
-# plus on workflow_dispatch for an instant manual trigger from the
-# Actions tab.
+# Processes queued jobs in the adminSends Firestore collection.
+# - repository_dispatch (type: admin-send): fired instantly by the
+#   dispatchAdminSend Cloud Function the moment a job is queued (primary path).
+# - schedule (every 5 min): backstop in case a dispatch is missed.
+# - workflow_dispatch: manual trigger from the Actions tab.
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes
+    - cron: '*/5 * * * *'   # every 5 minutes (backstop)
+  repository_dispatch:
+    types: [admin-send]
   workflow_dispatch:
 
 jobs:
