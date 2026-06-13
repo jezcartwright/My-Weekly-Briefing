@@ -1,0 +1,62 @@
+name: Rebuild Monday Draft (from staging)
+
+# Re-renders THIS week's Monday email from the staging branch's content using the
+# CURRENT build_monday_email.py (new masthead), and saves it as a fresh Gmail
+# draft. Use after a mid-week email design change so Monday's send picks up the
+# new look without regenerating the week's 24 topics. The chatty intro synopsis
+# is re-drafted; the topics + "taste of what's inside" come straight from staging.
+# Manual only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      week_override:
+        description: 'Week number for the subject (blank = auto: upcoming Monday ISO week)'
+        required: false
+        default: ''
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Pull this week's content + preview URL from staging
+        run: |
+          git fetch origin staging
+          git checkout origin/staging -- index.html
+          git show origin/staging:.preview-url > /tmp/preview-url 2>/dev/null || echo "https://weeklybriefing.jezcartwright.com/" > /tmp/preview-url
+          echo "Using preview URL: $(cat /tmp/preview-url)"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client anthropic
+
+      - name: Render Monday email from staging content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          PREVIEW_URL=$(cat /tmp/preview-url)
+          python build_monday_email.py index.html "$PREVIEW_URL" > /tmp/monday.html
+          echo "Rendered $(wc -c < /tmp/monday.html) bytes"
+
+      - name: Save as a fresh Gmail draft
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          WEEK="${{ github.event.inputs.week_override }}"
+          if [ -z "$WEEK" ]; then
+            WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
+          fi
+          SUBJECT="Performance Intelligence Weekly Briefing — Week $WEEK"
+          python -m mailer draft \
+            --to "jc@jezcartwright.com" \
+            --subject "$SUBJECT" \
+            --body-file /tmp/monday.html
+          echo "✅ Rebuilt draft saved: $SUBJECT"
