@@ -943,6 +943,13 @@ function watchSendJob(jobId) {
     if (d.status === 'done' || d.status === 'error') {
       unsub();
       document.getElementById('send-btn').disabled = false;
+      if (d.status === 'done') {
+        setTimeout(function() {
+          document.getElementById('compose-subject').value = '';
+          document.getElementById('compose-body').value = '';
+          setComposeMsg('\u2713 Sent \u2014 ready for the next one.', 'success');
+        }, 1800);
+      }
     }
   });
 }
