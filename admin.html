@@ -383,6 +383,21 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
       <div id="d-notes">
         <p class="empty-section">No notes saved.</p>
       </div>
+
+      <div id="d-danger" style="display:none;margin-top:24px;padding-top:18px;border-top:1px solid #f0e8d0">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a32d2d;margin-bottom:8px">Danger zone</div>
+        <button id="del-trigger" onclick="openDeleteConfirm()" style="background:none;border:none;color:#c0392b;font-size:13px;text-decoration:underline;cursor:pointer;padding:0">Delete this subscriber</button>
+        <div id="del-confirm" style="display:none;margin-top:10px;padding:14px;background:#fdf6f5;border:1px solid #f0d6d2;border-radius:6px">
+          <div style="font-size:12.5px;line-height:1.55;color:#7a4a4a;margin-bottom:11px">Permanently erases this subscriber\u2019s profile, saved notes, liked topics, message history, and sign-in. This runs the same teardown as an account deletion and can\u2019t be undone.</div>
+          <div style="font-size:12px;color:#7a4a4a;margin-bottom:6px">Type <strong id="del-email-echo" style="font-weight:600"></strong> to confirm:</div>
+          <input type="text" id="del-confirm-input" autocomplete="off" oninput="onDeleteInput()" placeholder="email address" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #e0b4b4;border-radius:6px;font-size:13px;margin-bottom:11px">
+          <div id="del-msg" style="font-size:12px;color:#a32d2d;margin-bottom:8px"></div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button id="del-go" onclick="performDelete()" disabled style="background:#c0392b;color:#fff;border:none;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;opacity:.5">Permanently delete</button>
+            <button onclick="cancelDelete()" style="background:#fff;color:#6a6258;border:1px solid #d8cfc2;border-radius:6px;padding:9px 16px;font-size:13px;cursor:pointer">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -622,12 +637,78 @@ window.openDetail = function(uid) {
     }
   }
 
+  // Delete control: hidden for the admin's own account; reset each open.
+  cancelDelete();
+  var dz = document.getElementById('d-danger');
+  if (ADMIN_EMAILS.indexOf((s.email || '').toLowerCase()) !== -1) {
+    dz.style.display = 'none';
+  } else {
+    dz.style.display = 'block';
+    document.getElementById('del-email-echo').textContent = s.email || s.uid;
+  }
+
   document.getElementById('detail').classList.add('show');
 };
 window.closeDetail = function() {
   document.getElementById('detail').classList.remove('show');
   cancelEditName();
+  cancelDelete();
   currentDetailUid = null;
+};
+
+// --- Delete subscriber (Danger zone) ---
+window.openDeleteConfirm = function() {
+  if (!currentDetailUid) return;
+  document.getElementById('del-trigger').style.display = 'none';
+  document.getElementById('del-confirm').style.display = 'block';
+  document.getElementById('del-confirm-input').focus();
+};
+window.cancelDelete = function() {
+  var c = document.getElementById('del-confirm');
+  var t = document.getElementById('del-trigger');
+  if (c) c.style.display = 'none';
+  if (t) t.style.display = '';
+  var inp = document.getElementById('del-confirm-input'); if (inp) inp.value = '';
+  var go = document.getElementById('del-go'); if (go) { go.disabled = true; go.style.opacity = '.5'; go.textContent = 'Permanently delete'; }
+  var m = document.getElementById('del-msg'); if (m) { m.textContent = ''; m.style.color = '#a32d2d'; }
+};
+window.onDeleteInput = function() {
+  var s = allSubs.find(function(x) { return x.uid === currentDetailUid; });
+  if (!s) return;
+  var target = (s.email || s.uid || '').trim().toLowerCase();
+  var val = (document.getElementById('del-confirm-input').value || '').trim().toLowerCase();
+  var go = document.getElementById('del-go');
+  var match = !!val && val === target;
+  go.disabled = !match;
+  go.style.opacity = match ? '1' : '.5';
+};
+window.performDelete = function() {
+  if (!currentDetailUid) return;
+  var s = allSubs.find(function(x) { return x.uid === currentDetailUid; });
+  if (!s) return;
+  var uid = currentDetailUid;
+  var go = document.getElementById('del-go');
+  var msg = document.getElementById('del-msg');
+  go.disabled = true; go.style.opacity = '.5'; go.textContent = 'Deleting\u2026';
+  msg.style.color = '#a32d2d'; msg.textContent = '';
+  db.collection('deletionRequests').doc(uid).set({
+    requestedAt: new Date().toISOString(),
+    requestedBy: (auth.currentUser && auth.currentUser.email) || 'admin',
+    email: s.email || ''
+  }).then(function() {
+    msg.style.color = '#2E7A3E';
+    msg.textContent = '\u2713 Deletion requested. ' + (s.name || s.email || uid) + '\u2019s data and sign-in are being removed.';
+    setTimeout(function() {
+      allSubs = allSubs.filter(function(x) { return x.uid !== uid; });
+      renderRows();
+      var st = document.getElementById('s-total'); if (st) st.textContent = allSubs.length;
+      closeDetail();
+    }, 1600);
+  }).catch(function(e) {
+    go.disabled = false; go.style.opacity = '1'; go.textContent = 'Permanently delete';
+    msg.style.color = '#a32d2d';
+    msg.textContent = 'Delete failed: ' + (e.message || e);
+  });
 };
 
 // --- Inline name editing on the detail drawer ---

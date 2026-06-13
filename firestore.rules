@@ -49,6 +49,14 @@ service cloud.firestore {
       }
     }
 
+    // Account deletion requests. Creating one triggers the processAccountDeletion
+    // Cloud Function, which runs with admin privileges to erase the user's data
+    // and sign-in. Admin can request deletion of anyone; a user can request their own.
+    match /deletionRequests/{uid} {
+      allow create: if isAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow read, delete: if isAdmin();
+    }
+
     // Admin-only send job queue
     match /adminSends/{jobId} {
       allow read: if isAdmin();
