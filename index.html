@@ -2502,7 +2502,7 @@ window.setTextSize=function(state){
   document.querySelectorAll('.ts-btn').forEach(function(btn){
     btn.classList.toggle('on', btn.dataset.size===state);
   });
-  try{localStorage.setItem('exec_brief_v3_text_size', state);}catch(e){}
+  try{localStorage.setItem('exec_brief_v4_text_size', state);}catch(e){}
 };
 
 // Hamburger menu toggle (Phase 2)
@@ -2542,7 +2542,7 @@ window.setTextSize=function(state){
 window.initApp=function(){
   document.getElementById('de').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   try{
-    var ts=localStorage.getItem('exec_brief_v3_text_size')||'default';
+    var ts=localStorage.getItem('exec_brief_v4_text_size')||'large';
     // setTextSize handles body class + .ts-btn.on + persists state
     if(typeof setTextSize==='function') setTextSize(ts);
   }catch(e){}
