@@ -4,3 +4,8 @@ __pycache__/
 *.bak
 patch_*.py
 make_*.py
+
+.DS_Store
+*.bak
+patch_*.py
+make_*.py
