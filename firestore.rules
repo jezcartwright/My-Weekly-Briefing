@@ -57,6 +57,13 @@ service cloud.firestore {
       allow read, delete: if isAdmin();
     }
 
+    // Admin-initiated email-address changes. Creating one triggers the
+    // processEmailChange Cloud Function (admin IAM), which updates the Auth
+    // login email + Firestore copies and writes a status back for the UI.
+    match /emailChangeRequests/{uid} {
+      allow create, read, update, delete: if isAdmin();
+    }
+
     // Admin-only send job queue
     match /adminSends/{jobId} {
       allow read: if isAdmin();
@@ -65,6 +72,13 @@ service cloud.firestore {
       // these client rules — it uses IAM) and by admin (who can edit/abort).
       allow update: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // Admin-initiated welcome (re)sends. Creating one triggers the
+    // onWelcomeSendRequest Cloud Function, which clears welcomedAt and kicks
+    // the welcome-send workflow; status is written back (IAM) for the UI.
+    match /welcomeSends/{uid} {
+      allow create, read, update, delete: if isAdmin();
     }
   }
 }

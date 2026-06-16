@@ -363,7 +363,21 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
             <div class="h-edit-msg" id="edit-msg" style="margin-left:auto;align-self:center"></div>
           </div>
         </div>
-        <div class="h-email" id="d-email">—</div>
+        <div class="h-name-row">
+          <div class="h-email" id="d-email">—</div>
+          <button class="h-edit-btn" id="edit-email-btn" onclick="openEditEmail()" title="Edit email" aria-label="Edit email">✎</button>
+        </div>
+        <div class="h-name-edit" id="edit-email-form">
+          <div class="h-edit-inputs">
+            <input type="email" class="h-edit-input" id="edit-email-input" placeholder="email@address" autocomplete="off" inputmode="email" spellcheck="false">
+          </div>
+          <div class="h-edit-msg" id="edit-email-warn" style="display:none;line-height:1.45;opacity:1;background:rgba(0,0,0,0.16);border-radius:5px;padding:6px 8px"></div>
+          <div class="h-edit-actions">
+            <button class="h-edit-save" id="edit-email-save-btn" onclick="saveEditEmail()">Save</button>
+            <button class="h-edit-cancel" onclick="cancelEditEmail()">Cancel</button>
+            <div class="h-edit-msg" id="edit-email-msg" style="margin-left:auto;align-self:center"></div>
+          </div>
+        </div>
       </div>
       <button onclick="closeDetail()" aria-label="Close">✕</button>
     </header>
@@ -384,6 +398,17 @@ table.subs .when{font-size:12px;color:var(--t);opacity:.8;font-variant-numeric:t
         <p class="empty-section">No notes saved.</p>
       </div>
 
+      <div id="d-welcome" style="margin-top:22px;padding-top:16px;border-top:1px solid #f0e8d0">
+        <button id="welcome-trigger" onclick="openWelcomeConfirm()" style="background:none;border:none;color:#c2510a;font-size:13px;text-decoration:underline;cursor:pointer;padding:0">Send welcome email</button>
+        <div id="welcome-confirm" style="display:none;margin-top:10px;padding:14px;background:#fff8f1;border:1px solid #f0e0cd;border-radius:6px">
+          <div style="font-size:12.5px;line-height:1.55;color:#6a5a45;margin-bottom:11px">Send the welcome email to <strong id="welcome-email-echo" style="font-weight:600"></strong>? If they were welcomed at a different address, this resends to the one above.</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button id="welcome-go" onclick="performWelcome()" style="background:#c2510a;color:#fff;border:none;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer">Send welcome email</button>
+            <button onclick="cancelWelcome()" style="background:#fff;color:#6a6258;border:1px solid #d8cfc2;border-radius:6px;padding:9px 16px;font-size:13px;cursor:pointer">Cancel</button>
+          </div>
+          <div id="welcome-msg" style="font-size:12px;margin-top:8px;min-height:14px"></div>
+        </div>
+      </div>
       <div id="d-danger" style="display:none;margin-top:24px;padding-top:18px;border-top:1px solid #f0e8d0">
         <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a32d2d;margin-bottom:8px">Danger zone</div>
         <button id="del-trigger" onclick="openDeleteConfirm()" style="background:none;border:none;color:#c0392b;font-size:13px;text-decoration:underline;cursor:pointer;padding:0">Delete this subscriber</button>
@@ -591,6 +616,7 @@ window.openDetail = function(uid) {
   if (!s) return;
   currentDetailUid = uid;
   cancelEditName();  // make sure no stale edit form is open
+  cancelWelcome();
   document.getElementById('d-name').textContent = s.name;
   document.getElementById('d-email').textContent = s.email || '(no email)';
   document.getElementById('d-uid').textContent = s.uid;
@@ -639,8 +665,12 @@ window.openDetail = function(uid) {
 
   // Delete control: hidden for the admin's own account; reset each open.
   cancelDelete();
+  cancelEditEmail();
+  var isOwnAdmin = ADMIN_EMAILS.indexOf((s.email || '').toLowerCase()) !== -1;
+  var eeb = document.getElementById('edit-email-btn');
+  if (eeb) eeb.style.display = isOwnAdmin ? 'none' : '';
   var dz = document.getElementById('d-danger');
-  if (ADMIN_EMAILS.indexOf((s.email || '').toLowerCase()) !== -1) {
+  if (isOwnAdmin) {
     dz.style.display = 'none';
   } else {
     dz.style.display = 'block';
@@ -652,6 +682,7 @@ window.openDetail = function(uid) {
 window.closeDetail = function() {
   document.getElementById('detail').classList.remove('show');
   cancelEditName();
+  cancelEditEmail();
   cancelDelete();
   currentDetailUid = null;
 };
@@ -761,6 +792,97 @@ window.saveEditName = function() {
     msg.textContent = 'Save failed: ' + (e.message || e);
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save';
+  });
+};
+
+// --- Inline email editing on the detail drawer (super-admin only) ---
+// The login email lives in Firebase Auth and is the source of truth (it
+// re-populates basicProfile.email on every sign-in), so the change is done
+// server-side by the processEmailChange Cloud Function via an
+// emailChangeRequests/{uid} doc. We listen on that doc for the result.
+var emailReqUnsub = null;
+window.openEditEmail = function() {
+  if (!currentDetailUid) return;
+  var s = allSubs.find(function(x){ return x.uid === currentDetailUid; });
+  if (!s) return;
+  document.getElementById('edit-email-input').value = s.email || '';
+  document.getElementById('edit-email-msg').textContent = '';
+  var warn = document.getElementById('edit-email-warn');
+  if ((s.signInMethod || '').toLowerCase().indexOf('google') !== -1) {
+    warn.textContent = 'This subscriber signs in with Google, which re-syncs its email on each sign-in. A manual change may not stick \u2014 reliable for magic-link subscribers.';
+    warn.style.display = 'block';
+  } else {
+    warn.style.display = 'none';
+  }
+  document.getElementById('d-email').style.display = 'none';
+  document.getElementById('edit-email-btn').style.display = 'none';
+  document.getElementById('edit-email-form').classList.add('show');
+  document.getElementById('edit-email-input').focus();
+};
+window.cancelEditEmail = function() {
+  if (emailReqUnsub) { try { emailReqUnsub(); } catch(e){} emailReqUnsub = null; }
+  var de = document.getElementById('d-email');
+  var bt = document.getElementById('edit-email-btn');
+  var fm = document.getElementById('edit-email-form');
+  var sb = document.getElementById('edit-email-save-btn');
+  if (de) de.style.display = '';
+  if (bt) bt.style.display = '';
+  if (fm) fm.classList.remove('show');
+  if (sb) { sb.disabled = false; sb.textContent = 'Save'; }
+};
+window.saveEditEmail = function() {
+  if (!currentDetailUid) return;
+  var uid = currentDetailUid;
+  var s = allSubs.find(function(x){ return x.uid === uid; });
+  if (!s) return;
+  var newEmail = (document.getElementById('edit-email-input').value || '').trim();
+  var msg = document.getElementById('edit-email-msg');
+  var saveBtn = document.getElementById('edit-email-save-btn');
+  var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!re.test(newEmail)) { msg.style.color = ''; msg.textContent = 'Enter a valid email.'; return; }
+  if (newEmail.toLowerCase() === (s.email || '').toLowerCase()) { msg.style.color = ''; msg.textContent = 'That\u2019s already their email.'; return; }
+  saveBtn.disabled = true; saveBtn.textContent = 'Saving\u2026';
+  msg.style.color = ''; msg.textContent = 'Updating sign-in\u2026';
+  var reqRef = db.collection('emailChangeRequests').doc(uid);
+  var done = false;
+  var finish = function(ok, text) {
+    if (done) return; done = true;
+    if (emailReqUnsub) { try { emailReqUnsub(); } catch(e){} emailReqUnsub = null; }
+    reqRef.delete().catch(function(){});
+    if (ok) {
+      s.email = newEmail;
+      document.getElementById('d-email').textContent = newEmail;
+      renderRows();
+      msg.style.color = '#2E7A3E';
+      msg.textContent = '\u2713 Email updated.';
+      setTimeout(cancelEditEmail, 1200);
+    } else {
+      saveBtn.disabled = false; saveBtn.textContent = 'Save';
+      msg.style.color = '#a32d2d';
+      msg.textContent = text || 'Update failed.';
+    }
+  };
+  reqRef.set({
+    newEmail: newEmail,
+    oldEmail: s.email || '',
+    requestedBy: (auth.currentUser && auth.currentUser.email) || 'admin',
+    requestedAt: new Date().toISOString(),
+    status: 'queued'
+  }).then(function() {
+    emailReqUnsub = reqRef.onSnapshot(function(snap) {
+      var d = snap.exists ? (snap.data() || {}) : {};
+      if (d.status === 'done') finish(true);
+      else if (d.status === 'error') finish(false, d.error || 'Update failed.');
+    }, function(err) { finish(false, err.message || String(err)); });
+    setTimeout(function() {
+      if (!done) {
+        msg.style.color = '#8a6a1a';
+        msg.textContent = 'Still processing\u2026 it may take a moment. Refresh to confirm.';
+        saveBtn.disabled = false; saveBtn.textContent = 'Save';
+      }
+    }, 25000);
+  }).catch(function(e) {
+    finish(false, 'Could not queue change: ' + (e.message || e));
   });
 };
 document.addEventListener('keydown', function(e) {
@@ -1059,6 +1181,78 @@ function loadHistory() {
     rows.innerHTML = '<tr><td colspan="4" class="empty">Could not load: ' + escapeHtml(err.message) + '</td></tr>';
   });
 }
+
+// --- Send welcome email (subscriber detail drawer) ---
+// Writes welcomeSends/{uid}; the onWelcomeSendRequest Cloud Function clears any
+// prior welcomedAt and kicks the welcome-send workflow, then writes status back.
+var welcomeReqUnsub = null;
+window.openWelcomeConfirm = function() {
+  if (!currentDetailUid) return;
+  var s = allSubs.find(function(x){ return x.uid === currentDetailUid; });
+  if (!s) return;
+  document.getElementById('welcome-email-echo').textContent = s.email || '(no email)';
+  document.getElementById('welcome-msg').textContent = '';
+  document.getElementById('welcome-trigger').style.display = 'none';
+  document.getElementById('welcome-confirm').style.display = 'block';
+};
+window.cancelWelcome = function() {
+  if (welcomeReqUnsub) { try { welcomeReqUnsub(); } catch(e){} welcomeReqUnsub = null; }
+  var c = document.getElementById('welcome-confirm');
+  var t = document.getElementById('welcome-trigger');
+  if (c) c.style.display = 'none';
+  if (t) t.style.display = '';
+  var go = document.getElementById('welcome-go');
+  if (go) { go.disabled = false; go.textContent = 'Send welcome email'; }
+  var m = document.getElementById('welcome-msg'); if (m) { m.textContent = ''; m.style.color = ''; }
+};
+window.performWelcome = function() {
+  if (!currentDetailUid) return;
+  var uid = currentDetailUid;
+  var s = allSubs.find(function(x){ return x.uid === uid; });
+  if (!s) return;
+  var msg = document.getElementById('welcome-msg');
+  var go = document.getElementById('welcome-go');
+  if (!s.email) { msg.style.color = '#a32d2d'; msg.textContent = 'No email on file to send to.'; return; }
+  go.disabled = true; go.textContent = 'Sending\u2026';
+  msg.style.color = ''; msg.textContent = 'Queuing welcome email\u2026';
+  var reqRef = db.collection('welcomeSends').doc(uid);
+  var done = false;
+  var finish = function(ok, text) {
+    if (done) return; done = true;
+    if (welcomeReqUnsub) { try { welcomeReqUnsub(); } catch(e){} welcomeReqUnsub = null; }
+    reqRef.delete().catch(function(){});
+    if (ok) {
+      msg.style.color = '#2E7A3E';
+      msg.textContent = '\u2713 Welcome email on its way to ' + (s.email || '') + '.';
+      setTimeout(cancelWelcome, 1800);
+    } else {
+      go.disabled = false; go.textContent = 'Send welcome email';
+      msg.style.color = '#a32d2d';
+      msg.textContent = text || 'Could not send.';
+    }
+  };
+  reqRef.set({
+    email: s.email || '',
+    requestedBy: (auth.currentUser && auth.currentUser.email) || 'admin',
+    requestedAt: new Date().toISOString(),
+    status: 'queued'
+  }).then(function() {
+    welcomeReqUnsub = reqRef.onSnapshot(function(snap) {
+      var d = snap.exists ? (snap.data() || {}) : {};
+      if (d.status === 'dispatched') finish(true);
+      else if (d.status === 'error') finish(false, d.error || 'Dispatch failed.');
+    }, function(err) { finish(false, err.message || String(err)); });
+    setTimeout(function() {
+      if (!done) {
+        msg.style.color = '#8a6a1a';
+        msg.textContent = 'Queued \u2014 it will arrive shortly.';
+        go.disabled = false; go.textContent = 'Send welcome email';
+      }
+    }, 20000);
+  }).catch(function(e) {
+    finish(false, 'Could not queue: ' + (e.message || e));
+  });
+};
 </script>
 </body>
 </html>
