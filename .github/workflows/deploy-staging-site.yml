@@ -1,8 +1,7 @@
-
 name: Deploy private staging review site
 
 # Deploys THIS WEEK's staging content to a FIXED, permanent Firebase Hosting
-# site (weekly-briefing-staging) that you sign into with your existing Google login.
+# site (weekly-briefing-staging-c635c) that you sign into with your existing Google login.
 # - Permanent URL: nothing expires, you authorize its domain ONCE.
 # - Isolated: uses its own firebase.staging.json; the live site + live deploy
 #   workflow are never touched.
@@ -18,7 +17,7 @@ on:
     - cron: '30 16 * * 5'   # Fridays 16:30 UTC, after content generation
 
 env:
-  STAGING_SITE: weekly-briefing-staging   # <-- the one place to change the site id
+  STAGING_SITE: weekly-briefing-staging-c635c   # <-- the one place to change the site id
 
 permissions:
   contents: read
