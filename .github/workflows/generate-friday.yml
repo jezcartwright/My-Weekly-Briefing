@@ -69,6 +69,17 @@ jobs:
           W=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
           echo "week=$W" >> "$GITHUB_OUTPUT"
 
+      - name: Stamp a unique build id (prevents Firebase rejecting an identical re-deploy)
+        run: |
+          # Firebase refuses to re-release a version matching a channel's current active
+          # version (HTTP 400 FAILED_PRECONDITION). On a same-week re-run the content can
+          # be identical, which previously failed the whole workflow at the deploy. Writing
+          # a tiny per-run marker guarantees a unique Hosting version so the deploy always
+          # succeeds. The file is UNTRACKED (never committed to staging, so it never reaches
+          # main/live) but is deployed to the preview channel — harmless there.
+          echo "build ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT} $(date -u +%FT%TZ)" > build-stamp.txt
+          echo "Wrote build-stamp.txt — preview deploy will be a unique version."
+
       - name: Deploy staging to Firebase preview channel
         id: firebase_preview
         uses: FirebaseExtended/action-hosting-deploy@v0
