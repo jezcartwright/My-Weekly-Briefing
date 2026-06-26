@@ -71,6 +71,7 @@ jobs:
 
       - name: Deploy staging to Firebase preview channel (unique per run)
         id: firebase_preview
+        continue-on-error: true   # preview is best-effort; the DRAFT must never be blocked by it
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -83,7 +84,23 @@ jobs:
           channelId: ${{ github.event.inputs.preview_channel_id != '' && github.event.inputs.preview_channel_id || format('staging-week-{0}-{1}-{2}', steps.compute_week.outputs.week, github.run_id, github.run_attempt) }}
           expires: 7d
 
+      - name: Resolve a preview URL (deploy URL, else last-known, else live site)
+        id: preview_url
+        env:
+          DEPLOY_URL: ${{ steps.firebase_preview.outputs.details_url }}
+        run: |
+          URL="$DEPLOY_URL"
+          if [ -z "$URL" ]; then
+            git fetch origin staging --quiet 2>/dev/null || true
+            URL="$(git show origin/staging:.preview-url 2>/dev/null | tr -d '[:space:]')"
+          fi
+          if [ -z "$URL" ]; then URL="https://weeklybriefing.jezcartwright.com/"; fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          [ -z "$DEPLOY_URL" ] && echo "::warning::Preview deploy produced no URL; using fallback $URL. The draft is unaffected."
+          echo "Preview URL in use: $URL"
+
       - name: Persist preview URL to staging branch
+        if: ${{ steps.firebase_preview.outputs.details_url != '' }}
         env:
           PREVIEW_URL: ${{ steps.firebase_preview.outputs.details_url }}
         run: |
@@ -96,7 +113,7 @@ jobs:
       - name: Build Monday invitation email (chatty synopsis) from staging index.html
         id: build_email
         env:
-          PREVIEW_URL: ${{ steps.firebase_preview.outputs.details_url }}
+          PREVIEW_URL: ${{ steps.preview_url.outputs.url }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python build_monday_email.py index.html "$PREVIEW_URL" > monday.html
@@ -120,7 +137,7 @@ jobs:
       - name: Email jc@ the Friday staging summary
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
-          PREVIEW_URL: ${{ steps.firebase_preview.outputs.details_url }}
+          PREVIEW_URL: ${{ steps.preview_url.outputs.url }}
           DRAFT_ID: ${{ steps.save_draft.outputs.draft_id }}
         run: |
           WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
@@ -147,7 +164,7 @@ jobs:
       - name: Done
         run: |
           echo "✅ Friday staging complete."
-          echo "   Preview URL: ${{ steps.firebase_preview.outputs.details_url }}"
+          echo "   Preview URL: ${{ steps.preview_url.outputs.url }}"
           echo "   Gmail draft saved in jc@jezcartwright.com inbox."
 
       - name: Notify on failure
