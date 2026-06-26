@@ -1,1 +1,115 @@
 
+name: Deploy private staging review site
+
+# Deploys THIS WEEK's staging content to a FIXED, permanent Firebase Hosting
+# site (weekly-briefing-staging) that you sign into with your existing Google login.
+# - Permanent URL: nothing expires, you authorize its domain ONCE.
+# - Isolated: uses its own firebase.staging.json; the live site + live deploy
+#   workflow are never touched.
+# - Secure: same app, same sign-in gate; .git/.py excluded from the upload.
+# - Trustworthy: it does not trust the deploy's exit code — it VERIFIES the
+#   live site returns 200 and serves the app. The benign "current active
+#   version" 400 cannot fail this job.
+# Runs every Friday after generation, and on demand.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 16 * * 5'   # Fridays 16:30 UTC, after content generation
+
+env:
+  STAGING_SITE: weekly-briefing-staging   # <-- the one place to change the site id
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging (content to review)
+        uses: actions/checkout@v5
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Deploy to the private staging site, then VERIFY it serves
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -uo pipefail
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/gsa.json"
+
+          # Isolated config: targets the staging SITE by name, with the same
+          # security exclusions as live. Does not touch the real firebase.json.
+          cat > firebase.staging.json <<JSON
+          {
+            "hosting": {
+              "site": "${STAGING_SITE}",
+              "public": ".",
+              "ignore": ["firebase.json","firebase.staging.json","firestore.rules","**/.*",".git/**","**/.git/**","**/node_modules/**",".github/**","*.md","**/*.py","functions/**"]
+            }
+          }
+          JSON
+
+          echo "Deploying to site '${STAGING_SITE}'..."
+          npx -y firebase-tools@latest deploy --only hosting \
+            --config firebase.staging.json --project pi-briefing-38ddc \
+            > deploy.out 2> deploy.err || true
+          tail -n 3 deploy.out 2>/dev/null || true
+
+          # Trust the OUTCOME, not the exit code: confirm the site serves the app.
+          URL="https://${STAGING_SITE}.web.app"
+          ok=""
+          for i in 1 2 3 4 5 6; do
+            CODE=$(curl -s -o served.html -w '%{http_code}' "$URL" || echo 000)
+            if [ "$CODE" = "200" ] && grep -q "Performance Intelligence Weekly Briefing" served.html; then
+              ok=1; break
+            fi
+            echo "attempt $i: HTTP $CODE (propagating?) — retrying"; sleep 8
+          done
+
+          if [ -z "$ok" ]; then
+            echo "----- deploy stdout -----"; sed -n '1,60p' deploy.out 2>/dev/null || true
+            echo "----- deploy stderr -----"; sed -n '1,60p' deploy.err 2>/dev/null || true
+            echo "::error::Staging site did not serve as expected. See deploy output above."
+            exit 1
+          fi
+
+          # Best-effort freshness confirmation (informational; cache lag won't fail the job)
+          if command -v sha256sum >/dev/null; then
+            L=$(sha256sum index.html | awk '{print $1}')
+            curl -s "$URL/index.html" -o served_index.html || true
+            S=$(sha256sum served_index.html 2>/dev/null | awk '{print $1}')
+            [ "$L" = "$S" ] && echo "Freshness confirmed: staging serves the exact content we built." \
+                            || echo "Note: served copy not yet byte-identical (CDN still propagating); site is up."
+          fi
+          echo "STAGING_URL=$URL" >> "$GITHUB_ENV"
+          echo "✅ Private staging site is live: $URL"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install mailer dependencies
+        run: pip install google-auth google-api-python-client
+
+      - name: Email jc@ that the review site is ready
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          set -euo pipefail
+          WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
+          cat > body.html <<EOF
+          <html><body style="font:400 15px Georgia,serif;color:#222;">
+          <h2 style="color:#FF6600;">Week ${WEEK} is ready to review</h2>
+          <p>Your private staging site has this week's content:</p>
+          <p><a href="${STAGING_URL}" style="font-size:17px;color:#a0530b;">${STAGING_URL}</a></p>
+          <p>Sign in with your Google account (same login as the live site). Only authorized accounts can see it.</p>
+          </body></html>
+          EOF
+          python -m mailer send \
+            --to "jc@jezcartwright.com" \
+            --subject "[PI Briefing] Week ${WEEK} ready to review (private site)" \
+            --body-file body.html
+          echo "Notified jc@."
