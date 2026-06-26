@@ -5,9 +5,12 @@
       "firebase.json",
       "firestore.rules",
       "**/.*",
+      ".git/**",
+      "**/.git/**",
       "**/node_modules/**",
       ".github/**",
       "*.md",
+      "**/*.py",
       "functions/**"
     ]
   },
