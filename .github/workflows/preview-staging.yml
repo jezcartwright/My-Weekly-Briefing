@@ -1,0 +1,87 @@
+name: Preview Staging (working review link + rebuild draft)
+
+# Manual. Deploys THIS WEEK's staging content to a FRESH, UNIQUE Firebase
+# preview channel (a brand-new channel has no current release, so Firebase can
+# never reject it as "the current active version"), with a 30-day expiry so the
+# review link stays alive well past Monday. It then records that URL on staging
+# and rebuilds the Monday Gmail draft so the draft's review link actually works.
+# This is NOT continue-on-error: if the deploy fails, the run goes red and the
+# real Firebase error is shown in the "Deploy" step.
+
+on:
+  workflow_dispatch:
+    inputs:
+      expires:
+        description: 'How long the review link stays live'
+        required: false
+        default: '30d'
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the staging branch (the content to review)
+        uses: actions/checkout@v5
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Deploy staging to a fresh preview channel
+        id: deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: pi-briefing-38ddc
+          channelId: review-${{ github.run_id }}
+          expires: ${{ github.event.inputs.expires }}
+
+      - name: Record the fresh URL on staging
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.details_url }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PREVIEW_URL:-}" ]; then
+            echo "::error::The deploy step did not return a preview URL. Open the 'Deploy staging to a fresh preview channel' step above for the actual Firebase error."
+            exit 1
+          fi
+          echo "PREVIEW URL: $PREVIEW_URL"
+          echo "$PREVIEW_URL" > .preview-url
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .preview-url
+          git commit -m "Record fresh preview review URL" || echo "(.preview-url unchanged)"
+          git push origin HEAD:staging || echo "(nothing to push)"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install google-auth google-api-python-client anthropic
+
+      - name: Rebuild the Monday draft with the working link
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.details_url }}
+        run: |
+          set -euo pipefail
+          python build_monday_email.py index.html "$PREVIEW_URL" > monday.html
+          echo "monday.html built ($(wc -c < monday.html) bytes)"
+          WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
+          SUBJECT="Performance Intelligence Weekly Briefing — Week $WEEK"
+          python -m mailer draft \
+            --to "jc@jezcartwright.com" \
+            --subject "$SUBJECT" \
+            --body-file monday.html
+          echo "Draft rebuilt with working preview link: $PREVIEW_URL"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "Preview URL: ${{ steps.deploy.outputs.details_url }}"
+          echo "If this run is green, open your Drafts — the review link now points to live staging content for 30 days."
