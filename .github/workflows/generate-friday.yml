@@ -69,38 +69,19 @@ jobs:
           W=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
           echo "week=$W" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy staging to Firebase preview channel (tolerant of identical re-deploys)
+      - name: Deploy staging to Firebase preview channel (unique per run)
         id: firebase_preview
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          CHANNEL: ${{ github.event.inputs.preview_channel_id != '' && github.event.inputs.preview_channel_id || format('staging-week-{0}', steps.compute_week.outputs.week) }}
-        run: |
-          # Firebase refuses to release a version whose content already matches the channel's
-          # current release (HTTP 400 FAILED_PRECONDITION, "is the current active version").
-          # That is benign: the preview already serves this exact content. So on THAT specific
-          # error we reuse the existing channel URL and continue; any other failure fails loudly.
-          set -uo pipefail
-          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsa.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/gsa.json"
-
-          OUT="$(npx -y firebase-tools@latest hosting:channel:deploy "$CHANNEL" --expires 7d --project pi-briefing-38ddc --json 2> err.log)"
-          RC=$?
-          echo "$OUT"
-
-          if [ "$RC" -eq 0 ]; then
-            URL="$(printf '%s' "$OUT" | python3 -c "import sys,json; d=json.load(sys.stdin); r=d.get('result') or {}; print(next((v['url'] for v in r.values() if isinstance(v,dict) and v.get('url')), ''))")"
-          elif grep -qi 'current active version' err.log 2>/dev/null || printf '%s' "$OUT" | grep -qi 'current active version'; then
-            echo "::notice::Content already live on $CHANNEL (Firebase declined an identical re-release). Reusing existing channel URL and continuing."
-            URL="$(npx -y firebase-tools@latest hosting:channel:list --project pi-briefing-38ddc --json 2>/dev/null | CHANNEL="$CHANNEL" python3 -c "import sys,json,os; d=json.load(sys.stdin); ch=os.environ['CHANNEL']; chs=(d.get('result') or {}).get('channels') or []; print(next((c['url'] for c in chs if str(c.get('name','')).endswith('/'+ch)), ''))")"
-          else
-            echo '----- firebase stderr -----'; cat err.log || true
-            echo "::error::Firebase preview deploy failed (not the benign identical-version case)."
-            exit 1
-          fi
-
-          if [ -z "${URL:-}" ]; then echo "::error::Could not determine the preview channel URL."; exit 1; fi
-          echo "details_url=$URL" >> "$GITHUB_OUTPUT"
-          echo "Preview URL: $URL"
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: pi-briefing-38ddc
+          # Unique channel per run (week + run id + attempt). A fresh channel has no
+          # current release, so Firebase can never reject the deploy as "already the
+          # current active version" — the failure that kept breaking this workflow.
+          # Preview channels auto-expire in 7 days, so they do not accumulate.
+          channelId: ${{ github.event.inputs.preview_channel_id != '' && github.event.inputs.preview_channel_id || format('staging-week-{0}-{1}-{2}', steps.compute_week.outputs.week, github.run_id, github.run_attempt) }}
+          expires: 7d
 
       - name: Persist preview URL to staging branch
         env:
