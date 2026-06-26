@@ -12,11 +12,36 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-      
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          channelId: live
-          projectId: pi-briefing-38ddc
+
+      # Deploy live via the Firebase CLI directly (same thing the action runs),
+      # but treat ONE specific outcome as success: Firebase returns HTTP 400
+      # "is the current active version" when the files being deployed are byte-
+      # identical to what is already live (e.g. a push that only changed workflow
+      # files, which are not part of the deployed site). That is not a failure —
+      # the live site is already serving exactly this content — so we exit 0.
+      # Any other failure still fails the job loudly.
+      - name: Deploy to Firebase Hosting (idempotent)
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -uo pipefail
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/gsa.json"
+
+          OUT="$(npx -y firebase-tools@latest deploy --only hosting --project pi-briefing-38ddc --json 2> err.log)"
+          RC=$?
+          echo "$OUT"
+
+          if [ "$RC" -eq 0 ]; then
+            echo "Live deploy succeeded."
+            exit 0
+          fi
+
+          if grep -qi 'current active version' err.log 2>/dev/null || printf '%s' "$OUT" | grep -qi 'current active version'; then
+            echo "::notice::Live site already serves this exact content (Firebase declined an identical re-release). Treating as success — nothing to deploy."
+            exit 0
+          fi
+
+          echo '----- firebase stderr -----'; cat err.log || true
+          echo "::error::Firebase live deploy failed for a real reason (not the benign already-current case)."
+          exit 1
