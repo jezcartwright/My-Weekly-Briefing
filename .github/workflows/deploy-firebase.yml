@@ -5,12 +5,10 @@ on:
     branches:
       - main
     # Only deploy when files that are ACTUALLY part of the live site change.
-    # A push that only touches workflow files, Python, docs, functions, or
-    # firestore rules deploys nothing new — so Firebase rejects it with
-    # "is the current active version" (HTTP 400). Skipping those pushes avoids
-    # the spurious failure entirely, with no scripting to get wrong.
-    # (firebase.json is intentionally NOT ignored: changing it changes the
-    # deployed file set, so it should trigger a deploy.)
+    # Workflow/Python/docs/functions/rules-only pushes deploy nothing new, so
+    # we skip them entirely (no spurious "current active version" failures).
+    # firebase.json is intentionally NOT ignored: changing it changes the
+    # deployed file set, so it should trigger a deploy.
     paths-ignore:
       - '.github/**'
       - '**/*.py'
@@ -27,10 +25,47 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          channelId: live
-          projectId: pi-briefing-38ddc
+      - name: Deploy to Firebase Hosting (live), then VERIFY it serves
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -uo pipefail
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/gsa.json"
+
+          # Deploy with whole-deploy retries (defeats the transient
+          # "content hash doesn't match content" upload flakiness). A benign
+          # "current active version" means the content is already live = success.
+          deployed=""
+          for attempt in 1 2 3 4 5; do
+            echo "=== live deploy attempt ${attempt} ==="
+            rm -rf "$HOME/.cache/firebase" 2>/dev/null || true
+            if npx -y firebase-tools@latest deploy --only hosting \
+                 --project pi-briefing-38ddc > deploy.out 2> deploy.err; then
+              deployed=1; echo "deploy attempt ${attempt} succeeded"; break
+            fi
+            if grep -qi 'current active version' deploy.out deploy.err 2>/dev/null; then
+              deployed=1; echo "live already serves this exact content — success, nothing to deploy"; break
+            fi
+            echo "attempt ${attempt} failed; last lines:"; tail -n 4 deploy.err 2>/dev/null; tail -n 4 deploy.out 2>/dev/null
+            sleep 12
+          done
+
+          # Trust the OUTCOME: confirm the live site serves the app.
+          URL="https://weeklybriefing.jezcartwright.com"
+          ok=""
+          for i in 1 2 3 4 5 6; do
+            CODE=$(curl -s -o served.html -w '%{http_code}' "$URL" || echo 000)
+            if [ "$CODE" = "200" ] && grep -q "Performance Intelligence Weekly Briefing" served.html; then
+              ok=1; break
+            fi
+            echo "verify attempt $i: HTTP $CODE — retrying"; sleep 8
+          done
+
+          if [ -z "$ok" ]; then
+            echo "----- deploy stdout -----"; sed -n '1,80p' deploy.out 2>/dev/null || true
+            echo "----- deploy stderr -----"; sed -n '1,80p' deploy.err 2>/dev/null || true
+            echo "::error::Live site did not serve as expected. See deploy output above."
+            exit 1
+          fi
+          echo "✅ Live site is serving correctly: $URL"
