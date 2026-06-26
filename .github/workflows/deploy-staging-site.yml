@@ -52,10 +52,32 @@ jobs:
           }
           JSON
 
+          # Deploy with whole-deploy retries. "content hash doesn't match content"
+          # is a known-flaky Firebase upload error (especially on a brand-new
+          # site's first deploy); a clean re-run almost always clears it. A
+          # benign "current active version" means the content is already live.
           echo "Deploying to site '${STAGING_SITE}'..."
-          npx -y firebase-tools@latest deploy --only hosting \
-            --config firebase.staging.json --project pi-briefing-38ddc \
-            > deploy.out 2> deploy.err || true
+          deployed=""
+          for attempt in 1 2 3 4 5; do
+            echo "=== deploy attempt ${attempt} ==="
+            rm -rf "$HOME/.cache/firebase" 2>/dev/null || true
+            if npx -y firebase-tools@latest deploy --only hosting \
+                 --config firebase.staging.json --project pi-briefing-38ddc \
+                 > deploy.out 2> deploy.err; then
+              deployed=1; echo "deploy attempt ${attempt} succeeded"; break
+            fi
+            if grep -qi 'current active version' deploy.out deploy.err 2>/dev/null; then
+              deployed=1; echo "content already current — treating as success"; break
+            fi
+            echo "attempt ${attempt} failed; last lines:"; tail -n 4 deploy.err 2>/dev/null; tail -n 4 deploy.out 2>/dev/null
+            sleep 12
+          done
+          if [ -z "$deployed" ]; then
+            echo "----- deploy stdout -----"; sed -n '1,80p' deploy.out 2>/dev/null || true
+            echo "----- deploy stderr -----"; sed -n '1,80p' deploy.err 2>/dev/null || true
+            echo "::error::All deploy attempts failed (upload never completed). See output above."
+            exit 1
+          fi
           tail -n 3 deploy.out 2>/dev/null || true
 
           # Trust the OUTCOME, not the exit code: confirm the site serves the app.
