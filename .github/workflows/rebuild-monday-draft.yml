@@ -24,12 +24,12 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Pull this week's content + preview URL from staging
+      - name: Pull this week's content from staging
         run: |
           git fetch origin staging
           git checkout origin/staging -- index.html
-          git show origin/staging:.preview-url > /tmp/preview-url 2>/dev/null || echo "https://weeklybriefing.jezcartwright.com/" > /tmp/preview-url
-          echo "Using preview URL: $(cat /tmp/preview-url)"
+          echo "https://weekly-briefing-staging-c635c.web.app" > /tmp/preview-url   # permanent private review site (not the old throwaway channel)
+          echo "Using review URL: $(cat /tmp/preview-url)"
 
       - uses: actions/setup-python@v6
         with:
