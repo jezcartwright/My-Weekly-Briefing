@@ -12,17 +12,14 @@ on:
   schedule:
     - cron: '0 12 * * 5'   # 12:00 UTC every Friday
   workflow_dispatch:
-    inputs:
-      preview_channel_id:
-        description: 'Firebase preview channel ID (default: staging-week-N)'
-        required: false
-        default: ''
 
 jobs:
   stage-friday:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      STAGING_REVIEW_URL: https://weekly-briefing-staging-c635c.web.app   # permanent private review site (replaces throwaway preview channels)
 
     steps:
       - name: Checkout main (read-only, used as starting point)
@@ -63,57 +60,10 @@ jobs:
           git pull --no-rebase origin staging
           echo "Staging now at: $(git log -1 --pretty=format:'%h %s')"
 
-      - name: Compute publication week (the upcoming Monday's ISO week)
-        id: compute_week
-        run: |
-          W=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
-          echo "week=$W" >> "$GITHUB_OUTPUT"
-
-      - name: Deploy staging to Firebase preview channel (unique per run)
-        id: firebase_preview
-        continue-on-error: true   # preview is best-effort; the DRAFT must never be blocked by it
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: pi-briefing-38ddc
-          # Unique channel per run (week + run id + attempt). A fresh channel has no
-          # current release, so Firebase can never reject the deploy as "already the
-          # current active version" — the failure that kept breaking this workflow.
-          # Preview channels auto-expire in 7 days, so they do not accumulate.
-          channelId: ${{ github.event.inputs.preview_channel_id != '' && github.event.inputs.preview_channel_id || format('staging-week-{0}-{1}-{2}', steps.compute_week.outputs.week, github.run_id, github.run_attempt) }}
-          expires: 7d
-
-      - name: Resolve a preview URL (deploy URL, else last-known, else live site)
-        id: preview_url
-        env:
-          DEPLOY_URL: ${{ steps.firebase_preview.outputs.details_url }}
-        run: |
-          URL="$DEPLOY_URL"
-          if [ -z "$URL" ]; then
-            git fetch origin staging --quiet 2>/dev/null || true
-            URL="$(git show origin/staging:.preview-url 2>/dev/null | tr -d '[:space:]')"
-          fi
-          if [ -z "$URL" ]; then URL="https://weeklybriefing.jezcartwright.com/"; fi
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-          [ -z "$DEPLOY_URL" ] && echo "::warning::Preview deploy produced no URL; using fallback $URL. The draft is unaffected."
-          echo "Preview URL in use: $URL"
-
-      - name: Persist preview URL to staging branch
-        if: ${{ steps.firebase_preview.outputs.details_url != '' }}
-        env:
-          PREVIEW_URL: ${{ steps.firebase_preview.outputs.details_url }}
-        run: |
-          echo "$PREVIEW_URL" > .preview-url
-          git add .preview-url
-          git commit -m "Record preview URL for staging" || echo "  (.preview-url unchanged — nothing to commit, continuing)"
-          git push origin staging || echo "  (nothing new to push)"
-          echo "✓ Preview URL step done: $PREVIEW_URL"
-
       - name: Build Monday invitation email (chatty synopsis) from staging index.html
         id: build_email
         env:
-          PREVIEW_URL: ${{ steps.preview_url.outputs.url }}
+          PREVIEW_URL: ${{ env.STAGING_REVIEW_URL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python build_monday_email.py index.html "$PREVIEW_URL" > monday.html
@@ -137,7 +87,7 @@ jobs:
       - name: Email jc@ the Friday staging summary
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
-          PREVIEW_URL: ${{ steps.preview_url.outputs.url }}
+          PREVIEW_URL: ${{ env.STAGING_REVIEW_URL }}
           DRAFT_ID: ${{ steps.save_draft.outputs.draft_id }}
         run: |
           WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
@@ -146,7 +96,7 @@ jobs:
           <h2 style="color:#ff6600;">PI Briefing Week $WEEK — Friday staging complete</h2>
           <p>Your next briefing has been auto-generated and is ready to review:</p>
           <ul>
-            <li><strong>Preview the site:</strong> <a href="$PREVIEW_URL">$PREVIEW_URL</a> (valid 7 days)</li>
+            <li><strong>Review the week (private, permanent):</strong> <a href="$PREVIEW_URL">$PREVIEW_URL</a> &mdash; sign in with Google</li>
             <li><strong>Edit Monday's email:</strong> Open your Gmail Drafts — the chatty synopsis is saved there for you to edit over the weekend.</li>
           </ul>
           <p style="background:#fff8ee;border:1px solid #f0e8d0;padding:12px;border-radius:4px;">
@@ -164,7 +114,7 @@ jobs:
       - name: Done
         run: |
           echo "✅ Friday staging complete."
-          echo "   Preview URL: ${{ steps.preview_url.outputs.url }}"
+          echo "   Review site: ${{ env.STAGING_REVIEW_URL }}"
           echo "   Gmail draft saved in jc@jezcartwright.com inbox."
 
       - name: Notify on failure
