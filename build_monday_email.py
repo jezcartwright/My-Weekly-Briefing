@@ -21,6 +21,29 @@ CATS = [("leadership","Leadership","#FF6600"),("markets","Markets","#0E3A7B"),
 LIVE = "https://weeklybriefing.jezcartwright.com/"
 LOGO = "https://weeklybriefing.jezcartwright.com/favicon-512x512.png"
 
+STYLE_EXEMPLAR = """Happy Monday Everyone,
+With the World Cup coming to the end of the group stages, we now enter the exciting knock out phases. For some it will be the most exciting of times, whilst for others it will be a tantalising end to the summer of sport. As an England fan I am not too hopeful, yet there is always dreams of '66!
+The levels of delusion seen amongst fans is not confined to sports. The corporate world is no stranger to the realities of delusion that persist from the board room and move downwards in an organisation.
+These can have catastrophic consequences and this even pervades out into the wider population that is seemingly ever more stressed in an ever changing world.
+This is the thread that runs through this week's signals: the things we'd rather not look at. Senior teams are quietly editing out inconvenient information, executive stress has slipped past its pandemic peak, and the meritocratic story most leaders tell themselves about their own success is doing more damage than the markets they're trying to read. Avoidance, it turns out, is the dominant management style of late 2025.
+Underneath that, the machines are wobbling in interesting ways. Frontier AI agents collapse when a tool misbehaves, large models fail basic self-control tests, and fact-checking with AI is leaving people worse at spotting fakes. Meanwhile the physical world reasserts itself through copper, heat above the silicon, and Micron's quietly extraordinary margins.
+And then the slower currents: an IPO window closing, private credit meeting the retirement saver, Britain without a Prime Minister, and a 2030 deadline on the encryption holding it all together.
+Twenty-four signals across six categories await. Please step inside.
+Have a great week.
+Cheers,
+Jez"""
+
+_ONES = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
+         "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"]
+_TENS = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"]
+def num_word(n):
+    """Spell a small count (0-99) like the author does ('Twenty-four'); fall back to digits."""
+    if n < 20: return _ONES[n]
+    if n < 100:
+        t, o = divmod(n, 10)
+        return _TENS[t] + ("-" + _ONES[o] if o else "")
+    return str(n)
+
 def extract_week0(path):
     src = open(path, encoding="utf-8").read()
     stmts = []
@@ -48,16 +71,30 @@ def ai_synopsis(data):
     try:
         import anthropic
         client = anthropic.Anthropic(api_key=key)
-        prompt = ("Below are this week's 24 topics across six categories of an executive briefing.\n\n"
-                  + "\n".join(lines) +
-                  "\n\nWrite the opening synopsis for the Monday email that introduces this briefing. "
-                  "Voice: warm, intelligent, lightly conversational British English, like a sharp friend who reads everything. "
-                  "Thread together three or four connecting themes across the topics into a short narrative; do not list every item. "
-                  "Three short paragraphs, about 160 words total. A natural greeting to open is fine. "
-                  "End by noting there are 24 signals across the six categories and inviting the reader into the full briefing. "
-                  "No headings, no bullet points, no markdown, and do not use the word 'delve'. "
-                  "Return only the paragraphs, separated by blank lines.")
-        msg = client.messages.create(model="claude-opus-4-7", max_tokens=600,
+        prompt = (
+            "You are drafting the opening of a weekly executive briefing email, in the established "
+            "voice of its author, Jez. Match his voice, rhythm and structure closely.\n\n"
+            "STYLE REFERENCE (a previous week's opening). Imitate the VOICE and STRUCTURE only \u2014 "
+            "never reuse its content, theme, or its specific cultural references:\n---\n"
+            + STYLE_EXEMPLAR +
+            "\n---\n\nTHIS WEEK'S 24 TOPICS (six categories):\n"
+            + "\n".join(lines) +
+            "\n\nWrite ONLY the body paragraphs that sit between the greeting and the closing line. "
+            "Do NOT write a greeting, a sign-off, or the 'N signals \u2026 step inside' line \u2014 those are added separately.\n\n"
+            "Follow this structure (as in the reference):\n"
+            "1) An opening hook: a vivid, lightly self-deprecating observation connecting a broad human "
+            "theme to this week's material. The author personalises this line himself, so keep it engaging "
+            "but do NOT assert specific real-world current events, scores, dates or news you cannot verify.\n"
+            "2) A 'thread' paragraph naming the single idea running through this week's signals, drawn from the topics above.\n"
+            "3) One or two short paragraphs narrating the categories as movements/currents (e.g. grouping the "
+            "technology items as 'the machines', and the markets/geopolitics/philosophy items as 'slower currents'), "
+            "evoking the real topics without listing all of them.\n\n"
+            "Voice: warm, literate British English; essayistic, not a contents page; confident and a little wry; concrete. "
+            "Narrate, don't enumerate.\n"
+            "HARD RULES: ground every concrete claim in the topics provided \u2014 invent no facts, numbers, names, or events. "
+            "No headings, no bullet points, no markdown. Avoid the words 'delve' and 'deluge'. About 230-280 words. "
+            "Return only the paragraphs, separated by blank lines.")
+        msg = client.messages.create(model="claude-opus-4-7", max_tokens=900,
                                      messages=[{"role":"user","content":prompt}])
         text = "".join(getattr(b,"text","") for b in msg.content if getattr(b,"type","")=="text").strip()
         paras = [p.strip() for p in text.split("\n\n") if p.strip()]
@@ -71,16 +108,20 @@ def fallback_synopsis(data):
     for cid, label, _ in CATS:
         ts = data.get(cid) or []
         if ts: picks.append((label, ts[0].get("headline","").rstrip(".")))
-    p1 = "Morning &mdash; this week's briefing brings together twenty-four signals worth your attention."
+    p1 = "There's a thread running through this week's signals worth pausing on before the detail."
     p2 = " ".join("In %s, %s." % (lbl, hl) for lbl, hl in picks[:3])
-    p3 = "There's more across the other categories too. The full briefing is one tap away below."
+    p3 = "More runs through the other categories \u2014 the through-lines are easier to feel than to summarise."
     return [p1, p2, p3]
 
 def esc(s): return H.escape(s or "")
 
 def build(path, preview_url=""):
     data = extract_week0(path)
-    syn = ai_synopsis(data) or fallback_synopsis(data)
+    body = ai_synopsis(data) or fallback_synopsis(data)
+    n = sum(len(data.get(cid) or []) for cid, _, _ in CATS)
+    greeting = "Happy Monday Everyone,"
+    closing = "%s signals across six categories await. Please step inside." % num_word(n).capitalize()
+    syn = [greeting] + body + [closing]
     date = datetime.date.today().strftime("%A, %-d %B %Y")
     glance = []
     for cid, label, color in CATS:
@@ -102,7 +143,8 @@ def build(path, preview_url=""):
   <tr><td style="padding:16px 32px 2px;font:400 12px Arial,sans-serif;color:#8E857C;letter-spacing:.05em;">%(date)s</td></tr>
   <tr><td style="padding:14px 32px 4px;"><table width="100%%" cellpadding="0" cellspacing="0" border="0">%(syn)s</table></td></tr>
   <tr><td style="padding:8px 32px 0;"><table width="100%%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #ece7df;"><tr><td style="font:700 10px Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8E857C;padding:16px 0 8px;">A taste of what&rsquo;s inside</td></tr>%(gl)s</table></td></tr>
-  <tr><td style="padding:22px 32px 28px;text-align:center;"><a href="%(live)s" style="background:#ff6600;color:#fff;text-decoration:none;padding:12px 22px;border-radius:4px;font:600 14px Arial,sans-serif;display:inline-block;">Read the full briefing &rarr;</a></td></tr>
+  <tr><td style="padding:22px 32px 24px;text-align:center;"><a href="%(live)s" style="background:#ff6600;color:#fff;text-decoration:none;padding:12px 22px;border-radius:4px;font:600 14px Arial,sans-serif;display:inline-block;">Read the full briefing &rarr;</a></td></tr>
+  <tr><td style="padding:8px 32px 26px;font:400 15px/1.65 Georgia,serif;color:#2a2a2a;">Have a great week.<br><br>Cheers,<br>Jez</td></tr>
   <tr><td style="padding:14px 32px 22px;border-top:1px solid #ece7df;font:400 11px Arial,sans-serif;color:#8E857C;text-align:center;">Performance Intelligence Weekly Briefing</td></tr>
 </table></td></tr></table></body></html>""" % dict(logo=LOGO, note=note, date=date, syn=syn_html, gl=gl_html, live=LIVE)
 
