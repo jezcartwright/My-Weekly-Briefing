@@ -16,12 +16,22 @@ name: Monday Publish — Promote Staging + Deploy Live + Send Email
 # live-site check, so a deploy problem fails loudly (emails jc@) and subscribers
 # are never sent a link to stale content.
 #
-# Schedule is ENABLED: runs every Monday at 07:00 UTC = 08:00 London (BST).
-# In winter (GMT) change the cron to '0 8 * * 1'. Also runnable via workflow_dispatch.
+# RELIABILITY — TWO SCHEDULED ATTEMPTS:
+# GitHub's `schedule` trigger is best-effort: under load GitHub delays or silently
+# DROPS scheduled runs. A single 07:00 cron is therefore not dependable on its own.
+# We run TWICE: a primary at 07:00 UTC and a backstop at 09:00 UTC. The backstop
+# first checks whether the staging branch still exists — on a successful primary
+# run staging is deleted, so "staging gone = already published" and the backstop
+# exits without doing anything. If staging still exists (primary dropped/failed),
+# the backstop performs the full publish. Result: one dropped cron no longer means
+# no briefing. Manual workflow_dispatch always runs regardless of staging state.
+#
+# In winter (GMT) shift BOTH crons by one hour: '0 8 * * 1' and '0 10 * * 1'.
 
 on:
   schedule:
-    - cron: '0 7 * * 1'   # 07:00 UTC Mon = 08:00 London (BST). In winter (GMT) change to '0 8 * * 1'.
+    - cron: '0 7 * * 1'   # PRIMARY: 07:00 UTC Mon = 08:00 London (BST). Winter (GMT): '0 8 * * 1'.
+    - cron: '0 9 * * 1'   # BACKSTOP: 09:00 UTC Mon = 10:00 London (BST). Winter (GMT): '0 10 * * 1'.
   workflow_dispatch:
     inputs:
       abort:
@@ -56,8 +66,25 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # --- BACKSTOP GUARD ---
+      # Only relevant when this run was triggered by the 09:00 backstop cron. If the
+      # 07:00 primary already published, the staging branch has been deleted, so we
+      # exit cleanly and do nothing. If staging still exists, the primary did not
+      # complete — fall through and publish normally. The primary cron and manual
+      # dispatch runs skip this guard entirely.
+      - name: Backstop guard (only the 09:00 cron checks if primary already ran)
+        if: ${{ github.event.schedule == '0 9 * * 1' }}
+        run: |
+          git fetch origin 'refs/heads/staging:refs/remotes/origin/staging' 2>/dev/null || true
+          if git rev-parse --verify origin/staging >/dev/null 2>&1; then
+            echo "::notice::Backstop run: staging branch still exists — the 07:00 primary did NOT complete. Proceeding to publish."
+          else
+            echo "::notice::Backstop run: staging branch is gone — the 07:00 primary already published. Nothing to do."
+            echo "BACKSTOP_NOOP=true" >> "$GITHUB_ENV"
+          fi
+
       - name: Verify staging branch exists and is ahead of main
-        if: ${{ github.event.inputs.skip_merge != 'true' }}
+        if: ${{ env.BACKSTOP_NOOP != 'true' && github.event.inputs.skip_merge != 'true' }}
         id: verify_staging
         run: |
           git config user.name "github-actions[bot]"
@@ -79,7 +106,7 @@ jobs:
           fi
 
       - name: Merge staging into main (3-way; handles main moving during the week)
-        if: ${{ github.event.inputs.skip_merge != 'true' }}
+        if: ${{ env.BACKSTOP_NOOP != 'true' && github.event.inputs.skip_merge != 'true' }}
         run: |
           git fetch origin main staging
           git checkout main
@@ -98,6 +125,7 @@ jobs:
           echo "staging merged to main ($(git rev-parse --short HEAD))"
 
       - name: Make sure working tree is the latest main (covers skip_merge re-runs)
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         run: |
           git fetch origin main
           git checkout main
@@ -118,6 +146,7 @@ jobs:
       # written to a file and read with `grep -F` — never piped — so an early pipe
       # close can't kill the step before our explicit `exit`.
       - name: Deploy to Firebase Hosting (live)
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         shell: bash
@@ -151,6 +180,7 @@ jobs:
       # If this fails, the workflow fails, jc@ gets the failure email below, the
       # staging branch is left intact, and subscribers are NOT sent a stale link.
       - name: Verify the live site is serving after deploy
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         run: |
           echo "Waiting for Hosting propagation, then verifying https://weeklybriefing.jezcartwright.com ..."
           for i in 1 2 3 4 5 6; do
@@ -166,14 +196,17 @@ jobs:
           exit 1
 
       - name: Set up Python
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
       - name: Install dependencies
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         run: pip install google-auth google-api-python-client google-cloud-firestore
 
       - name: Send teaser to each subscriber (per-recipient with unsubscribe)
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
@@ -183,12 +216,41 @@ jobs:
           python publish_to_subscribers.py
 
       - name: Delete staging branch (cleanup)
-        if: ${{ success() && github.event.inputs.skip_merge != 'true' }}
+        if: ${{ success() && env.BACKSTOP_NOOP != 'true' && github.event.inputs.skip_merge != 'true' }}
         run: |
           git push origin --delete staging
           echo "staging branch deleted; ready for next Friday."
 
+      # --- SUCCESS CONFIRMATION ---
+      # Silent success used to mean "no signal either way" — if a cron never fired you
+      # got nothing. This sends a short confirmation to jc@ on a genuine publish, so
+      # NO confirmation by ~08:30 Monday is itself the alarm: check Actions. The
+      # backstop no-op run does NOT send this (the primary already did).
+      - name: Confirm success to jc@
+        if: ${{ success() && env.BACKSTOP_NOOP != 'true' }}
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+        run: |
+          pip install google-auth google-api-python-client --quiet || true
+          WEEK=$(date -u +%V)
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          cat > success.html <<EOF
+          <html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#222;">
+          <h2 style="color:#2E7A3E;">PI Briefing Week $WEEK - published OK</h2>
+          <p>The Monday auto-publish completed: live site deployed + verified, and the
+          briefing email was sent to subscribers.</p>
+          <p>Run: <a href="$RUN_URL">$RUN_URL</a></p>
+          <p><em>If you ever do NOT receive this email by ~08:30 London on a Monday,
+          the scheduled run may not have fired — open Actions and trigger "Monday Publish" manually.</em></p>
+          </body></html>
+          EOF
+          python -m mailer send \
+            --to "jc@jezcartwright.com" \
+            --subject "[PI Briefing] Published OK (week $WEEK)" \
+            --body-file success.html || echo "(could not send success email)"
+
       - name: Done
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
         run: |
           echo "Monday publish complete."
           echo "  Live site deployed + verified at https://weeklybriefing.jezcartwright.com"
