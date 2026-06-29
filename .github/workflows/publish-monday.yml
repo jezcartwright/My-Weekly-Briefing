@@ -112,27 +112,35 @@ jobs:
       # already live (e.g. on a re-run after a partial failure). That is NOT a failure
       # for our purposes — the Verify step below is the real gate. Any OTHER deploy
       # failure (auth, etc.) still fails the job loudly.
+      #
+      # IMPORTANT: this step deliberately keeps `set -e` OFF (we EXPECT a non-zero
+      # exit from the CLI on a no-op deploy and handle it ourselves). CLI output is
+      # written to a file and read with `grep -F` — never piped — so an early pipe
+      # close can't kill the step before our explicit `exit`.
       - name: Deploy to Firebase Hosting (live)
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        shell: bash
         run: |
+          set +e +o pipefail
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
 
-          set +e
-          OUT=$(npx firebase-tools@latest deploy --only hosting --project pi-briefing-38ddc --non-interactive 2>&1)
+          npx firebase-tools@latest deploy --only hosting --project pi-briefing-38ddc --non-interactive > "$RUNNER_TEMP/deploy.log" 2>&1
           STATUS=$?
-          set -e
-          echo "$OUT"
           rm -f "$RUNNER_TEMP/sa.json"
+
+          echo "----- firebase deploy output -----"
+          cat "$RUNNER_TEMP/deploy.log"
+          echo "----- end deploy output (exit status: $STATUS) -----"
 
           if [ "$STATUS" -eq 0 ]; then
             echo "Deploy succeeded (new version released)."
             exit 0
           fi
 
-          if echo "$OUT" | grep -q "is the current active version"; then
-            echo "::notice::Deploy returned the benign 'current active version' 400 — content is already live and identical. Continuing to the live-site verification."
+          if grep -qF "is the current active version" "$RUNNER_TEMP/deploy.log"; then
+            echo "::notice::Deploy returned the benign 'current active version' 400 - content is already live and identical. Continuing to the live-site verification."
             exit 0
           fi
 
