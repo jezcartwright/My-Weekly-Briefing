@@ -1,15 +1,113 @@
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 
 admin.initializeApp();
 
-// GitHub fine-grained PAT (Contents: read/write on My-Weekly-Briefing). Used to
-// dispatch the admin-send worker the instant a job is queued. Set it with:
-//   firebase functions:secrets:set GH_DISPATCH_TOKEN
-const GH_DISPATCH_TOKEN = defineSecret("GH_DISPATCH_TOKEN");
+// --- GitHub App credentials (durable replacement for the expiring PAT) ---
+// Instead of a fine-grained personal access token (which expires and must be
+// manually renewed), we authenticate as a GitHub App installed on
+// My-Weekly-Briefing. The App mints short-lived installation tokens on demand,
+// so there is nothing to expire or renew. Set these three secrets with:
+//   printf '%s' '<APP_ID>'          | firebase functions:secrets:set GH_APP_ID --data-file -
+//   printf '%s' '<INSTALLATION_ID>' | firebase functions:secrets:set GH_APP_INSTALLATION_ID --data-file -
+//   firebase functions:secrets:set GH_APP_PRIVATE_KEY --data-file /path/to/key.pem
+const GH_APP_ID = defineSecret("GH_APP_ID");
+const GH_APP_INSTALLATION_ID = defineSecret("GH_APP_INSTALLATION_ID");
+const GH_APP_PRIVATE_KEY = defineSecret("GH_APP_PRIVATE_KEY");
+
+const GITHUB_APP_SECRETS = [
+  GH_APP_ID, GH_APP_INSTALLATION_ID, GH_APP_PRIVATE_KEY,
+];
 
 const BUCKET = "pi-briefing-38ddc.firebasestorage.app";
+
+// --- Installation-token minting -------------------------------------------
+// 1. Build a short (10-min) JWT signed with the App's private key (RS256).
+// 2. Exchange it for an installation access token (lives ~1 hour).
+// The installation token is cached in module memory and reused until it is
+// close to expiry, so we are not signing a JWT on every single dispatch.
+let cachedInstallationToken = null;
+let cachedTokenExpiryMs = 0;
+
+function base64url(input) {
+  return Buffer.from(input)
+      .toString("base64")
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+}
+
+function buildAppJwt() {
+  const appId = GH_APP_ID.value();
+  const privateKey = GH_APP_PRIVATE_KEY.value();
+  const now = Math.floor(Date.now() / 1000);
+  const header = {alg: "RS256", typ: "JWT"};
+  const payload = {
+    // iat backdated 60s to tolerate minor clock drift between us and GitHub.
+    iat: now - 60,
+    exp: now + 540, // 9 minutes; GitHub's max is 10.
+    iss: appId,
+  };
+  const unsigned =
+      `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(payload))}`;
+  const signer = crypto.createSign("RSA-SHA256");
+  signer.update(unsigned);
+  signer.end();
+  const signature = signer.sign(privateKey)
+      .toString("base64")
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+  return `${unsigned}.${signature}`;
+}
+
+// Returns a valid installation token, minting a fresh one if the cache is
+// empty or within 5 minutes of expiry. Returns null on failure (callers log
+// and bail, exactly as the old token check did).
+async function getInstallationToken() {
+  const nowMs = Date.now();
+  if (cachedInstallationToken && nowMs < cachedTokenExpiryMs - 5 * 60 * 1000) {
+    return cachedInstallationToken;
+  }
+
+  let jwt;
+  try {
+    jwt = buildAppJwt();
+  } catch (e) {
+    console.error("Failed to build App JWT (check GH_APP_ID / GH_APP_PRIVATE_KEY):", e);
+    return null;
+  }
+
+  const installationId = GH_APP_INSTALLATION_ID.value();
+  try {
+    const res = await fetch(
+        `https://api.github.com/app/installations/${installationId}/access_tokens`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${jwt}`,
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "pi-briefing-dispatch",
+          },
+        });
+    if (!res.ok) {
+      const body = await res.text();
+      console.error(`Installation token request failed: ${res.status} ${body}`);
+      return null;
+    }
+    const json = await res.json();
+    cachedInstallationToken = json.token;
+    // json.expires_at is an ISO timestamp ~1 hour out.
+    cachedTokenExpiryMs = new Date(json.expires_at).getTime();
+    return cachedInstallationToken;
+  } catch (e) {
+    console.error("Installation token request error:", e);
+    return null;
+  }
+}
 
 async function deleteQueryInChunks(query) {
   const snap = await query.get();
@@ -119,7 +217,7 @@ exports.processEmailChange = onDocumentCreated(
 // seconds instead of waiting for the 5-minute cron. The worker still performs the
 // actual sending and writes status back to the job doc (which the admin UI watches).
 exports.dispatchAdminSend = onDocumentCreated(
-    {document: "adminSends/{jobId}", secrets: [GH_DISPATCH_TOKEN]},
+    {document: "adminSends/{jobId}", secrets: GITHUB_APP_SECRETS},
     async (event) => {
       const jobId = event.params.jobId;
       const snap = event.data;
@@ -127,9 +225,9 @@ exports.dispatchAdminSend = onDocumentCreated(
       // Only fire for freshly queued jobs (ignore later status writes).
       if (data.status && data.status !== "queued") return;
 
-      const token = GH_DISPATCH_TOKEN.value();
+      const token = await getInstallationToken();
       if (!token) {
-        console.error("GH_DISPATCH_TOKEN is not set; cannot dispatch worker");
+        console.error("Could not obtain GitHub App installation token; cannot dispatch worker");
         return;
       }
 
@@ -164,9 +262,9 @@ exports.dispatchAdminSend = onDocumentCreated(
 // Shared: kick the welcome-send workflow for one user via repository_dispatch.
 // The workflow (welcome-send.yml) runs send_welcome.py with WELCOME_UID=uid.
 async function dispatchWelcome(uid, source) {
-  const token = GH_DISPATCH_TOKEN.value();
+  const token = await getInstallationToken();
   if (!token) {
-    console.error("GH_DISPATCH_TOKEN is not set; cannot dispatch welcome");
+    console.error("Could not obtain GitHub App installation token; cannot dispatch welcome");
     return false;
   }
   try {
@@ -203,7 +301,7 @@ async function dispatchWelcome(uid, source) {
 // kicks the welcome-send workflow. send_welcome.py filters out admin /
 // unsubscribed / no-email / already-welcomed, sends once, stamps welcomedAt.
 exports.onNewSubscriberWelcome = onDocumentCreated(
-    {document: "users/{uid}", secrets: [GH_DISPATCH_TOKEN]},
+    {document: "users/{uid}", secrets: GITHUB_APP_SECRETS},
     async (event) => {
       await dispatchWelcome(event.params.uid, "auto");
     });
@@ -213,7 +311,7 @@ exports.onNewSubscriberWelcome = onDocumentCreated(
 // typo'd email that was auto-welcomed, then corrected), kick the same workflow,
 // and write a status back for the admin UI to watch.
 exports.onWelcomeSendRequest = onDocumentCreated(
-    {document: "welcomeSends/{uid}", secrets: [GH_DISPATCH_TOKEN]},
+    {document: "welcomeSends/{uid}", secrets: GITHUB_APP_SECRETS},
     async (event) => {
       const uid = event.params.uid;
       const db = admin.firestore();
