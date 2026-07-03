@@ -13,7 +13,7 @@ If ANTHROPIC_API_KEY is unset or the call fails, a deterministic fallback
 synopsis is used so the draft always builds.
 """
 from __future__ import annotations
-import os, sys, json, html as H, datetime, subprocess, tempfile
+import os, sys, json, re, html as H, datetime, subprocess, tempfile
 
 CATS = [("leadership","Leadership","#FF6600"),("markets","Markets","#0E3A7B"),
         ("psychology","Psychology","#C8243C"),("technology","Technology","#0096D6"),
@@ -60,6 +60,37 @@ def extract_week0(path):
         os.unlink(tmp)
     return json.loads(out)
 
+# The greeting is a single line ending at its first comma ("Happy Monday Everyone,").
+_GREETING_RE = re.compile(r"(?is)^\s*happy\s+monday[^,\n]*,\s*")
+
+def _strip_scaffolding(paras):
+    """Defensively remove any fixed scaffolding the model echoed from the STYLE_EXEMPLAR:
+    the greeting, the 'N signals \u2026 step inside' closing, and the 'Have a great week /
+    Cheers, / Jez' sign-off. build() and the HTML template are the single source of truth
+    for those lines, so the AI body must never contain them \u2014 otherwise they duplicate
+    (two greetings) or land mid-email (a stray sign-off above the closing). The model is
+    already told not to emit them; this guards against the times it does anyway."""
+    out = []
+    for p in paras:
+        t = (p or "").strip()
+        if not t:
+            continue
+        low = t.lower()
+        # Greeting: drop the greeting clause but keep any real prose glued after it.
+        if low.startswith("happy monday"):
+            rest = _GREETING_RE.sub("", t, count=1).strip()
+            if rest and not rest.lower().startswith("happy monday"):
+                out.append(rest)
+            continue
+        # Closing line ("N signals across six categories await. Please step inside.")
+        if "step inside" in low or "across six categories" in low:
+            continue
+        # Sign-off block ("Have a great week." / "Cheers," / "Jez")
+        if "have a great week" in low or low.startswith("cheers") or low.rstrip(".") == "jez":
+            continue
+        out.append(t)
+    return out
+
 def ai_synopsis(data):
     lines = []
     for cid, label, _ in CATS:
@@ -98,7 +129,7 @@ def ai_synopsis(data):
                                      messages=[{"role":"user","content":prompt}])
         text = "".join(getattr(b,"text","") for b in msg.content if getattr(b,"type","")=="text").strip()
         paras = [p.strip() for p in text.split("\n\n") if p.strip()]
-        return paras or None
+        return _strip_scaffolding(paras) or None
     except Exception as e:
         sys.stderr.write("  ! synopsis AI draft failed (%s); using fallback\n" % e)
         return None
