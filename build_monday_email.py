@@ -173,9 +173,9 @@ def build(path, preview_url=""):
   %(note)s
   <tr><td style="padding:16px 32px 2px;font:400 12px Arial,sans-serif;color:#8E857C;letter-spacing:.05em;">%(date)s</td></tr>
   <tr><td style="padding:14px 32px 4px;"><table width="100%%" cellpadding="0" cellspacing="0" border="0">%(syn)s</table></td></tr>
+  <tr><td style="padding:6px 32px 22px;font:400 15px/1.65 Georgia,serif;color:#2a2a2a;">Have a great week.<br><br>Cheers,<br>Jez</td></tr>
   <tr><td style="padding:8px 32px 0;"><table width="100%%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #ece7df;"><tr><td style="font:700 10px Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8E857C;padding:16px 0 8px;">A taste of what&rsquo;s inside</td></tr>%(gl)s</table></td></tr>
   <tr><td style="padding:22px 32px 24px;text-align:center;"><a href="%(live)s" style="background:#ff6600;color:#fff;text-decoration:none;padding:12px 22px;border-radius:4px;font:600 14px Arial,sans-serif;display:inline-block;">Read the full briefing &rarr;</a></td></tr>
-  <tr><td style="padding:8px 32px 26px;font:400 15px/1.65 Georgia,serif;color:#2a2a2a;">Have a great week.<br><br>Cheers,<br>Jez</td></tr>
   <tr><td style="padding:14px 32px 22px;border-top:1px solid #ece7df;font:400 11px Arial,sans-serif;color:#8E857C;text-align:center;">Performance Intelligence Weekly Briefing</td></tr>
 </table></td></tr></table></body></html>""" % dict(logo=LOGO, note=note, date=date, syn=syn_html, gl=gl_html, live=LIVE)
 
