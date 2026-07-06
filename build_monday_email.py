@@ -153,7 +153,12 @@ def build(path, preview_url=""):
     greeting = "Happy Monday Everyone,"
     closing = "%s signals across six categories await. Please step inside." % num_word(n).capitalize()
     syn = [greeting] + body + [closing]
-    date = datetime.date.today().strftime("%A, %-d %B %Y")
+    # The draft is built on Friday but SENT on Monday, so stamp the send day, not the
+    # build day (which is why it used to read "Saturday, 4 July"). Use the soonest Monday
+    # that is today-or-later: a Friday build -> the coming Monday; a Monday rebuild -> today.
+    today = datetime.date.today()
+    send_date = today + datetime.timedelta(days=(0 - today.weekday()) % 7)
+    date = send_date.strftime("%A, %-d %B %Y")
     glance = []
     for cid, label, color in CATS:
         ts = data.get(cid) or []
