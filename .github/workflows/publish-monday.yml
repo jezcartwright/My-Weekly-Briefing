@@ -1,8 +1,8 @@
 name: Monday Publish — Promote Staging + Deploy Live + Send Email
 
-# Monday 08:00 London (07:00 UTC) auto-run promotes staging to main, DEPLOYS the
-# live site itself, verifies the new content is actually serving, and only then
-# sends the Gmail draft prepared on Friday.
+# Monday 08:00 London auto-run promotes staging to main, DEPLOYS the live site
+# itself, verifies the new content is actually serving, and only then sends the
+# Gmail draft prepared on Friday.
 #
 # WHY THIS WORKFLOW DEPLOYS DIRECTLY (do not "simplify" this away):
 # The merge step pushes to main using the default GITHUB_TOKEN. GitHub
@@ -16,22 +16,36 @@ name: Monday Publish — Promote Staging + Deploy Live + Send Email
 # live-site check, so a deploy problem fails loudly (emails jc@) and subscribers
 # are never sent a link to stale content.
 #
-# RELIABILITY — TWO SCHEDULED ATTEMPTS:
-# GitHub's `schedule` trigger is best-effort: under load GitHub delays or silently
-# DROPS scheduled runs. A single 07:00 cron is therefore not dependable on its own.
-# We run TWICE: a primary at 07:00 UTC and a backstop at 09:00 UTC. The backstop
-# first checks whether the staging branch still exists — on a successful primary
-# run staging is deleted, so "staging gone = already published" and the backstop
-# exits without doing anything. If staging still exists (primary dropped/failed),
-# the backstop performs the full publish. Result: one dropped cron no longer means
-# no briefing. Manual workflow_dispatch always runs regardless of staging state.
+# RELIABILITY — WHY THE PRIMARY TRIGGER IS NO LONGER A GITHUB CRON:
+# GitHub's `schedule` trigger is best-effort: under load GitHub delays or
+# silently DROPS scheduled runs — with no error and no run in the Actions list.
+# That (not a wrong cron time) is what caused missed Monday sends. GitHub cron is
+# also UTC-only, so a fixed time drifts by an hour every BST/GMT change.
 #
-# In winter (GMT) shift BOTH crons by one hour: '0 8 * * 1' and '0 10 * * 1'.
+# We therefore drive the PRIMARY run from Google Cloud Scheduler
+# (timezone Europe/London, 08:00 Monday) -> a small Cloud Function -> GitHub
+# `repository_dispatch` (event type: publish-monday). Cloud Scheduler fires
+# reliably and is timezone-aware, so 08:00 London is always 08:00 London with no
+# seasonal hand-editing. See setup-dispatch-scheduler.sh + github_dispatch/.
+#
+# We KEEP one GitHub cron purely as an INDEPENDENT BACKSTOP (09:00 UTC Mon). It
+# is still best-effort and still DST-drifts, but that no longer matters: it is
+# only a safety net, it runs well after the primary, and its guard below no-ops
+# if the primary already published. Net effect: two unrelated scheduling systems
+# (Cloud Scheduler + GitHub cron) would BOTH have to fail for a Monday to be
+# missed. Manual workflow_dispatch always runs regardless of staging state.
 
 on:
+  # PRIMARY: Cloud Scheduler -> Cloud Function -> repository_dispatch (reliable, DST-aware).
+  repository_dispatch:
+    types: [publish-monday]
+
+  # BACKSTOP ONLY: independent GitHub cron in case Cloud Scheduler ever fails. Best-effort
+  # and DST-drifting, but harmless — it runs after the primary and its guard no-ops if the
+  # primary already published. In winter (GMT) it lands an hour earlier in London; fine.
   schedule:
-    - cron: '0 7 * * 1'   # PRIMARY: 07:00 UTC Mon = 08:00 London (BST). Winter (GMT): '0 8 * * 1'.
-    - cron: '0 9 * * 1'   # BACKSTOP: 09:00 UTC Mon = 10:00 London (BST). Winter (GMT): '0 10 * * 1'.
+    - cron: '0 9 * * 1'   # BACKSTOP: 09:00 UTC Mon (10:00 London BST / 09:00 GMT).
+
   workflow_dispatch:
     inputs:
       abort:
@@ -68,18 +82,18 @@ jobs:
 
       # --- BACKSTOP GUARD ---
       # Only relevant when this run was triggered by the 09:00 backstop cron. If the
-      # 07:00 primary already published, the staging branch has been deleted, so we
-      # exit cleanly and do nothing. If staging still exists, the primary did not
-      # complete — fall through and publish normally. The primary cron and manual
-      # dispatch runs skip this guard entirely.
+      # primary (Cloud Scheduler -> repository_dispatch) already published, the staging
+      # branch has been deleted, so we exit cleanly and do nothing. If staging still
+      # exists, the primary did not complete — fall through and publish normally. The
+      # repository_dispatch primary and manual dispatch runs skip this guard entirely.
       - name: Backstop guard (only the 09:00 cron checks if primary already ran)
         if: ${{ github.event.schedule == '0 9 * * 1' }}
         run: |
           git fetch origin 'refs/heads/staging:refs/remotes/origin/staging' 2>/dev/null || true
           if git rev-parse --verify origin/staging >/dev/null 2>&1; then
-            echo "::notice::Backstop run: staging branch still exists — the 07:00 primary did NOT complete. Proceeding to publish."
+            echo "::notice::Backstop run: staging branch still exists — the primary did NOT complete. Proceeding to publish."
           else
-            echo "::notice::Backstop run: staging branch is gone — the 07:00 primary already published. Nothing to do."
+            echo "::notice::Backstop run: staging branch is gone — the primary already published. Nothing to do."
             echo "BACKSTOP_NOOP=true" >> "$GITHUB_ENV"
           fi
 
@@ -91,7 +105,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main staging
           if ! git rev-parse --verify origin/staging >/dev/null 2>&1; then
-            echo "::error::No staging branch found. Did Friday's workflow run?"
+            echo "::error::No staging branch found. Either Friday's generate did not run, or you re-ran a normal publish after this week was already published (in that case re-run with skip_merge=true instead)."
             exit 1
           fi
           AHEAD=$(git rev-list --count origin/main..origin/staging)
@@ -270,7 +284,11 @@ jobs:
           <p>The Monday auto-publish workflow did not complete. Because the subscriber
           email is gated behind a successful, verified live deploy, if you are seeing
           this it most likely means the email was NOT sent - check the Gmail Sent folder to be sure.</p>
-          <p><strong>What to do:</strong></p>
+          <p><strong>Benign case:</strong> if you re-ran a normal publish after this week was
+          already published, you will see "No staging branch found" — that is expected, nothing
+          was sent, ignore it. To re-deploy/re-send an already-published week, re-run with
+          skip_merge = true.</p>
+          <p><strong>What to do otherwise:</strong></p>
           <ol>
             <li>Open the workflow run: <a href="$RUN_URL">$RUN_URL</a> and read the failed step.</li>
             <li>If the <strong>Deploy</strong> or <strong>Verify</strong> step failed, the live site may be stale - fix and re-run this workflow (staging is left intact for re-runs).</li>
