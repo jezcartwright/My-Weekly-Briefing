@@ -1,16 +1,9 @@
 name: Friday Staging — Generate + Preview + Draft Email
 
-# Friday 12:00 GMT auto-run generates next week's content into the `staging`
-# branch (not main), deploys it to a Firebase preview channel, drafts the
-# Monday email (chatty synopsis) as a Gmail draft, and emails jc@ the preview URL.
-#
-# Schedule is ENABLED: runs every Friday at 12:00 UTC. Also runnable manually
-# via workflow_dispatch. The email subject/synopsis use the PUBLICATION week
-# (the upcoming Monday's ISO week), not the Friday generation week.
-
 on:
-  schedule:
-    - cron: '0 12 * * 5'   # 12:00 UTC every Friday
+  # PRIMARY: Cloud Scheduler -> Cloud Function -> repository_dispatch (reliable, DST-aware).
+  repository_dispatch:
+    types: [generate-friday]
   workflow_dispatch:
 
 jobs:
@@ -19,7 +12,7 @@ jobs:
     permissions:
       contents: write
     env:
-      STAGING_REVIEW_URL: https://weekly-briefing-staging-c635c.web.app   # permanent private review site (replaces throwaway preview channels)
+      STAGING_REVIEW_URL: https://weekly-briefing-staging-c635c.web.app
 
     steps:
       - name: Checkout main (read-only, used as starting point)
@@ -91,7 +84,7 @@ jobs:
           DRAFT_ID: ${{ steps.save_draft.outputs.draft_id }}
         run: |
           WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
-          cat > friday_summary.html <<EOF
+          cat > friday_summary.html <<HTML
           <html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#222;">
           <h2 style="color:#ff6600;">PI Briefing Week $WEEK — Friday staging complete</h2>
           <p>Your next briefing has been auto-generated and is ready to review:</p>
@@ -105,7 +98,7 @@ jobs:
           <p>If you want to abort the Monday auto-publish, run the <strong>publish-monday</strong> workflow manually with the abort input, or delete the staging branch on GitHub.</p>
           <hr><p style="font-size:12px;color:#888;">Run: <a href="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}">view in Actions</a></p>
           </body></html>
-          EOF
+          HTML
           python -m mailer send \
             --to "jc@jezcartwright.com" \
             --subject "[PI Briefing] Week $WEEK staged — ready for your review" \
@@ -125,13 +118,13 @@ jobs:
           pip install google-auth google-api-python-client --quiet || true
           WEEK=$( [ "$(date -u +%u)" -eq 1 ] && date -u +%V || date -u -d "next monday" +%V )
           RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          cat > failure.html <<EOF
+          cat > failure.html <<HTML
           <html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#222;">
           <h2 style="color:#c00;">PI Briefing Week $WEEK — Friday staging FAILED</h2>
           <p>The Friday auto-generate workflow did not complete. The live site has NOT been modified.</p>
           <p>Open the run: <a href="$RUN_URL">$RUN_URL</a>, read the failed step, fix, and re-run.</p>
           </body></html>
-          EOF
+          HTML
           python -m mailer send \
             --to "jc@jezcartwright.com" \
             --subject "[PI Briefing] ⚠️ Friday staging failed (week $WEEK)" \
