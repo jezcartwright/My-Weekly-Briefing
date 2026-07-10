@@ -1,20 +1,15 @@
 name: Deploy private staging review site
 
-# Deploys THIS WEEK's staging content to a FIXED, permanent Firebase Hosting
-# site (weekly-briefing-staging-c635c) that you sign into with your existing Google login.
-# - Permanent URL: nothing expires, you authorize its domain ONCE.
-# - Isolated: uses its own firebase.staging.json; the live site + live deploy
-#   workflow are never touched.
-# - Secure: same app, same sign-in gate; .git/.py excluded from the upload.
-# - Trustworthy: it does not trust the deploy's exit code — it VERIFIES the
-#   live site returns 200 and serves the app. The benign "current active
-#   version" 400 cannot fail this job.
-# Runs every Friday after generation, and on demand.
+# MANUAL REDEPLOY BUTTON ONLY.
+# The Friday generate workflow (generate-friday.yml) now deploys AND verifies the
+# private review site itself, as its own step, immediately after generation — so the
+# "ready to review" email always links to fresh content. This workflow is kept purely
+# as an on-demand way to re-deploy the current `staging` content to the review site
+# (e.g. after a manual staging edit). Its old Friday 16:30 cron has been REMOVED to
+# avoid a redundant second deploy.
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '30 16 * * 5'   # Fridays 16:30 UTC, after content generation
 
 env:
   STAGING_SITE: weekly-briefing-staging-c635c   # <-- the one place to change the site id
@@ -40,8 +35,6 @@ jobs:
           printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/gsa.json"
 
-          # Isolated config: targets the staging SITE by name, with the same
-          # security exclusions as live. Does not touch the real firebase.json.
           cat > firebase.staging.json <<JSON
           {
             "hosting": {
@@ -52,10 +45,6 @@ jobs:
           }
           JSON
 
-          # Deploy with whole-deploy retries. "content hash doesn't match content"
-          # is a known-flaky Firebase upload error (especially on a brand-new
-          # site's first deploy); a clean re-run almost always clears it. A
-          # benign "current active version" means the content is already live.
           echo "Deploying to site '${STAGING_SITE}'..."
           deployed=""
           for attempt in 1 2 3 4 5; do
@@ -80,7 +69,6 @@ jobs:
           fi
           tail -n 3 deploy.out 2>/dev/null || true
 
-          # Trust the OUTCOME, not the exit code: confirm the site serves the app.
           URL="https://${STAGING_SITE}.web.app"
           ok=""
           for i in 1 2 3 4 5 6; do
@@ -90,7 +78,6 @@ jobs:
             fi
             echo "attempt $i: HTTP $CODE (propagating?) — retrying"; sleep 8
           done
-
           if [ -z "$ok" ]; then
             echo "----- deploy stdout -----"; sed -n '1,60p' deploy.out 2>/dev/null || true
             echo "----- deploy stderr -----"; sed -n '1,60p' deploy.err 2>/dev/null || true
@@ -98,14 +85,6 @@ jobs:
             exit 1
           fi
 
-          # Best-effort freshness confirmation (informational; cache lag won't fail the job)
-          if command -v sha256sum >/dev/null; then
-            L=$(sha256sum index.html | awk '{print $1}')
-            curl -s "$URL/index.html" -o served_index.html || true
-            S=$(sha256sum served_index.html 2>/dev/null | awk '{print $1}')
-            [ "$L" = "$S" ] && echo "Freshness confirmed: staging serves the exact content we built." \
-                            || echo "Note: served copy not yet byte-identical (CDN still propagating); site is up."
-          fi
           echo "STAGING_URL=$URL" >> "$GITHUB_ENV"
           echo "✅ Private staging site is live: $URL"
 
