@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Performance Intelligence Weekly Briefing — Content Generator
-Runs every Monday via GitHub Actions.
+Runs every Friday via GitHub Actions (staging), published the following Monday.
 Calls Claude API with web search to generate fresh weekly content,
 then updates index.html in the repo.
 """
@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import json
+import time
 import base64
 import datetime
 import anthropic
@@ -681,22 +682,70 @@ def update_html(html: str, all_content: dict) -> str:
     return html
 
 
+def _github_request(method: str, url: str, headers: dict, *,
+                    json_body: dict = None, max_attempts: int = 5,
+                    timeout: int = 30):
+    """Perform a GitHub API request, retrying transient failures with backoff.
+
+    A single un-retried request is what let a momentary GitHub 502 kill an entire
+    Friday run. Transient failures — connection errors, timeouts, and the
+    429/500/502/503/504 statuses GitHub occasionally returns for a second or two —
+    are retried a handful of times with increasing backoff. Non-transient errors
+    (4xx like 401/404, and any other status) are raised immediately, because
+    retrying those is pointless. If every attempt is transient-but-failing, the
+    last error is raised loudly so the run still fails visibly rather than silently.
+    """
+    import requests
+
+    TRANSIENT = {429, 500, 502, 503, 504}
+    backoffs = [2, 5, 10, 20]  # seconds to wait after attempts 1, 2, 3, 4
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            resp = requests.request(method, url, headers=headers,
+                                    json=json_body, timeout=timeout)
+            if resp.status_code in TRANSIENT:
+                # Surface as an HTTPError so it flows through the retry logic below.
+                raise requests.HTTPError(
+                    f"{resp.status_code} transient error for {method} {url}",
+                    response=resp)
+            resp.raise_for_status()  # non-transient 4xx/5xx -> raise (not retried)
+            return resp
+        except (requests.ConnectionError, requests.Timeout,
+                requests.HTTPError) as e:
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            is_transient = (
+                isinstance(e, (requests.ConnectionError, requests.Timeout))
+                or status in TRANSIENT
+            )
+            if not is_transient or attempt == max_attempts:
+                raise
+            wait = backoffs[min(attempt - 1, len(backoffs) - 1)]
+            # Honour Retry-After (rate limiting) when GitHub provides it.
+            hdrs = getattr(getattr(e, "response", None), "headers", None) or {}
+            retry_after = hdrs.get("Retry-After")
+            if retry_after and str(retry_after).isdigit():
+                wait = int(retry_after)
+            print(f"    ! GitHub {method} transient failure "
+                  f"({status or type(e).__name__}); retry "
+                  f"{attempt}/{max_attempts - 1} in {wait}s")
+            time.sleep(wait)
+
+
 def get_current_file(token: str, branch: str = "main") -> tuple[str, str]:
     """Get current index.html content and SHA from a given branch.
 
     Defaults to main so the existing Monday workflow keeps working unchanged.
     The Friday workflow passes branch='staging' to stage content for review.
+    Transient GitHub API blips (e.g. a momentary 502) are retried automatically.
     """
-    import requests
-
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}?ref={branch}"
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "PI-Weekly-Briefing-Bot",
     }
-    resp = requests.get(url, headers=headers)
-    resp.raise_for_status()
+    resp = _github_request("GET", url, headers)
     data = resp.json()
 
     file_content = base64.b64decode(data['content']).decode('utf-8')
@@ -706,9 +755,10 @@ def get_current_file(token: str, branch: str = "main") -> tuple[str, str]:
 
 def commit_file(token: str, content: str, sha: str, message: str,
                 branch: str = "main") -> None:
-    """Commit updated index.html to GitHub on the given branch."""
-    import requests
+    """Commit updated index.html to GitHub on the given branch.
 
+    Transient GitHub API blips are retried automatically.
+    """
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
     headers = {
         "Authorization": f"token {token}",
@@ -722,8 +772,7 @@ def commit_file(token: str, content: str, sha: str, message: str,
         "sha": sha,
         "branch": branch,
     }
-    resp = requests.put(url, headers=headers, json=payload)
-    resp.raise_for_status()
+    resp = _github_request("PUT", url, headers, json_body=payload)
     result = resp.json()
     print(f"  ✓ Committed to {branch}: {result['commit']['html_url']}")
 
@@ -829,10 +878,17 @@ def main():
         raise ValueError("GH_TOKEN environment variable not set")
 
     today = datetime.date.today().strftime("%A, %d %B %Y")
-    week = datetime.date.today().isocalendar()[1]
+    # The briefing is generated on Friday but PUBLISHED the following Monday, so
+    # the week number must be the PUBLICATION week (the upcoming Monday's ISO
+    # week), not the Friday generation week — otherwise the commit/label reads
+    # one week behind the subscriber-facing email subject. If run on a Monday,
+    # the "upcoming Monday" is today, which is what we want.
+    _today_date = datetime.date.today()
+    _publish_date = _today_date + datetime.timedelta(days=(0 - _today_date.weekday()) % 7)
+    week = _publish_date.isocalendar()[1]
 
     print(f"Performance Intelligence Weekly Briefing Generator")
-    print(f"Date: {today} | Week: {week} | Target branch: {target_branch}")
+    print(f"Date: {today} | Publication week: {week} | Target branch: {target_branch}")
     print("=" * 60)
 
     client = anthropic.Anthropic(api_key=anthropic_key)
