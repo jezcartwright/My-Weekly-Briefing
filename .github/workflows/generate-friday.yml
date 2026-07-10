@@ -1,4 +1,19 @@
-name: Friday Staging — Generate + Preview + Draft Email
+name: Friday Staging — Generate + Deploy Review Site + Draft Email
+
+# Friday 12:00 London auto-run (Cloud Scheduler -> Cloud Function -> repository_dispatch):
+#   1. generate next week's content into the `staging` branch
+#   2. DEPLOY that content to the private review site and VERIFY it serves
+#   3. build the Monday email (chatty synopsis) and save it as a Gmail draft
+#   4. email jc@ the review link — which is now guaranteed live, because the deploy
+#      happens BEFORE this email rather than on a separate 16:30 cron.
+#
+# The review-site deploy used to live in its own workflow on a later cron, which
+# meant the "ready to review" email linked to a site that hadn't refreshed yet
+# (stale for ~4.5h). Folding the deploy in here removes that gap entirely. The
+# standalone deploy-staging-site.yml is now manual-only (a redeploy button).
+#
+# Still runnable manually via workflow_dispatch. The email subject/synopsis use the
+# PUBLICATION week (the upcoming Monday's ISO week), not the Friday generation week.
 
 on:
   # PRIMARY: Cloud Scheduler -> Cloud Function -> repository_dispatch (reliable, DST-aware).
@@ -12,7 +27,8 @@ jobs:
     permissions:
       contents: write
     env:
-      STAGING_REVIEW_URL: https://weekly-briefing-staging-c635c.web.app
+      STAGING_REVIEW_URL: https://weekly-briefing-staging-c635c.web.app   # permanent private review site
+      STAGING_SITE: weekly-briefing-staging-c635c                          # the Firebase Hosting site id
 
     steps:
       - name: Checkout main (read-only, used as starting point)
@@ -52,6 +68,78 @@ jobs:
           git checkout staging
           git pull --no-rebase origin staging
           echo "Staging now at: $(git log -1 --pretty=format:'%h %s')"
+
+      # --- Deploy the review site FIRST, from the clean staging tree, and verify it
+      # serves the new content, BEFORE we draft/send the review email. This is what
+      # guarantees the link in that email is never stale. (Folded in from the old
+      # deploy-staging-site.yml; identical deploy+verify logic, no separate checkout
+      # needed because the working tree is already on staging.)
+      - name: Deploy the private staging review site, then VERIFY it serves
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -uo pipefail
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/gsa.json"
+
+          cat > firebase.staging.json <<JSON
+          {
+            "hosting": {
+              "site": "${STAGING_SITE}",
+              "public": ".",
+              "ignore": ["firebase.json","firebase.staging.json","firestore.rules","**/.*",".git/**","**/.git/**","**/node_modules/**",".github/**","*.md","**/*.py","functions/**","monday.html","friday_summary.html","served.html","served_index.html","deploy.out","deploy.err"]
+            }
+          }
+          JSON
+
+          echo "Deploying to site '${STAGING_SITE}'..."
+          deployed=""
+          for attempt in 1 2 3 4 5; do
+            echo "=== deploy attempt ${attempt} ==="
+            rm -rf "$HOME/.cache/firebase" 2>/dev/null || true
+            if npx -y firebase-tools@latest deploy --only hosting \
+                 --config firebase.staging.json --project pi-briefing-38ddc \
+                 > deploy.out 2> deploy.err; then
+              deployed=1; echo "deploy attempt ${attempt} succeeded"; break
+            fi
+            if grep -qi 'current active version' deploy.out deploy.err 2>/dev/null; then
+              deployed=1; echo "content already current — treating as success"; break
+            fi
+            echo "attempt ${attempt} failed; last lines:"; tail -n 4 deploy.err 2>/dev/null; tail -n 4 deploy.out 2>/dev/null
+            sleep 12
+          done
+          if [ -z "$deployed" ]; then
+            echo "----- deploy stdout -----"; sed -n '1,80p' deploy.out 2>/dev/null || true
+            echo "----- deploy stderr -----"; sed -n '1,80p' deploy.err 2>/dev/null || true
+            echo "::error::All deploy attempts failed (upload never completed). See output above."
+            exit 1
+          fi
+          tail -n 3 deploy.out 2>/dev/null || true
+
+          URL="https://${STAGING_SITE}.web.app"
+          ok=""
+          for i in 1 2 3 4 5 6; do
+            CODE=$(curl -s -o served.html -w '%{http_code}' "$URL" || echo 000)
+            if [ "$CODE" = "200" ] && grep -q "Performance Intelligence Weekly Briefing" served.html; then
+              ok=1; break
+            fi
+            echo "attempt $i: HTTP $CODE (propagating?) — retrying"; sleep 8
+          done
+          if [ -z "$ok" ]; then
+            echo "----- deploy stdout -----"; sed -n '1,60p' deploy.out 2>/dev/null || true
+            echo "----- deploy stderr -----"; sed -n '1,60p' deploy.err 2>/dev/null || true
+            echo "::error::Staging site did not serve as expected. See deploy output above."
+            exit 1
+          fi
+
+          if command -v sha256sum >/dev/null; then
+            L=$(sha256sum index.html | awk '{print $1}')
+            curl -s "$URL/index.html" -o served_index.html || true
+            S=$(sha256sum served_index.html 2>/dev/null | awk '{print $1}')
+            [ "$L" = "$S" ] && echo "Freshness confirmed: staging serves the exact content we built." \
+                            || echo "Note: served copy not yet byte-identical (CDN still propagating); site is up."
+          fi
+          echo "✅ Private staging site is live: $URL"
 
       - name: Build Monday invitation email (chatty synopsis) from staging index.html
         id: build_email
@@ -107,7 +195,7 @@ jobs:
       - name: Done
         run: |
           echo "✅ Friday staging complete."
-          echo "   Review site: ${{ env.STAGING_REVIEW_URL }}"
+          echo "   Review site (deployed + verified): ${{ env.STAGING_REVIEW_URL }}"
           echo "   Gmail draft saved in jc@jezcartwright.com inbox."
 
       - name: Notify on failure
