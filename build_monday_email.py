@@ -21,6 +21,38 @@ CATS = [("leadership","Leadership","#FF6600"),("markets","Markets","#0E3A7B"),
 LIVE = "https://weeklybriefing.jezcartwright.com/"
 LOGO = "https://weeklybriefing.jezcartwright.com/favicon-512x512.png"
 
+# "Add to home screen" card. Uses hosted PNGs (Gmail strips inline SVG), so upload
+# icon-app-tile.png (your pi mark), icon-share-ios.png and icon-share-android.png to
+# ICON_BASE alongside the masthead before this ships.
+ICON_BASE = "https://weeklybriefing.jezcartwright.com"
+HOMESCREEN_CARD = (
+    '<tr><td style="padding:6px 32px 20px;">'
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fff8ee;border:1px solid #f0e8d0;border-radius:6px;">'
+        '<tr><td style="padding:16px 18px 13px;">'
+          '<table cellpadding="0" cellspacing="0" border="0"><tr>'
+            f'<td valign="middle" style="padding-right:14px;"><img src="{ICON_BASE}/icon-app-tile.png" width="46" height="46" alt="Performance Intelligence" style="display:block;width:46px;height:46px;border:0;"></td>'
+            '<td valign="middle">'
+              '<div style="font:600 15px Georgia,serif;color:#a0530b;padding-bottom:2px;">Add the briefing to your home screen</div>'
+              '<div style="font:400 12.5px/1.5 Georgia,serif;color:#8a6d3b;">One tap to each week&rsquo;s briefing &mdash; no searching your inbox.</div>'
+            '</td>'
+          '</tr></table>'
+        '</td></tr>'
+        '<tr><td style="padding:0 18px 16px;">'
+          '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #f0e4cd;"><tr><td style="padding-top:12px;">'
+            '<table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:9px;"><tr>'
+              f'<td width="26" valign="middle"><img src="{ICON_BASE}/icon-share-ios.png" width="18" height="18" alt="Share" style="display:block;width:18px;height:18px;border:0;"></td>'
+              '<td valign="middle" style="font:400 12.5px/1.5 Georgia,serif;color:#8a6d3b;"><span style="font-weight:600;color:#6f5327;">iPhone</span> &mdash; tap Share, then &lsquo;Add to Home Screen&rsquo;</td>'
+            '</tr></table>'
+            '<table cellpadding="0" cellspacing="0" border="0"><tr>'
+              f'<td width="26" valign="middle"><img src="{ICON_BASE}/icon-share-android.png" width="18" height="18" alt="Share" style="display:block;width:18px;height:18px;border:0;"></td>'
+              '<td valign="middle" style="font:400 12.5px/1.5 Georgia,serif;color:#8a6d3b;"><span style="font-weight:600;color:#6f5327;">Android</span> &mdash; tap Share, then &lsquo;Add to Home screen&rsquo;</td>'
+            '</tr></table>'
+          '</td></tr></table>'
+        '</td></tr>'
+      '</table>'
+    '</td></tr>'
+)
+
 STYLE_EXEMPLAR = """Happy Monday Everyone,
 With the World Cup coming to the end of the group stages, we now enter the exciting knock out phases. For some it will be the most exciting of times, whilst for others it will be a tantalising end to the summer of sport. As an England fan I am not too hopeful, yet there is always dreams of '66!
 The levels of delusion seen amongst fans is not confined to sports. The corporate world is no stranger to the realities of delusion that persist from the board room and move downwards in an organisation.
@@ -181,8 +213,9 @@ def build(path, preview_url=""):
   <tr><td style="padding:6px 32px 22px;font:400 15px/1.65 Georgia,serif;color:#2a2a2a;">Have a great week.<br><br>Cheers,<br>Jez</td></tr>
   <tr><td style="padding:8px 32px 0;"><table width="100%%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #ece7df;"><tr><td style="font:700 10px Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8E857C;padding:16px 0 8px;">A taste of what&rsquo;s inside</td></tr>%(gl)s</table></td></tr>
   <tr><td style="padding:22px 32px 24px;text-align:center;"><a href="%(live)s" style="background:#ff6600;color:#fff;text-decoration:none;padding:12px 22px;border-radius:4px;font:600 14px Arial,sans-serif;display:inline-block;">Read the full briefing &rarr;</a></td></tr>
+  %(homescreen)s
   <tr><td style="padding:14px 32px 22px;border-top:1px solid #ece7df;font:400 11px Arial,sans-serif;color:#8E857C;text-align:center;">Performance Intelligence Weekly Briefing</td></tr>
-</table></td></tr></table></body></html>""" % dict(logo=LOGO, note=note, date=date, syn=syn_html, gl=gl_html, live=LIVE)
+</table></td></tr></table></body></html>""" % dict(logo=LOGO, note=note, date=date, syn=syn_html, gl=gl_html, live=LIVE, homescreen=HOMESCREEN_CARD)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
