@@ -6,6 +6,12 @@ the content pipeline uses). Rendered as email-safe HTML and saved as a Gmail
 draft on Friday so it can be edited over the weekend; sent Monday by the
 existing publish workflow.
 
+The intro is written FROM SCRATCH each week: ai_synopsis() invents a fresh
+structure and is forbidden from reusing any structure recorded in the intro
+history file, so no two weeks share a shape. The greeting, the closing line and
+the sign-off are fixed furniture owned by build()/the template - the AI only
+ever writes the middle.
+
 Usage:
     python build_monday_email.py index.html [preview_url] > monday.html
 
@@ -53,17 +59,68 @@ HOMESCREEN_CARD = (
     '</td></tr>'
 )
 
-STYLE_EXEMPLAR = """Happy Monday Everyone,
-With the World Cup coming to the end of the group stages, we now enter the exciting knock out phases. For some it will be the most exciting of times, whilst for others it will be a tantalising end to the summer of sport. As an England fan I am not too hopeful, yet there is always dreams of '66!
-The levels of delusion seen amongst fans is not confined to sports. The corporate world is no stranger to the realities of delusion that persist from the board room and move downwards in an organisation.
-These can have catastrophic consequences and this even pervades out into the wider population that is seemingly ever more stressed in an ever changing world.
-This is the thread that runs through this week's signals: the things we'd rather not look at. Senior teams are quietly editing out inconvenient information, executive stress has slipped past its pandemic peak, and the meritocratic story most leaders tell themselves about their own success is doing more damage than the markets they're trying to read. Avoidance, it turns out, is the dominant management style of late 2025.
-Underneath that, the machines are wobbling in interesting ways. Frontier AI agents collapse when a tool misbehaves, large models fail basic self-control tests, and fact-checking with AI is leaving people worse at spotting fakes. Meanwhile the physical world reasserts itself through copper, heat above the silicon, and Micron's quietly extraordinary margins.
-And then the slower currents: an IPO window closing, private credit meeting the retirement saver, Britain without a Prime Minister, and a 2030 deadline on the encryption holding it all together.
-Twenty-four signals across six categories await. Please step inside.
-Have a great week.
-Cheers,
-Jez"""
+# Voice reference ONLY. Short fragments in deliberately different shapes so the model
+# picks up Jez's register (warm, wry, concrete, first-person British English) without
+# a full opening to copy the structure from. NEVER put a whole exemplar intro here
+# again - a single exemplar is what made every week read the same.
+VOICE_REFERENCE = """- "I spent Tuesday certain I'd read the room. The room, it turned out, had read me."
+- "Every decision looks inevitable in hindsight and reckless at the time; the job is telling which is which beforehand."
+- "Copper does not care about your quarterly narrative. Neither, lately, does the weather.\""""
+
+# Phrases past intros over-used. The AI body must contain none of them, in any form,
+# so each week reads new. Extend this list whenever a new tic starts to creep in.
+BANNED_TICS = [
+    "a particular kind of self", "particular kind of", "self-deception", "self-flattery",
+    "the thread that runs through", "the thread running through", "this week's thread",
+    "runs through this week", "that gap", "the gap between",
+    "the machines, meanwhile", "the machines are", "meanwhile, the machines",
+    "slower currents", "the slower currents", "underneath that", "underneath,", "beneath that",
+    "step inside", "twenty-four signals", "across six categories", "signals await",
+    "delve", "deluge", "in a world where", "in today's world", "now more than ever",
+]
+
+# Record of every intro structure used, so none is ever reused. This file MUST persist
+# between weekly runs for the guarantee to hold: it has to be committed back to the repo
+# by the workflow (exactly as the topic pipeline persists its content history) or pointed
+# at a durable path via the INTRO_HISTORY env var. If it cannot be persisted the intro is
+# still written from scratch each week - it simply loses its cross-week memory.
+INTRO_HISTORY = os.environ.get("INTRO_HISTORY", "intro_history.json")
+HISTORY_KEEP = 60  # forbid this many past structures: over a year with no structural repeat
+
+def _load_history():
+    try:
+        with open(INTRO_HISTORY, encoding="utf-8") as f:
+            h = json.load(f)
+        return [str(x).strip() for x in h if str(x).strip()] if isinstance(h, list) else []
+    except Exception:
+        return []
+
+def _save_history(hist):
+    try:
+        with open(INTRO_HISTORY, "w", encoding="utf-8") as f:
+            json.dump(hist[-HISTORY_KEEP:], f, ensure_ascii=False, indent=0)
+    except Exception as e:
+        sys.stderr.write("  ! could not persist intro history (%s)\n" % e)
+
+def _parse_json_obj(text):
+    """Pull the first JSON object from the model reply, tolerating ``` fences and trailing prose."""
+    if not text:
+        return None
+    t = text.strip()
+    if t.startswith("```"):
+        t = re.sub(r"^```[a-zA-Z]*\s*", "", t)
+        t = re.sub(r"\s*```$", "", t).strip()
+    i, j = t.find("{"), t.rfind("}")
+    if i < 0 or j <= i:
+        return None
+    frag = t[i:j+1]
+    try:
+        return json.loads(frag)
+    except Exception:
+        try:  # last-ditch: escape raw newlines that slipped inside string values
+            return json.loads(frag.replace("\r", "").replace("\n", "\\n"))
+        except Exception:
+            return None
 
 _ONES = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
          "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"]
@@ -96,28 +153,25 @@ def extract_week0(path):
 _GREETING_RE = re.compile(r"(?is)^\s*happy\s+monday[^,\n]*,\s*")
 
 def _strip_scaffolding(paras):
-    """Defensively remove any fixed scaffolding the model echoed from the STYLE_EXEMPLAR:
-    the greeting, the 'N signals \u2026 step inside' closing, and the 'Have a great week /
-    Cheers, / Jez' sign-off. build() and the HTML template are the single source of truth
-    for those lines, so the AI body must never contain them \u2014 otherwise they duplicate
-    (two greetings) or land mid-email (a stray sign-off above the closing). The model is
-    already told not to emit them; this guards against the times it does anyway."""
+    """Defensively remove any fixed scaffolding the model echoed: the greeting, the
+    'N signals \u2026 step inside' closing, and the 'Have a great week / Cheers, / Jez'
+    sign-off. build() and the HTML template are the single source of truth for those
+    lines, so the AI body must never contain them \u2014 otherwise they duplicate (two
+    greetings) or land mid-email (a stray sign-off above the closing). The model is told
+    not to emit them; this guards against the times it does anyway."""
     out = []
     for p in paras:
         t = (p or "").strip()
         if not t:
             continue
         low = t.lower()
-        # Greeting: drop the greeting clause but keep any real prose glued after it.
         if low.startswith("happy monday"):
             rest = _GREETING_RE.sub("", t, count=1).strip()
             if rest and not rest.lower().startswith("happy monday"):
                 out.append(rest)
             continue
-        # Closing line ("N signals across six categories await. Please step inside.")
         if "step inside" in low or "across six categories" in low:
             continue
-        # Sign-off block ("Have a great week." / "Cheers," / "Jez")
         if "have a great week" in low or low.startswith("cheers") or low.rstrip(".") == "jez":
             continue
         out.append(t)
@@ -131,37 +185,52 @@ def ai_synopsis(data):
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
         return None
+    history = _load_history()
+    forbidden = "\n".join("- " + h for h in history) if history else "(nothing yet - a clean slate)"
     try:
         import anthropic
         client = anthropic.Anthropic(api_key=key)
         prompt = (
-            "You are drafting the opening of a weekly executive briefing email, in the established "
-            "voice of its author, Jez. Match his voice, rhythm and structure closely.\n\n"
-            "STYLE REFERENCE (a previous week's opening). Imitate the VOICE and STRUCTURE only \u2014 "
-            "never reuse its content, theme, or its specific cultural references:\n---\n"
-            + STYLE_EXEMPLAR +
-            "\n---\n\nTHIS WEEK'S 24 TOPICS (six categories):\n"
-            + "\n".join(lines) +
-            "\n\nWrite ONLY the body paragraphs that sit between the greeting and the closing line. "
-            "Do NOT write a greeting, a sign-off, or the 'N signals \u2026 step inside' line \u2014 those are added separately.\n\n"
-            "Follow this structure (as in the reference):\n"
-            "1) An opening hook: a vivid, lightly self-deprecating observation connecting a broad human "
-            "theme to this week's material. The author personalises this line himself, so keep it engaging "
-            "but do NOT assert specific real-world current events, scores, dates or news you cannot verify.\n"
-            "2) A 'thread' paragraph naming the single idea running through this week's signals, drawn from the topics above.\n"
-            "3) One or two short paragraphs narrating the categories as movements/currents (e.g. grouping the "
-            "technology items as 'the machines', and the markets/geopolitics/philosophy items as 'slower currents'), "
-            "evoking the real topics without listing all of them.\n\n"
-            "Voice: warm, literate British English; essayistic, not a contents page; confident and a little wry; concrete. "
-            "Narrate, don't enumerate.\n"
-            "HARD RULES: ground every concrete claim in the topics provided \u2014 invent no facts, numbers, names, or events. "
-            "No headings, no bullet points, no markdown. Avoid the words 'delve' and 'deluge'. About 230-280 words. "
-            "Return only the paragraphs, separated by blank lines.")
-        msg = client.messages.create(model="claude-opus-4-7", max_tokens=900,
+            "You are drafting the opening body of Jez's weekly executive briefing email. It sits between a fixed "
+            "greeting (\"Happy Monday Everyone,\") and a fixed closing line, both added separately \u2014 so write "
+            "ONLY the middle paragraphs. Do NOT write a greeting, a sign-off, or any 'N signals / six categories / "
+            "step inside' line.\n\n"
+            "INVENT A COMPLETELY FRESH STRUCTURE from scratch this week. There is NO house template and you must not "
+            "reach for one. How it opens, how it moves, and how it ends must all be materially different from every "
+            "structure listed below \u2014 each has already been used in a previous week and must never recur:\n"
+            "ALREADY USED \u2014 your shape must not resemble any of these:\n" + forbidden + "\n\n"
+            "VOICE \u2014 imitate the TONE ONLY, never the structure or content. Warm, literate British English; "
+            "essayistic and a little wry; concrete over abstract; first person; comfortable being self-deprecating. "
+            "Fragments that show the register:\n" + VOICE_REFERENCE + "\n\n"
+            "Choose a handful of the topics below and weave them into your fresh structure in whatever order serves "
+            "it; you need not use all of them. Do NOT organise the piece by category, and do NOT narrate the "
+            "technology items collectively as 'the machines' or sweep the rest into 'currents' \u2014 that grouping "
+            "IS the old formula.\n\n"
+            "THIS WEEK'S 24 TOPICS (six categories):\n" + "\n".join(lines) + "\n\n"
+            "BANNED \u2014 never use any of these words or phrases, in any form or tense:\n"
+            + "; ".join(BANNED_TICS) + "\n\n"
+            "HARD RULES: ground every concrete claim in the topics above \u2014 invent no facts, numbers, names, "
+            "dates, scores or events (the author adds any personal or real-world specifics himself, so leave room for "
+            "that and never assert current events you cannot verify). No headings, no bullet points, no markdown. "
+            "About 230-280 words.\n\n"
+            "Return ONE JSON object and nothing else \u2014 no code fences, no commentary:\n"
+            "{\"approach\": \"a concrete description, 18 words or fewer, of the structure you used (opening move + "
+            "organising idea), specific enough that a future writer could deliberately avoid repeating it\", "
+            "\"body\": \"the paragraphs, separated by \\n\\n\"}")
+        msg = client.messages.create(model="claude-opus-4-7", max_tokens=1200, temperature=1.0,
                                      messages=[{"role":"user","content":prompt}])
         text = "".join(getattr(b,"text","") for b in msg.content if getattr(b,"type","")=="text").strip()
-        paras = [p.strip() for p in text.split("\n\n") if p.strip()]
-        return _strip_scaffolding(paras) or None
+        obj = _parse_json_obj(text)
+        if not obj:
+            sys.stderr.write("  ! synopsis JSON parse failed; using fallback\n")
+            return None
+        approach = str(obj.get("approach","")).strip()
+        paras = _strip_scaffolding([p.strip() for p in str(obj.get("body","")).split("\n\n") if p.strip()])
+        if not paras:
+            return None
+        if approach:
+            _save_history(history + [approach])
+        return paras
     except Exception as e:
         sys.stderr.write("  ! synopsis AI draft failed (%s); using fallback\n" % e)
         return None
@@ -171,7 +240,7 @@ def fallback_synopsis(data):
     for cid, label, _ in CATS:
         ts = data.get(cid) or []
         if ts: picks.append((label, ts[0].get("headline","").rstrip(".")))
-    p1 = "There's a thread running through this week's signals worth pausing on before the detail."
+    p1 = "A few of this week's signals are worth pausing on before the detail."
     p2 = " ".join("In %s, %s." % (lbl, hl) for lbl, hl in picks[:3])
     p3 = "More runs through the other categories \u2014 the through-lines are easier to feel than to summarise."
     return [p1, p2, p3]
