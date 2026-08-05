@@ -612,6 +612,56 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
   .pi-logo img{height:24px}
   .eyebrow{font-size:15px}
 }
+/* ============================================================
+   Screen background — White / Black toggle (in the hamburger).
+   Flipping the theme variables re-themes every var-driven surface,
+   all text and every border at once; the explicit rules below then
+   catch the hardcoded-#fff surfaces (messaging, contact, menus,
+   dialogs) and lighten the few hardcoded dark texts sitting on them.
+   Left deliberately light: the masthead (#hdr, hardcoded orange),
+   the PDF .sheet (must stay light for print) and the pre-auth login
+   screen. Header micro-controls (#msg-new-btn pill, nudge knob) are
+   hardcoded #fff and stay white on the orange header by design.
+   ============================================================ */
+body.bg-black{
+  --bg:#000000;--white:#0f0f0f;--card:#0f0f0f;
+  --b:#2a2a2a;--b2:#1e1e1e;
+  --t:#f4f4f4;--t2:#c9c9c9;--t3:#9a9a9a;
+}
+/* today-card border (hardcoded warm grey) */
+body.bg-black .tc{border-color:#2a2a2a}
+/* messaging + contact surfaces that hardcode #fff */
+body.bg-black .them .bub{background:#1e1e1e;border-color:#333}
+body.bg-black .composer{background:#0f0f0f}
+body.bg-black .cin{background:#161616}
+body.bg-black .inbox{background:#000}
+body.bg-black .msg-tabs{background:#0f0f0f}
+body.bg-black .nudge-row{background:#0f0f0f}
+body.bg-black .contact-ta{background:#161616}
+body.bg-black .recip-bcast{background:#1c140c}
+body.bg-black .bc-note{background:#1c140c;border-color:#3a2a1c;color:#f0c9a8}
+/* popovers + dialogs go dark too (text is var-driven or lightened here) */
+body.bg-black .ham-menu{background:#161616}
+body.bg-black .mi{color:#f0f0f0}
+body.bg-black .mi:hover,body.bg-black .mi.on{background:#242424}
+body.bg-black .mi-divider{background:#2a2a2a}
+body.bg-black .ts-btn:hover{background:#242424}
+body.bg-black .acct-card{background:#161616}
+body.bg-black .acct-card p,body.bg-black .acct-card li{color:#b0b0b0}
+body.bg-black .acct-b.cancel{background:#2a2a2a;color:#f0f0f0}
+/* keep the pre-auth login screen light even if black mode is on at sign-out */
+body.bg-black.login-active{--white:#ffffff;--card:#ffffff;--b:#e8e4df;--b2:#f0ece8;--t:#1a1a1a;--t2:#1a1a1a;--t3:#1a1a1a}
+/* --- White / Black picker (mirrors .ts-picker) --- */
+.bg-picker{display:flex;gap:6px;padding:4px 6px}
+.bg-btn{flex:1;height:38px;display:flex;align-items:center;justify-content:center;gap:7px;background:transparent;border:1.5px solid transparent;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a8580;transition:all .12s}
+.bg-btn:hover{background:#f5f1eb}
+.bg-btn.on{background:rgba(255,102,0,0.08);border-color:var(--orange);color:var(--orange)}
+body.bg-black .bg-btn{color:#c9c9c9}
+body.bg-black .bg-btn:hover{background:#242424}
+body.bg-black .bg-btn.on{color:var(--orange)}
+.bg-sw{width:15px;height:15px;border-radius:50%;border:1.5px solid #cbc5bc;flex-shrink:0}
+.bg-sw.white{background:#fff}
+.bg-sw.black{background:#111;border-color:#555}
 </style>
 </head>
 <body class="login-active">
@@ -684,6 +734,11 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
             <button class="ts-btn" data-size="default" onclick="setTextSize('default')" aria-label="Normal text size"><span class="ts-aa ts-aa-s">Aa</span></button>
             <button class="ts-btn" data-size="large" onclick="setTextSize('large')" aria-label="Large text size"><span class="ts-aa ts-aa-m">Aa</span></button>
             <button class="ts-btn" data-size="xlarge" onclick="setTextSize('xlarge')" aria-label="Extra large text size"><span class="ts-aa ts-aa-l">Aa</span></button>
+          </div>
+          <div class="mi-divider"></div>
+          <div class="bg-picker" role="radiogroup" aria-label="Screen background">
+            <button class="bg-btn" data-mode="white" onclick="setBgMode('white')" aria-label="White background"><span class="bg-sw white"></span>White</button>
+            <button class="bg-btn" data-mode="black" onclick="setBgMode('black')" aria-label="Black background"><span class="bg-sw black"></span>Black</button>
           </div>
         </div>
       </div>
@@ -759,7 +814,7 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
     </div>
     <div id="compose-wrap" style="flex:1;display:none;flex-direction:column;min-height:0">
       <div class="view-top"><div class="view-title" style="gap:6px"><span class="t-back" onclick="MSG.closeCompose()">&lsaquo;</span>New message</div><div class="view-right"><div class="view-close" onclick="showView('today')" aria-label="Close"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></div></div></div>
-      <div style="padding:12px 14px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--b)"><input id="compose-search" class="cin" style="width:100%;min-height:38px" placeholder="Search subscribers" oninput="MSG.filterRecipients(this.value)"></div>
+      <div style="padding:12px 14px;flex-shrink:0;background:var(--white);border-bottom:1px solid var(--b)"><input id="compose-search" class="cin" style="width:100%;min-height:38px" placeholder="Search subscribers" oninput="MSG.filterRecipients(this.value)"></div>
       <div class="inbox" id="recipient-list"></div>
     </div>
     <div id="broadcast-wrap" style="flex:1;display:none;flex-direction:column;min-height:0">
@@ -780,7 +835,7 @@ body.text-xlarge .topic-notes-hint{font-size:13px}
 
 <!-- User menu -->
 <div id="user-menu" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:500" onclick="hideUserMenu()">
-  <div style="position:absolute;top:calc(var(--st) + 80px);right:16px;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:16px;min-width:220px" onclick="event.stopPropagation()">
+  <div style="position:absolute;top:calc(var(--st) + 80px);right:16px;background:var(--white);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:16px;min-width:220px" onclick="event.stopPropagation()">
     <div style="font-size:11px;color:var(--t3);margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase">Signed in as</div>
     <div style="font-size:20px;font-weight:700;color:var(--t);margin-bottom:4px;font-family:'Inter',sans-serif" id="menu-name"></div>
     <div style="font-size:11px;color:var(--t3);margin-bottom:16px;word-break:break-all" id="menu-email"></div>
@@ -2515,6 +2570,15 @@ window.setTextSize=function(state){
   try{localStorage.setItem('exec_brief_v4_text_size', state);}catch(e){}
 };
 
+window.setBgMode=function(mode){
+  // 'white' (default) | 'black'. Adds/removes body.bg-black; the CSS does the rest.
+  document.body.classList.toggle('bg-black', mode==='black');
+  document.querySelectorAll('.bg-btn').forEach(function(btn){
+    btn.classList.toggle('on', btn.dataset.mode===mode);
+  });
+  try{localStorage.setItem('exec_brief_v4_bg_mode', mode);}catch(e){}
+};
+
 // Hamburger menu toggle (Phase 2)
 (function(){
   function setupHamMenu(){
@@ -2555,6 +2619,10 @@ window.initApp=function(){
     var ts=localStorage.getItem('exec_brief_v4_text_size')||'large';
     // setTextSize handles body class + .ts-btn.on + persists state
     if(typeof setTextSize==='function') setTextSize(ts);
+  }catch(e){}
+  try{
+    var bgMode=localStorage.getItem('exec_brief_v4_bg_mode')||'white';
+    if(typeof setBgMode==='function') setBgMode(bgMode);
   }catch(e){}
   try{var h=JSON.parse(localStorage.getItem('exec_brief_v3')||'[]');var b=h.length;h=h.filter(function(e){return e.date!=='2026-05-05';});if(h.length!==b)localStorage.setItem('exec_brief_v3',JSON.stringify(h));}catch(e){}
   // One-time refresh: for last week (2026-05-04) replace any stored topics with
