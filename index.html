@@ -662,6 +662,11 @@ body.bg-black .bg-btn.on{color:var(--orange)}
 .bg-sw{width:15px;height:15px;border-radius:50%;border:1.5px solid #cbc5bc;flex-shrink:0}
 .bg-sw.white{background:#fff}
 .bg-sw.black{background:#111;border-color:#555}
+/* --- Contact Jez footer CTA (shared, sits at the foot of every reading view) --- */
+#cta-foot{flex-shrink:0;display:flex;justify-content:center;padding:12px 16px calc(12px + var(--sb));background:var(--bg);border-top:1px solid var(--b)}
+.cta-contact{display:inline-flex;align-items:center;justify-content:center;background:var(--orange);color:#fff;font:600 15px/1 'Inter',sans-serif;letter-spacing:.005em;padding:13px 32px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.07);transition:background .12s,transform .1s;-webkit-tap-highlight-color:transparent}
+.cta-contact:hover{background:#e65c00}
+.cta-contact:active{transform:translateY(1px)}
 </style>
 </head>
 <body class="login-active">
@@ -831,6 +836,7 @@ body.bg-black .bg-btn.on{color:var(--orange)}
     <div class="vidlib-sub" id="vidlib-sub"></div>
     <div class="vidlib" id="vidlib-list"></div>
   </div>
+  <div id="cta-foot"><button class="cta-contact" onclick="showView('contact')">Contact Jez</button></div>
 </div>
 
 <!-- User menu -->
@@ -2095,6 +2101,7 @@ function showView(v){
   var _bc=document.getElementById('btn-contact'); if(_bc)_bc.classList.toggle('on',v==='contact');
   var _bm=document.getElementById('btn-messages'); if(_bm)_bm.classList.toggle('on',v==='messages');
   var _bv=document.getElementById('btn-videos'); if(_bv)_bv.classList.toggle('on',v==='videos');
+  var _cf=document.getElementById('cta-foot'); if(_cf)_cf.style.display=(v==='contact'||v==='messages')?'none':'flex';
   if(v==='library')rl();
   else if(v==='likes')rk();
   else if(v==='notes')rn();
