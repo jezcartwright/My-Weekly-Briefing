@@ -662,11 +662,12 @@ body.bg-black .bg-btn.on{color:var(--orange)}
 .bg-sw{width:15px;height:15px;border-radius:50%;border:1.5px solid #cbc5bc;flex-shrink:0}
 .bg-sw.white{background:#fff}
 .bg-sw.black{background:#111;border-color:#555}
-/* --- Contact Jez footer CTA (shared, sits at the foot of every reading view) --- */
-#cta-foot{flex-shrink:0;display:flex;justify-content:center;padding:12px 16px calc(12px + var(--sb));background:var(--bg);border-top:1px solid var(--b)}
-.cta-contact{display:inline-flex;align-items:center;justify-content:center;background:var(--orange);color:#fff;font:600 15px/1 'Inter',sans-serif;letter-spacing:.005em;padding:13px 32px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.07);transition:background .12s,transform .1s;-webkit-tap-highlight-color:transparent}
-.cta-contact:hover{background:#e65c00}
-.cta-contact:active{transform:translateY(1px)}
+/* --- Message-Jez bubble (top-right, tucked under the hamburger) --- */
+.msg-bubble-btn{position:absolute;top:calc(var(--st) + 46px);right:14px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;z-index:6;-webkit-tap-highlight-color:transparent}
+.msg-bubble-btn:hover{background:rgba(255,255,255,.32)}
+.msg-bubble-btn svg{width:17px;height:17px}
+.msg-bubble-dot{position:absolute;top:-3px;right:-3px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#E8443B;border:2px solid var(--orange);color:#fff;font:700 8px/11px 'Inter',sans-serif;display:none;align-items:center;justify-content:center}
+@media(min-width:720px){.msg-bubble-btn{top:calc(var(--st) + 50px);width:36px;height:36px}.msg-bubble-btn svg{width:19px;height:19px}}
 </style>
 </head>
 <body class="login-active">
@@ -748,6 +749,7 @@ body.bg-black .bg-btn.on{color:var(--orange)}
         </div>
       </div>
     </div>
+    <button class="msg-bubble-btn" id="msg-bubble" onclick="showView('contact')" title="Message Jez" aria-label="Message Jez"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a8.38 8.38 0 0 1-.9-4A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/></svg><span class="msg-bubble-dot" id="msg-bubble-dot"></span></button>
     <div class="identity">
       <a class="brand-link" href="https://www.jezcartwright.com" target="_blank" rel="noopener noreferrer" aria-label="Visit jezcartwright.com">
       <div class="pi-logo"><img src="data:image/png;base64,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" alt="π"></div>
@@ -836,7 +838,6 @@ body.bg-black .bg-btn.on{color:var(--orange)}
     <div class="vidlib-sub" id="vidlib-sub"></div>
     <div class="vidlib" id="vidlib-list"></div>
   </div>
-  <div id="cta-foot"><button class="cta-contact" onclick="showView('contact')">Contact Jez</button></div>
 </div>
 
 <!-- User menu -->
@@ -2101,7 +2102,6 @@ function showView(v){
   var _bc=document.getElementById('btn-contact'); if(_bc)_bc.classList.toggle('on',v==='contact');
   var _bm=document.getElementById('btn-messages'); if(_bm)_bm.classList.toggle('on',v==='messages');
   var _bv=document.getElementById('btn-videos'); if(_bv)_bv.classList.toggle('on',v==='videos');
-  var _cf=document.getElementById('cta-foot'); if(_cf)_cf.style.display=(v==='contact'||v==='messages')?'none':'flex';
   if(v==='library')rl();
   else if(v==='likes')rk();
   else if(v==='notes')rn();
@@ -2350,7 +2350,7 @@ function sendContactMessage(){
   }
   function stopMarkers(){if(_markerUnsub){_markerUnsub();_markerUnsub=null;}if(_adminMarkerUnsub){_adminMarkerUnsub();_adminMarkerUnsub=null;}setUserMarker(0);setAdminMarker(0);}
   function badge(id,n){var el=document.getElementById(id);if(!el)return;if(n>0){el.textContent=n>9?'9+':n;el.style.display='inline-flex';}else{el.textContent='';el.style.display='none';}}
-  function setUserMarker(n){badge('contact-count',n);hamDot();}
+  function setUserMarker(n){badge('contact-count',n);hamDot();var bd=document.getElementById('msg-bubble-dot');if(bd){bd.textContent=n>0?(n>9?'9+':String(n)):'';bd.style.display=n>0?'flex':'none';}}
   function setAdminMarker(n){badge('messages-count',n);hamDot();}
   function hamDot(){var c=document.getElementById('contact-count'),m=document.getElementById('messages-count');var any=(c&&c.style.display!=='none')||(m&&m.style.display!=='none');var d=document.getElementById('ham-dot');if(d)d.style.display=any?'block':'none';}
   function applyAdminUI(){var d=admin()?'flex':'none';var mi=document.getElementById('btn-messages');if(mi)mi.style.display=d;var bv=document.getElementById('btn-videos');if(bv)bv.style.display=d;}
