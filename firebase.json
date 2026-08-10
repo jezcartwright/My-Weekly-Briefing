@@ -12,6 +12,10 @@
       "*.md",
       "**/*.py",
       "functions/**"
+    ],
+    "rewrites": [
+      { "source": "/unsubscribe.html", "function": { "functionId": "unsubscribe", "region": "us-central1" } },
+      { "source": "/unsubscribe", "function": { "functionId": "unsubscribe", "region": "us-central1" } }
     ]
   },
   "functions": { "source": "functions" },
