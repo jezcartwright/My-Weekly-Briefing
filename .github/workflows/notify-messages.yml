@@ -1,13 +1,10 @@
 name: Notify on New Messages
-
 # Polls the `threads` collection for new subscriber messages
 # (pendingNotify == true) every 5 minutes and emails the admin.
-
 on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
-
 jobs:
   notify:
     runs-on: ubuntu-latest
@@ -22,7 +19,11 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install google-auth google-api-python-client google-cloud-firestore
+        # Pinned: google-cloud-firestore 2.29.0 / google-api-core 2.35.0 (both
+        # released 2026-08-24) regressed the default-database id, sending it as
+        # "%28default%29" and failing with "Invalid database id (default)".
+        # 2.28.1 / 2.34.0 are the last good pair (live since 2026-08-06).
+        run: pip install google-auth google-api-python-client "google-cloud-firestore==2.28.1" "google-api-core==2.34.0"
       - name: Send notifications
         env:
           GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
