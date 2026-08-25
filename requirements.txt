@@ -1,0 +1,23 @@
+# ---------------------------------------------------------------------------
+# Pinned dependencies for all GitHub Actions workers in this repo.
+# Every workflow installs from THIS file (pip install -r requirements.txt) so a
+# surprise upstream release can never take the pipeline down again. Upgrades are
+# now deliberate: bump a line here, let it run, and you control the blast radius.
+#
+# These are the packages the workers install directly; pip resolves the rest
+# (grpcio, protobuf, etc.) compatibly at install time. Kept to direct deps so the
+# file is portable across Python versions (CI runs 3.11).
+#
+# Deliberate hold-backs — do NOT bump without testing (each burned us or nearly did):
+#   google-cloud-firestore / google-api-core: 2.29.0 / 2.35.0 (2026-08-24) broke the
+#     default-database id ("Invalid database id %28default%29") and downed the workers.
+#   google-auth 2.56.3: 2.57.0 also dropped 2026-08-24 — held back until vetted.
+#   anthropic 0.125.0: last 0.x. 1.0.0 (2026-08-20) is a MAJOR with breaking
+#     changes; move to it only after testing generate_content.py against it.
+# ---------------------------------------------------------------------------
+anthropic==0.125.0
+requests==2.34.2
+google-auth==2.56.3
+google-api-python-client==2.199.0
+google-cloud-firestore==2.28.1
+google-api-core==2.34.0
