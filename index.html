@@ -1788,7 +1788,7 @@ function wireTopicListHandlers(){
         if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
         var card=btn.closest('.tc');
         if(!card) return false;
-        shareTopic(card.getAttribute('data-cat'),card.getAttribute('data-title'));
+        shareTopic(card.getAttribute('data-cat'),card.getAttribute('data-title'),parseInt(card.getAttribute('data-idx'),10));
         setTimeout(reapplyOpenState,0);
         return false;
       },true); // capture phase
@@ -1839,10 +1839,15 @@ function doToggleLike(catId,title,btn){
   btn.innerHTML=nowLiked?'\u2665':'\u2661';
 }
 // ── Share a single topic ──
-// Mobile: native share sheet. Desktop: copy title + link, confirm with a toast.
-// Shares the app URL (which works today); when the per-topic /t/ pages are
-// deployed this URL can be swapped for a topic deep link.
-var SHARE_URL='https://weeklybriefing.jezcartwright.com/';
+// Mobile: native share sheet. Desktop: copy the link, confirm with a toast.
+// Shares the public per-topic page /t/<Monday-date>-<category>-<position>,
+// served by the `topic` Cloud Function — it renders the topic and unfurls
+// with its own title. tk() gives this week's Monday, matching the date the
+// emit_issue job writes issues/{date} under; position is the row index + 1.
+var SHARE_ORIGIN='https://weeklybriefing.jezcartwright.com';
+function topicShareUrl(catId,pos){
+  return SHARE_ORIGIN+'/t/'+tk()+'-'+catId+'-'+pos;
+}
 function showShareToast(msg){
   var el=document.getElementById('share-toast');
   if(!el){ el=document.createElement('div'); el.id='share-toast'; document.body.appendChild(el); }
@@ -1851,24 +1856,26 @@ function showShareToast(msg){
   clearTimeout(window._shareToastT);
   window._shareToastT=setTimeout(function(){ el.classList.remove('show'); },1800);
 }
-function shareTopic(catId,title){
+function shareTopic(catId,title,idx){
   var t=findTopicByTitle(catId,title);
+  var pos=(typeof idx==='number'&&!isNaN(idx))?(idx+1):1;
+  var url=topicShareUrl(catId,pos);
   var line=title+(t&&t.headline?' \u2014 '+t.headline:'');
   var shareText=line+'\n\nfrom the Performance Intelligence Weekly Briefing';
   if(navigator.share){
-    navigator.share({title:'Performance Intelligence Weekly Briefing',text:shareText,url:SHARE_URL}).catch(function(){});
+    navigator.share({title:(title||'Performance Intelligence Weekly Briefing'),text:shareText,url:url}).catch(function(){});
     return;
   }
-  var payload=line+'\n'+SHARE_URL;
+  var payload=line+'\n'+url;
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(payload).then(function(){showShareToast('Copied to clipboard');},function(){showShareToast('Could not copy');});
+    navigator.clipboard.writeText(payload).then(function(){showShareToast('Link copied');},function(){showShareToast('Could not copy');});
   } else {
     try{
       var ta=document.createElement('textarea');
       ta.value=payload; ta.style.position='fixed'; ta.style.left='-9999px';
       document.body.appendChild(ta); ta.focus(); ta.select();
       document.execCommand('copy'); document.body.removeChild(ta);
-      showShareToast('Copied to clipboard');
+      showShareToast('Link copied');
     }catch(e){ showShareToast('Could not copy'); }
   }
 }
