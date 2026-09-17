@@ -668,6 +668,15 @@ body.bg-black .bg-btn.on{color:var(--orange)}
 .msg-bubble-btn svg{width:17px;height:17px}
 .msg-bubble-dot{position:absolute;top:-3px;right:-3px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:#E8443B;border:2px solid var(--orange);color:#fff;font:700 8px/11px 'Inter',sans-serif;display:none;align-items:center;justify-content:center}
 @media(min-width:720px){.msg-bubble-btn{top:calc(var(--st) + 50px);width:36px;height:36px}.msg-bubble-btn svg{width:19px;height:19px}}
+/* --- Per-topic share button (sits in .th-right beside the like button) --- */
+.share-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;color:var(--t3);cursor:pointer;background:none;border:none;padding:0;margin:0;line-height:1;transition:color .15s,transform .1s;-webkit-tap-highlight-color:transparent}
+.share-btn:hover{color:var(--orange)}
+.share-btn:active{transform:scale(0.88)}
+.share-btn svg{width:18px;height:18px;display:block}
+/* Desktop copy-confirmation toast — solid fill, no shading */
+#share-toast{position:fixed;left:50%;bottom:calc(var(--sb) + 26px);transform:translateX(-50%);background:#1a1a1a;color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:.01em;padding:11px 18px;border-radius:8px;border:1px solid #000;display:none;z-index:3000;pointer-events:none}
+#share-toast.show{display:block}
+body.bg-black #share-toast{background:#f4f4f4;color:#0f0f0f;border-color:#f4f4f4}
 </style>
 </head>
 <body class="login-active">
@@ -1735,6 +1744,7 @@ function rto(){
         (hasNote?'<div class="has-note-pill">\u270F My note</div>':'')+
         '</div></div>'+
         '<div class="th-right">'+
+        '<button type="button" class="share-btn" data-share-btn="1" aria-label="Share this topic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M7 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/></svg></button>'+
         '<button type="button" class="like-btn'+(liked?' liked':'')+'" data-like-btn="1">'+
         (liked?'\u2665':'\u2661')+'</button>'+
         '<span class="tog">+</span>'+
@@ -1768,13 +1778,29 @@ function wireTopicListHandlers(){
       },true); // <-- capture phase
     })(likeBtns[i]);
   }
+  // Share buttons — bind to capture phase, same hardening as like buttons
+  var shareBtns=tl.querySelectorAll('[data-share-btn]');
+  for(var s=0;s<shareBtns.length;s++){
+    (function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        if(ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+        var card=btn.closest('.tc');
+        if(!card) return false;
+        shareTopic(card.getAttribute('data-cat'),card.getAttribute('data-title'));
+        setTimeout(reapplyOpenState,0);
+        return false;
+      },true); // capture phase
+    })(shareBtns[s]);
+  }
   // Headers — bind to header div
   var headers=tl.querySelectorAll('.th');
   for(var j=0;j<headers.length;j++){
     (function(h){
       h.addEventListener('click',function(ev){
-        // If click bubbled up from inside the like button area, ignore
-        if(ev.target && ev.target.closest && ev.target.closest('[data-like-btn]')) return;
+        // If click bubbled up from inside the like or share button area, ignore
+        if(ev.target && ev.target.closest && (ev.target.closest('[data-like-btn]')||ev.target.closest('[data-share-btn]'))) return;
         var card=h.closest('.tc');
         if(!card) return;
         var idx=parseInt(card.getAttribute('data-idx'),10);
@@ -1811,6 +1837,40 @@ function doToggleLike(catId,title,btn){
   var nowLiked=l.findIndex(function(x){return x.id===id;})>=0;
   btn.classList.toggle('liked',nowLiked);
   btn.innerHTML=nowLiked?'\u2665':'\u2661';
+}
+// ── Share a single topic ──
+// Mobile: native share sheet. Desktop: copy title + link, confirm with a toast.
+// Shares the app URL (which works today); when the per-topic /t/ pages are
+// deployed this URL can be swapped for a topic deep link.
+var SHARE_URL='https://weeklybriefing.jezcartwright.com/';
+function showShareToast(msg){
+  var el=document.getElementById('share-toast');
+  if(!el){ el=document.createElement('div'); el.id='share-toast'; document.body.appendChild(el); }
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(window._shareToastT);
+  window._shareToastT=setTimeout(function(){ el.classList.remove('show'); },1800);
+}
+function shareTopic(catId,title){
+  var t=findTopicByTitle(catId,title);
+  var line=title+(t&&t.headline?' \u2014 '+t.headline:'');
+  var shareText=line+'\n\nfrom the Performance Intelligence Weekly Briefing';
+  if(navigator.share){
+    navigator.share({title:'Performance Intelligence Weekly Briefing',text:shareText,url:SHARE_URL}).catch(function(){});
+    return;
+  }
+  var payload=line+'\n'+SHARE_URL;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(payload).then(function(){showShareToast('Copied to clipboard');},function(){showShareToast('Could not copy');});
+  } else {
+    try{
+      var ta=document.createElement('textarea');
+      ta.value=payload; ta.style.position='fixed'; ta.style.left='-9999px';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showShareToast('Copied to clipboard');
+    }catch(e){ showShareToast('Could not copy'); }
+  }
 }
 function sc(id){ ac=CATS.find(function(c){return c.id===id;}); oc=null; rt(); rto(); rv(id); renderBannerTabs(); var _ts=document.getElementById('ts'); if(_ts)_ts.scrollTop=0; }
 function rv(id){
