@@ -2,6 +2,7 @@ const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {defineSecret} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const crypto = require("crypto");
+const {onRequest} = require("firebase-functions/v2/https");
 
 admin.initializeApp();
 
@@ -20,6 +21,12 @@ const GH_APP_PRIVATE_KEY = defineSecret("GH_APP_PRIVATE_KEY");
 const GITHUB_APP_SECRETS = [
   GH_APP_ID, GH_APP_INSTALLATION_ID, GH_APP_PRIVATE_KEY,
 ];
+
+// HMAC secret for unsubscribe tokens. MUST hold the SAME value the send
+// pipeline signs with (senders.py reads UNSUBSCRIBE_SECRET from the Actions
+// secret). Set it into Secret Manager with:
+//   printf '%s' '<the same secret value>' | firebase functions:secrets:set UNSUBSCRIBE_SECRET --data-file -
+const UNSUBSCRIBE_SECRET = defineSecret("UNSUBSCRIBE_SECRET");
 
 const BUCKET = "pi-briefing-38ddc.firebasestorage.app";
 
@@ -334,3 +341,314 @@ exports.onWelcomeSendRequest = onDocumentCreated(
                completedAt: new Date().toISOString()},
           {merge: true}).catch(() => {});
     });
+
+
+// ---------------------------------------------------------------------------
+// Unsubscribe — server-side, so it works from any browser or network.
+//
+// Every email footer links to /unsubscribe.html?t=<token>. firebase.json now
+// rewrites that path to THIS function (the old static page is deleted), so
+// links already sitting in sent emails keep working with no reissue. Nothing
+// runs in the subscriber's browser: no Firebase SDK, no auth, no Firestore
+// rules, nothing a corporate firewall can block — it's a plain page served from
+// our own domain, the same request that already loads the masthead fine.
+//
+// Token = base64url(uid|email|HMAC_SHA256(secret,"uid|email")). We verify the
+// signature here with the same secret senders.py signs with (proven byte-for-
+// byte against a real minted token), then flip `unsubscribed` via the Admin SDK,
+// which bypasses Firestore rules.
+//
+// GET shows a confirm page; the unsubscribe only happens on the POST from the
+// Confirm button, so an email-security scanner that pre-fetches the link can't
+// unsubscribe anyone by accident. The write is idempotent.
+// ---------------------------------------------------------------------------
+function verifyUnsubToken(token) {
+  try {
+    if (!token) return null;
+    const raw = Buffer.from(String(token), "base64url");
+    if (!raw.length) return null;
+    const PIPE = 0x7c;
+    const last = raw.lastIndexOf(PIPE); // matches Python raw.rsplit(b"|", 1)
+    if (last === -1) return null;
+    const msg = raw.subarray(0, last);
+    const sig = raw.subarray(last + 1);
+    const expected = crypto.createHmac("sha256", UNSUBSCRIBE_SECRET.value())
+        .update(msg).digest();
+    if (sig.length !== expected.length) return null;
+    if (!crypto.timingSafeEqual(sig, expected)) return null;
+    const first = msg.indexOf(PIPE); // matches Python msg.split(b"|", 1)
+    if (first === -1) return null;
+    return {
+      uid: msg.subarray(0, first).toString("utf8"),
+      email: msg.subarray(first + 1).toString("utf8"),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+function unsubPage(title, inner, cls) {
+  return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">" +
+    "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\">" +
+    "<title>" + esc(title) + " — Performance Intelligence Weekly Briefing</title>" +
+    "<link href=\"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Serif:wght@500;600&family=Inter:wght@400;600;700&display=swap\" rel=\"stylesheet\">" +
+    "<style>" +
+    ":root{--orange:#ff6600;--bg:#FBF8F2;--t:#1a1a1a;--b:#E0D8CB}" +
+    "*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);font-family:'Inter',sans-serif;color:var(--t);min-height:100vh;display:flex;flex-direction:column}" +
+    ".bar{background:var(--orange);color:#fff;padding:18px 24px;display:flex;align-items:center;gap:14px}" +
+    ".bar img{width:36px;height:36px}" +
+    ".bar .eyebrow{font-family:'Cormorant Garamond',Georgia,serif;font-size:12px;letter-spacing:.35em;text-transform:uppercase;font-weight:600;opacity:.95}" +
+    ".bar .title{font-family:'IBM Plex Serif',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1}" +
+    "main{flex:1;max-width:560px;margin:0 auto;padding:48px 24px;text-align:center}" +
+    ".card{background:#fff;border:1px solid var(--b);border-radius:8px;padding:32px;box-shadow:0 1px 0 var(--b),0 20px 40px -24px rgba(0,0,0,.08)}" +
+    "h1{font-family:'IBM Plex Serif',Georgia,serif;font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0 0 12px}" +
+    "p{font-size:14px;line-height:1.6;margin:0 0 16px}.email{font-weight:700}" +
+    ".btn{display:inline-block;background:var(--orange);color:#fff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;margin-top:16px}" +
+    ".btn-secondary{background:#fff;color:var(--t);border:1px solid var(--b);margin-left:10px}" +
+    ".error{color:#c00}.success{color:#2E7A3E}" +
+    "</style></head><body>" +
+    "<header class=\"bar\"><img src=\"https://weeklybriefing.jezcartwright.com/favicon-512x512.png\" alt=\"PI\">" +
+    "<div><div class=\"eyebrow\">Performance Intelligence</div><div class=\"title\">Weekly Briefing</div></div></header>" +
+    "<main><div class=\"card\">" +
+    "<h1" + (cls ? " class=\"" + cls + "\"" : "") + ">" + esc(title) + "</h1>" + inner +
+    "</div></main></body></html>";
+}
+
+exports.unsubscribe = onRequest(
+    {secrets: [UNSUBSCRIBE_SECRET]},
+    async (req, res) => {
+      const token = (req.method === "POST" && req.body && req.body.t) ?
+        req.body.t : (req.query.t || "");
+      const parsed = verifyUnsubToken(token);
+
+      if (!parsed) {
+        res.status(200).send(unsubPage("Invalid unsubscribe link",
+            "<p>This link is malformed or expired. To unsubscribe, reply to any " +
+            "briefing email with the word <b>UNSUBSCRIBE</b> and we'll remove you.</p>",
+            "error"));
+        return;
+      }
+
+      const db = admin.firestore();
+      const ref = db.collection("users").doc(parsed.uid);
+      let snap;
+      try {
+        snap = await ref.get();
+      } catch (e) {
+        console.error("unsubscribe read failed:", e);
+        res.status(200).send(unsubPage("Something went wrong",
+            "<p>We couldn't reach the subscriber list just now. Please try again in " +
+            "a moment, or reply <b>UNSUBSCRIBE</b> to any briefing email.</p>", "error"));
+        return;
+      }
+
+      if (!snap.exists) {
+        res.status(200).send(unsubPage("Already removed",
+            "<p>We couldn't find this subscription — you may already have been " +
+            "removed. No further action needed.</p>", "success"));
+        return;
+      }
+
+      const data = snap.data() || {};
+      const storedEmail =
+        (data.basicProfile && data.basicProfile.email) ||
+        (data.profile && data.profile.email) || parsed.email;
+
+      if (data.unsubscribed === true) {
+        res.status(200).send(unsubPage("Already unsubscribed",
+            "<p><span class=\"email\">" + esc(storedEmail) + "</span> is already " +
+            "unsubscribed. No further action needed.</p>", "success"));
+        return;
+      }
+
+      if (req.method === "POST") {
+        try {
+          await ref.set({
+            unsubscribed: true,
+            unsubscribedAt: new Date().toISOString(),
+          }, {merge: true});
+        } catch (e) {
+          console.error("unsubscribe write failed:", e);
+          res.status(200).send(unsubPage("Something went wrong",
+              "<p>We hit an error saving your preference. Please try again, or reply " +
+              "<b>UNSUBSCRIBE</b> to any briefing email.</p>", "error"));
+          return;
+        }
+        res.status(200).send(unsubPage("You're unsubscribed",
+            "<p><span class=\"email\">" + esc(storedEmail) + "</span> will no longer " +
+            "receive the Weekly Briefing. Thank you for having been a subscriber.</p>",
+            "success"));
+        return;
+      }
+
+      // GET: confirmation page. The write happens only on the POST below, so a
+      // link-prefetching scanner cannot unsubscribe anyone by merely opening it.
+      res.status(200).send(unsubPage("Unsubscribe from the briefing?",
+          "<p>We'll stop sending the Weekly Briefing to " +
+          "<span class=\"email\">" + esc(storedEmail) + "</span> immediately. Your " +
+          "liked topics and notes will be kept in case you change your mind.</p>" +
+          "<form method=\"POST\" action=\"\">" +
+          "<input type=\"hidden\" name=\"t\" value=\"" + esc(token) + "\">" +
+          "<button class=\"btn\" type=\"submit\">Confirm unsubscribe</button>" +
+          "<a class=\"btn btn-secondary\" href=\"https://weeklybriefing.jezcartwright.com/\">Cancel — keep me subscribed</a>" +
+          "</form>", ""));
+    });
+
+// ---------------------------------------------------------------------------
+// Public per-topic page — shareable to non-subscribers, no login required.
+// Served at /t/<issue-date>-<category>-<position> via a Hosting rewrite
+// (see firebase.json). Renders the full topic (why / insight / go-deeper)
+// server-side with per-topic Open Graph tags, so the link unfurls with the
+// topic's own title, and ends on a subscribe CTA. Content comes from Firestore
+// issues/{date}, written each Monday by emit_issue.py. Same rewrite pattern as
+// the unsubscribe function.
+// ---------------------------------------------------------------------------
+const TOPIC_CATS = {
+  leadership: {label: "Leadership", color: "#FF6600"},
+  markets: {label: "Markets", color: "#0E3A7B"},
+  psychology: {label: "Psychology", color: "#C8243C"},
+  technology: {label: "Technology", color: "#0096D6"},
+  geopolitics: {label: "Geopolitics", color: "#6B2DA8"},
+  philosophy: {label: "Philosophy", color: "#2E7A3E"},
+};
+const PI_SITE = "https://weeklybriefing.jezcartwright.com";
+
+function tEsc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+function topicShell(opts) {
+  const color = (opts.cat && TOPIC_CATS[opts.cat] && TOPIC_CATS[opts.cat].color) || "#ff6600";
+  const ogTitle = tEsc(opts.title);
+  const ogDesc = tEsc(opts.ogDesc || opts.headline || "A weekly signal for leaders. Six fields, one briefing.");
+  return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">" +
+    "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\">" +
+    "<title>" + ogTitle + " — Performance Intelligence Weekly Briefing</title>" +
+    "<meta property=\"og:type\" content=\"article\">" +
+    "<meta property=\"og:title\" content=\"" + ogTitle + "\">" +
+    "<meta property=\"og:description\" content=\"" + ogDesc + "\">" +
+    "<meta property=\"og:image\" content=\"" + PI_SITE + "/og-image.png\">" +
+    "<meta name=\"twitter:card\" content=\"summary_large_image\">" +
+    "<meta name=\"twitter:title\" content=\"" + ogTitle + "\">" +
+    "<meta name=\"twitter:description\" content=\"" + ogDesc + "\">" +
+    "<meta name=\"twitter:image\" content=\"" + PI_SITE + "/og-image.png\">" +
+    "<link href=\"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=IBM+Plex+Serif:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">" +
+    "<style>" +
+    ":root{--orange:#ff6600;--bg:#FBF8F2;--card:#fff;--b:#E0D8CB;--t:#1a1a1a;--t2:#4a4640;--t3:#8E857C;--lead:" + color + "}" +
+    "*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}" +
+    ".mast{background:var(--orange);text-align:center;padding:20px 16px 18px}" +
+    ".mast img{height:28px;width:auto;display:block;margin:0 auto 6px}" +
+    ".mast svg{display:block;width:240px;max-width:72%;height:auto;margin:0 auto}" +
+    ".article{max-width:620px;margin:0 auto;padding:30px 24px 8px}" +
+    ".cat{display:inline-flex;align-items:center;gap:7px;font:700 11px/1 'Inter';letter-spacing:.16em;text-transform:uppercase;color:var(--lead);margin-bottom:14px}" +
+    ".cat .sq{width:9px;height:9px;background:var(--lead)}" +
+    ".title{font:600 27px/1.2 'IBM Plex Serif',Georgia,serif;letter-spacing:-.015em;margin:0 0 12px}" +
+    ".headline{font:500 16px/1.5 'IBM Plex Serif',Georgia,serif;color:var(--t2);margin:0 0 26px}" +
+    ".section{margin:0 0 22px}.slbl{font:700 10px/1 'Inter';letter-spacing:.22em;text-transform:uppercase;color:var(--t3);margin:0 0 9px}" +
+    ".body{font:400 14px/1.7 'Inter';color:var(--t);margin:0}" +
+    ".src{font:400 12px/1.5 'Inter';color:#A0530B;margin-top:9px;text-underline-offset:2px;display:inline-block}" +
+    ".insight{background:#faf8f5;border-left:3px solid var(--lead);border-radius:4px;padding:16px 18px}" +
+    ".insight .q{font:500 16px/1.55 'IBM Plex Serif',Georgia,serif;font-style:italic;margin:0}.insight .a{font:400 12px 'Inter';color:var(--t2);margin-top:10px}" +
+    ".deeper{border-top:1px solid var(--b);padding-top:18px;margin-top:4px}.deeper .slbl{color:var(--lead)}" +
+    ".deeper .d{display:flex;gap:9px;font:400 13.5px/1.5 'Inter';color:var(--t);padding:7px 0;border-bottom:1px solid #f0ece5}" +
+    ".deeper .d::before{content:'';width:6px;height:6px;background:var(--lead);flex-shrink:0;margin-top:8px}" +
+    ".deeper a{color:#A0530B;text-decoration:underline;text-underline-offset:2px}" +
+    ".cta{background:#111;color:#fff;border-radius:10px;padding:26px 24px;text-align:center;margin:28px 0 10px}" +
+    ".cta h3{font:600 19px/1.3 'IBM Plex Serif',Georgia,serif;margin:0 0 6px}.cta p{font:400 13px/1.6 'Inter';color:#c9c4bd;margin:0 0 16px}" +
+    ".cta a{display:inline-block;background:var(--orange);color:#fff;text-decoration:none;font:700 13px/1 'Inter';letter-spacing:.03em;text-transform:uppercase;padding:14px 26px;border-radius:6px}" +
+    ".foot{text-align:center;font:400 11px 'Inter';color:var(--t3);padding:16px;border-top:1px solid var(--b)}" +
+    "</style></head><body>" +
+    "<header class=\"mast\"><img src=\"" + PI_SITE + "/favicon-512x512.png\" alt=\"pi\">" +
+    "<svg viewBox=\"0 0 339 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Performance Intelligence Weekly Briefing\">" +
+    "<text x=\"169.5\" y=\"34\" text-anchor=\"middle\" textLength=\"339\" lengthAdjust=\"spacing\" font-family=\"'Cormorant Garamond',serif\" font-weight=\"700\" font-size=\"30\" fill=\"#fff\">PERFORMANCE</text>" +
+    "<text x=\"169.5\" y=\"74\" text-anchor=\"middle\" textLength=\"294\" lengthAdjust=\"spacing\" font-family=\"'Cormorant Garamond',serif\" font-weight=\"700\" font-size=\"30\" fill=\"#fff\">INTELLIGENCE</text>" +
+    "<text x=\"169.5\" y=\"116\" text-anchor=\"middle\" textLength=\"339\" lengthAdjust=\"spacing\" font-family=\"'Cormorant Garamond',serif\" font-weight=\"600\" font-size=\"22\" fill=\"#fff\">WEEKLY BRIEFING</text>" +
+    "</svg></header>" +
+    "<main class=\"article\">" + opts.bodyHtml +
+    "<div class=\"cta\"><h3>Six fields. One weekly signal.</h3><p>" + tEsc(opts.ctaP || "Get the Performance Intelligence Weekly Briefing every Monday.") + "</p>" +
+    "<a href=\"" + PI_SITE + "/\">Read the full briefing &rarr;</a></div>" +
+    "</main><div class=\"foot\">Performance Intelligence Weekly Briefing</div></body></html>";
+}
+
+function renderTopicBody(cat, t, week) {
+  const c = TOPIC_CATS[cat] || {label: cat};
+  const wk = week ? " &middot; Week " + tEsc(String(week)) : "";
+  let deeper = "";
+  (t.deeper || []).forEach((d) => {
+    const txt = tEsc(d.text || "");
+    const inner = d.url ? "<a href=\"" + tEsc(d.url) + "\" target=\"_blank\" rel=\"noopener\">" + txt + "</a>" : txt;
+    deeper += "<div class=\"d\">" + inner + "</div>";
+  });
+  let src = "";
+  if (t.ref && t.ref.text) {
+    src = t.ref.url ?
+      "<a class=\"src\" style=\"text-decoration:underline\" href=\"" + tEsc(t.ref.url) + "\" target=\"_blank\" rel=\"noopener\">" + tEsc(t.ref.text) + "</a>" :
+      "<div class=\"src\">" + tEsc(t.ref.text) + "</div>";
+  }
+  return "<div class=\"cat\"><span class=\"sq\"></span>" + tEsc(c.label) + wk + "</div>" +
+    "<h1 class=\"title\">" + tEsc(t.title) + "</h1>" +
+    "<p class=\"headline\">" + tEsc(t.headline) + "</p>" +
+    "<div class=\"section\"><div class=\"slbl\">Why it matters</div><p class=\"body\">" + tEsc(t.why) + "</p>" + src + "</div>" +
+    (t.insight ? "<div class=\"section insight\"><p class=\"q\">\"" + tEsc(t.insight) + "\"</p>" + (t.attribution ? "<p class=\"a\">&mdash; " + tEsc(t.attribution) + "</p>" : "") + "</div>" : "") +
+    (deeper ? "<div class=\"section deeper\"><div class=\"slbl\">Go deeper &rarr;</div>" + deeper + "</div>" : "");
+}
+
+exports.topic = onRequest(async (req, res) => {
+  const path = req.path || req.url || "";
+  const m = path.match(/\/t\/(\d{4}-\d{2}-\d{2})-([a-zA-Z]+)-(\d+)\/?$/);
+  const notFound = (msg) => res.status(200).send(topicShell({
+    title: "This topic isn't available", headline: "", cat: null,
+    ogDesc: "A weekly signal for leaders — six fields, one briefing.",
+    ctaP: "This link may be from an old or unpublished issue. Get the current briefing:",
+    bodyHtml: "<div class=\"cat\"><span class=\"sq\"></span>Performance Intelligence</div>" +
+      "<h1 class=\"title\">This topic isn&rsquo;t available</h1>" +
+      "<p class=\"headline\">" + tEsc(msg || "We couldn't find this topic — it may be from an issue that hasn't published yet.") + "</p>",
+  }));
+  if (!m) {
+    notFound("This share link is malformed.");
+    return;
+  }
+  const date = m[1];
+  const cat = m[2].toLowerCase();
+  const pos = parseInt(m[3], 10);
+  if (!TOPIC_CATS[cat] || !pos || pos > 24) {
+    notFound();
+    return;
+  }
+  let snap;
+  try {
+    snap = await admin.firestore().collection("issues").doc(date).get();
+  } catch (e) {
+    console.error("topic read failed:", e);
+    res.status(500).send(topicShell({
+      title: "Temporarily unavailable", headline: "", cat: null,
+      bodyHtml: "<h1 class=\"title\">Temporarily unavailable</h1><p class=\"headline\">Please try again in a moment.</p>",
+    }));
+    return;
+  }
+  if (!snap.exists) {
+    notFound();
+    return;
+  }
+  const data = snap.data() || {};
+  const arr = (data.topics && data.topics[cat]) || [];
+  const t = arr[pos - 1];
+  if (!t) {
+    notFound();
+    return;
+  }
+  res.set("Cache-Control", "public, max-age=600, s-maxage=3600");
+  res.status(200).send(topicShell({
+    title: t.title, headline: t.headline, ogDesc: t.headline, cat: cat,
+    ctaP: "This is one of twenty-four signals in this week's Performance Intelligence Weekly Briefing. Get the full briefing every Monday.",
+    bodyHtml: renderTopicBody(cat, t, data.week),
+  }));
+});
