@@ -1,32 +1,34 @@
 name: Emit Issue JSON to Firestore (manual)
 
 # Writes a week's 24 topics from index.html into Firestore issues/{date},
-# in the shape the `topic` Cloud Function reads, so /t/<date>-<cat>-<pos>
-# share links render the real article and unfurl with its title.
+# in the shape the `topic` Cloud Function reads, so the public per-topic
+# share pages (/t/<date>-<category>-<n>) render the article and unfurl
+# with its title.
 #
-# Manual only for now. Run it to backfill a week:
-#   - issue_date = 2026-09-14  -> writes issues/2026-09-14 (this week)
-#   - leave issue_date blank + week_offset = 1 -> last Monday, etc.
-# Reuses the same FIREBASE_SERVICE_ACCOUNT secret the Monday publish uses.
+# This matches emit_issue.py on main: it authenticates with GMAIL_SA_JSON
+# (the same service account the Monday publish uses, which has Firestore
+# access) and selects the week with WEEK_OFFSET:
+#   week_offset = 0  -> current week's Monday (this week)
+#   week_offset = 1  -> last Monday, and so on (backfill past weeks)
 
 on:
   workflow_dispatch:
     inputs:
-      issue_date:
-        description: 'Explicit Monday date YYYY-MM-DD (leave blank to use week_offset)'
-        required: false
-        default: ''
       week_offset:
-        description: '0 = current week, 1 = last week, ... (used only if issue_date is blank)'
+        description: 'Weeks back to emit (0 = current week, 1 = last week, ...)'
         required: false
         default: '0'
 
 jobs:
   emit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: main
 
       - name: Set up Node (for extracting the D.* topic arrays)
         uses: actions/setup-node@v4
@@ -43,7 +45,6 @@ jobs:
 
       - name: Emit issue JSON to Firestore
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          ISSUE_DATE: ${{ github.event.inputs.issue_date }}
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
           WEEK_OFFSET: ${{ github.event.inputs.week_offset }}
         run: python emit_issue.py
