@@ -11,9 +11,11 @@
       ".github/**",
       "*.md",
       "**/*.py",
+      "requirements.txt",
       "functions/**"
     ],
     "rewrites": [
+      { "source": "/t/**", "function": { "functionId": "topic", "region": "us-central1" } },
       { "source": "/unsubscribe.html", "function": { "functionId": "unsubscribe", "region": "us-central1" } },
       { "source": "/unsubscribe", "function": { "functionId": "unsubscribe", "region": "us-central1" } }
     ]
