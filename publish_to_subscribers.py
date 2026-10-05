@@ -13,8 +13,13 @@ Env vars expected:
   - UNSUBSCRIBE_SECRET    (HMAC secret for unsubscribe tokens)
 
 Exit codes:
-  0 — all sends succeeded
-  1 — at least one send failed (the workflow will mark itself yellow)
+  0 — the bulk send succeeded. This includes a small number of isolated
+      per-recipient failures (e.g. one dead address): those are reported in
+      the log for individual follow-up, but do NOT fail the run, because the
+      issue was published and the great majority of subscribers were served.
+  1 — a systemic send failure: the number of failed recipients crossed the
+      threshold (more than 10% of the list, and at least 3), indicating a
+      real problem (auth, quota, etc.) rather than a stray bad address.
   2 — fatal error before any send was attempted (no draft, no subscribers, etc.)
 """
 
@@ -195,11 +200,37 @@ def main():
               file=sys.stderr)
 
     # 7) Final report
+    #
+    # Exit policy: a handful of isolated per-recipient failures (e.g. one bad
+    # or dead address Gmail refuses with "Precondition check failed") must NOT
+    # fail the whole run — 50 of 51 served, with the site live, is a success,
+    # and a false "publish FAILED" alarm just trains you to ignore the alarm.
+    # But a *systemic* failure (auth dead, most/all sends failing) must still
+    # trip the alarm loudly. So: pass when the bulk succeeded; fail only when
+    # failures are more than a small fraction of the list.
+    #   - 0 failures                                  -> exit 0 (clean)
+    #   - a few failures, below threshold             -> exit 0, listed below
+    #   - failures over threshold (systemic)          -> exit 1 (alarm)
+    FAIL_ABS_FLOOR = 3            # never alarm on 1 or 2 stray addresses
+    FAIL_FRACTION = 0.10         # alarm once >10% of the list fails
+    threshold = max(FAIL_ABS_FLOOR, int(len(recipients) * FAIL_FRACTION) + 1)
+    systemic = failure_count >= threshold
+
     print()
     print("=" * 70)
-    print(f"DONE — {success_count} succeeded, {failure_count} failed")
+    print(f"DONE — {success_count} succeeded, {failure_count} failed "
+          f"(of {len(recipients)})")
+    if failures:
+        print("  Failed recipients (not resent — review individually):")
+        for f in failures:
+            print(f"    ✗ {f['email']} — {f['error']}")
+    if systemic:
+        print(f"  FAILURE RATE OVER THRESHOLD ({failure_count} >= {threshold}) "
+              f"— treating as a systemic failure.")
     print("=" * 70)
-    sys.exit(0 if failure_count == 0 else 1)
+
+    # Exit 0 on isolated failures (bulk succeeded); exit 1 only when systemic.
+    sys.exit(1 if systemic else 0)
 
 
 if __name__ == "__main__":
