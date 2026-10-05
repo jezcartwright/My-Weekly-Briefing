@@ -1667,6 +1667,15 @@ function bookToAmazon(url){
   return 'https://www.google.com/search?q='+encodeURIComponent(kw);
 }
 function linkify(text,url){ url=bookToAmazon(url); if(url)return'<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; return text; }
+// A Google search of the item's own title — used as a guaranteed fallback so a
+// "Go Deeper" source (book/article) can never render as a dead, unlinked line
+// when the data is missing a URL.
+function searchUrlFor(text){ return 'https://www.google.com/search?q='+encodeURIComponent((text||'').trim()); }
+// Like linkify, but ALWAYS returns a link: uses the given URL if present,
+// otherwise falls back to a title search. For Go Deeper source items only.
+function linkifyForce(text,url){ url=bookToAmazon(url); if(!url) url=searchUrlFor(text); return '<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; }
+function searchUrlFor(text){ return 'https://www.google.com/search?q='+encodeURIComponent((text||'').trim()); }
+function linkifyForce(text,url){ url=bookToAmazon(url); if(!url) url=searchUrlFor(text); return '<a href="'+url+'" target="_blank" rel="noopener">'+text+'</a>'; }
 
 // ── Clear note ──
 function clearTopicNote(catId,title){
@@ -1680,7 +1689,7 @@ function clearTopicNote(catId,title){
 function bh(t,catId,color,colorDark){
   colorDark = colorDark || color;
   var refHtml=t.ref&&t.ref.text?'<div class="ref" style="--ref:'+color+'">'+linkify(t.ref.text,t.ref.url)+'</div>':'';
-  var deeperItems=(t.deeper||[]).map(function(d,i){var body=(i===0)?d.text:linkify(d.text,d.url);return'<div class="dt" style="--bullet:'+color+';--link:'+color+'">'+body+'</div>';}).join('');
+  var deeperItems=(t.deeper||[]).map(function(d,i){var body=(i===0)?d.text:linkifyForce(d.text,d.url);return'<div class="dt" style="--bullet:'+color+';--link:'+color+'">'+body+'</div>';}).join('');
   var saved=getTopicNote(catId,t.title);
   var k=(catId+'::'+t.title).replace(/[^a-z0-9]/gi,'_');
   var taId='tn-ta-'+k;
@@ -2521,7 +2530,7 @@ function pdfIndexHTML(pageOf){
 function pdfTopicHTML(t,i,color){
   var ru=(t.ref&&t.ref.url)?bookToAmazon(t.ref.url):'';
   var refHtml=t.ref&&t.ref.text?'<div class="pdf-ref" style="--link:'+color+'"><span class="pdf-reftext">'+t.ref.text+'</span>'+(ru?'<a class="pdf-rurl" href="'+ru+'" target="_blank" rel="noopener">'+ru+'</a>':'')+'</div>':'';
-  var deeperHtml=(t.deeper||[]).map(function(x,i){var inner=(i===0)?('<span class="pdf-ditext">'+x.text+'</span>'):pdfLinkLine(x.text,x.url);return '<div class="pdf-di" style="--bullet:'+color+';--link:'+color+'"><div class="pdf-dicontent">'+inner+'</div></div>';}).join('');
+  var deeperHtml=(t.deeper||[]).map(function(x,i){var inner;if(i===0){inner='<span class="pdf-ditext">'+x.text+'</span>';}else{var u=bookToAmazon(x.url)||searchUrlFor(x.text);inner='<span class="pdf-ditext">'+x.text+'</span><a class="pdf-rurl" href="'+u+'" target="_blank" rel="noopener">'+u+'</a>';}return '<div class="pdf-di" style="--bullet:'+color+';--link:'+color+'"><div class="pdf-dicontent">'+inner+'</div></div>';}).join('');
   return '<div class="pdf-topic" style="border-left-color:'+color+'">'+
     '<div class="pdf-topic-head"><div class="pdf-topic-num" style="color:'+color+'">0'+(i+1)+'</div><div class="pdf-topic-title">'+t.title+'</div></div>'+
     '<div class="pdf-topic-hl">'+t.headline+'</div>'+
