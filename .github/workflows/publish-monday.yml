@@ -229,6 +229,58 @@ jobs:
         run: |
           python publish_to_subscribers.py
 
+      # --- WRITE THIS WEEK'S SHARE-PAGE DATA (so /t/ links actually work) ---
+      # The public per-topic share pages (/t/<date>-<cat>-<n>) are rendered by the
+      # `topic` Cloud Function, which reads issues/{Monday-date} from Firestore.
+      # That document is produced by emit_issue.py. Running it HERE, inside every
+      # Monday publish, is what makes shared links reliable: there is no separate
+      # schedule to be silently dropped and no cross-workflow trigger to miss.
+      # (A standalone emit workflow could NOT auto-run: a push to main with
+      # GITHUB_TOKEN does not fire other workflows — the same recursion guard that
+      # forced the explicit Hosting deploy above. So the data writer must live in
+      # this run.) WEEK_OFFSET=0 = this week's Monday; the working tree is already
+      # the freshly merged main, so index.html holds this week's D.* arrays.
+      #
+      # DELIBERATELY NON-FATAL (continue-on-error): the subscriber email is the
+      # product and has already gone out by this point, so a transient Firestore
+      # error here must never fail the publish or trigger a false "publish FAILED"
+      # alarm. We retry a few times; only on persistent failure do we email jc@ so
+      # broken share links can never pass silently. It can also be re-run by hand
+      # any time: Actions -> "Emit Issue JSON to Firestore (manual)" -> week_offset 0.
+      - name: Write this week's issue JSON to Firestore (/t/ share pages)
+        if: ${{ env.BACKSTOP_NOOP != 'true' }}
+        continue-on-error: true
+        env:
+          GMAIL_SA_JSON: ${{ secrets.GMAIL_SA_JSON }}
+          WEEK_OFFSET: '0'
+        run: |
+          ok=""
+          for attempt in 1 2 3; do
+            if python emit_issue.py; then ok="yes"; break; fi
+            echo "emit_issue.py attempt $attempt failed; retrying in 10s..."
+            sleep 10
+          done
+          if [ -n "$ok" ]; then
+            echo "Share-page data written for this week."
+            exit 0
+          fi
+          echo "::warning::emit_issue.py failed after 3 attempts - /t/ share links for this week may show 'This topic isn't available' until re-run (Actions -> 'Emit Issue JSON to Firestore (manual)' -> week_offset 0)."
+          pip install google-auth google-api-python-client --quiet || true
+          WEEK=$(date -u +%V)
+          cat > emitfail.html <<EOF
+          <html><body style="font-family:system-ui,sans-serif;font-size:14px;color:#222;">
+          <h2 style="color:#c00;">Share links not written (week $WEEK)</h2>
+          <p>This week's briefing published and emailed to subscribers fine, but writing
+          the data behind the /t/ share links failed. Shared topic links may show
+          "This topic isn't available" until this is re-run.</p>
+          <p><b>Fix:</b> Actions &rarr; "Emit Issue JSON to Firestore (manual)" &rarr; Run workflow &rarr; week_offset = 0.</p>
+          </body></html>
+          EOF
+          python -m mailer send \
+            --to "jc@jezcartwright.com" \
+            --subject "[PI Briefing] Share links not written (week $WEEK)" \
+            --body-file emitfail.html || echo "(could not send emit-fail notice)"
+
       - name: Delete staging branch (cleanup)
         if: ${{ success() && env.BACKSTOP_NOOP != 'true' && github.event.inputs.skip_merge != 'true' }}
         run: |
