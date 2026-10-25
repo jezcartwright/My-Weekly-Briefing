@@ -70,6 +70,20 @@ Quality standards:
 - Write for intelligent executives who read broadly
 - British spelling throughout (organisation, behaviour, recognise etc.)
 
+Variety standards (these matter as much as quality — the briefing must not feel samey):
+- VARY THE SUBJECTS WITHIN THE CATEGORY: the 4 topics must cover 4 genuinely
+  different subjects. Do not let one subject (e.g. AI agents, or executive sleep)
+  take more than ONE of the four slots unless nothing else that week is remotely
+  as important. A category where 2+ topics are about the same thing is a failure.
+- NO HOUSE FORMULA: do not open headline after headline with the same construction.
+  In particular (a) do NOT lean on the words "quietly" or "silently" — they have
+  been badly overused; use at most one across all 24 topics; and (b) do NOT keep
+  using the second-person "Your X is [secretly] harming your organisation" template.
+  Vary the grammatical person, sentence shape and rhythm from one topic to the next.
+- NO RECURRING TITLE SKELETON: do not reuse a title pattern that recent weeks
+  already used (for example "The Executive ...", "The Agent That ...", "Your ...").
+  A reader scanning three weeks in a row should not see the same title shapes.
+
 Return ONLY valid JSON — no markdown, no explanation, no backticks.
 
 CRITICAL JSON RULES:
@@ -355,10 +369,17 @@ def format_recent_for_prompt(cat_id: str, recent_topics: dict) -> str:
         lines.append(f"- [{age}] {t['title']} — {t['headline']}")
     lines.append("")
     lines.append(
-        "Generate 4 topics that are GENUINELY DIFFERENT from the above. "
-        "Different angle, different research, different argument. "
-        "Same broad theme is acceptable (e.g. another AI story) but the "
-        "specific insight, headline and evidence base must be fresh."
+        "Generate 4 topics that are GENUINELY DIFFERENT from the above — not "
+        "just different facts, but a different ANGLE and a different MOTIF. "
+        "Repeating a recent subject with fresh evidence is NOT good enough: if "
+        "a subject or framing has already run in the last 2-3 weeks (for example "
+        "a rogue-AI-agent story, an executive-sleep story, a 'symbolic gesture "
+        "achieves nothing' debunk, or a 'the executive as X' philosophy piece), "
+        "choose a different subject or a different lens on it this week. "
+        "Also avoid echoing the TITLE CADENCE and the headline construction of "
+        "the items above (including the 'quietly/silently' tic and the "
+        "second-person 'Your X is harming your organisation' template). A reader "
+        "who saw last week's list must feel this week genuinely moved on."
     )
     lines.append("")
     return "\n".join(lines)
