@@ -131,6 +131,38 @@ def main():
     print(f"  Body extracted: {len(body_html)} bytes "
           f"({n_removed} reviewer block(s) stripped)")
 
+    # 2b) HARD SAFETY GATE — never email subscribers a body that still carries
+    #     the reviewer note or an internal staging link. _strip_review_blocks
+    #     does its best (by attribute AND by visible text), but if Gmail mangled
+    #     an edited draft badly enough that the note still survived, we ABORT the
+    #     entire send and alert, rather than leak it to the whole list. This is
+    #     the guard that was missing when the "Draft for your weekend edit" note
+    #     went out to every subscriber. 'this note won' matches won't / won’t /
+    #     won&#39;t regardless of how the apostrophe is encoded.
+    LEAK_MARKERS = (
+        "data-strip-on-send",
+        "draft for your weekend edit",
+        "weekly-briefing-staging-",
+        "this note won",
+    )
+    low_body = body_html.lower()
+    leaked = [m for m in LEAK_MARKERS if m in low_body]
+    if leaked:
+        print(
+            "FATAL: reviewer/staging markers still present after strip — "
+            f"REFUSING to send to subscribers. Markers found: {leaked}",
+            file=sys.stderr,
+        )
+        print(
+            "  Cause: the Monday draft was almost certainly edited in Gmail, "
+            "which can strip the hidden 'do-not-send' marker from the reviewer "
+            "note. Fix: open the draft in Gmail, delete the beige 'Draft for "
+            "your weekend edit' box at the top, save, then re-run the publish "
+            "(workflow_dispatch with skip_merge=true). Nothing was sent.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+
     # 3) Resolve subscriber list. By default: fetch live from Firestore.
     #    If RECIPIENT_OVERRIDE is set, use just that email (single-recipient
     #    testing path — skips Firestore entirely).

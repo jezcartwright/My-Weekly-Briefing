@@ -207,6 +207,40 @@ def _strip_review_blocks(html: str) -> tuple[str, int]:
             break
         cleaned = cleaned[:open_pos] + cleaned[close_pos:]
         removed += 1
+
+    # --- FALLBACK: text-anchored strip ---
+    # Gmail's web/mobile editor can DROP the data-strip-on-send attribute
+    # entirely when the draft is edited in the UI (not merely re-quote it),
+    # leaving the reviewer note with no machine marker at all. That is exactly
+    # how a "Draft for your weekend edit" note once reached the whole list. So we
+    # ALSO remove any element containing the note's stable VISIBLE text, which
+    # Gmail preserves because it is content, not markup. We strip the nearest
+    # enclosing <tr> (the note lives in its own table row); failing that, the
+    # enclosing <td> or <div>. The pre-send guard in publish_to_subscribers.py
+    # is the final backstop if even this cannot bound the note.
+    SENTINELS = ("draft for your weekend edit", "weekly-briefing-staging-")
+    for sentinel in SENTINELS:
+        while True:
+            low = cleaned.lower()
+            idx = low.find(sentinel)
+            if idx < 0:
+                break
+            removed_this = False
+            for tag in ("tr", "td", "div"):
+                start = low.rfind("<" + tag, 0, idx)
+                if start < 0:
+                    continue
+                end = low.find("</" + tag + ">", idx)
+                if end < 0:
+                    continue
+                end += len("</" + tag + ">")
+                cleaned = cleaned[:start] + cleaned[end:]
+                removed += 1
+                removed_this = True
+                break
+            if not removed_this:
+                break  # cannot bound it structurally; leave for the guard
+
     return cleaned, removed
 
 
