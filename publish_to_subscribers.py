@@ -103,8 +103,17 @@ def main():
     print(f"  Looking for draft matching subject prefix: {subject_prefix!r}")
     print("=" * 70)
 
-    # 1) Find the draft in jc@'s Gmail
-    drafts = mailer.list_drafts()
+    # 1) Find the draft in jc@'s Gmail.
+    #    IMPORTANT: filter by subject server-side and raise the cap. The old call
+    #    (mailer.list_drafts() with no query) fetched only the 10 most-recent
+    #    drafts of ANY kind — so a busy week of unrelated drafts could push the
+    #    Monday briefing draft out of that window and produce a false "No draft
+    #    found", aborting the whole send even though the draft existed. Filtering
+    #    by subject means only briefing drafts come back, however many other
+    #    drafts are in the mailbox.
+    drafts = mailer.list_drafts(
+        query=f'subject:"{subject_prefix}"', max_results=50
+    )
     matching = []
     for d in drafts:
         full = mailer.get_draft(d["id"])
